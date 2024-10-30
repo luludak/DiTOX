@@ -1,0 +1,18 @@
+{
+    "tvm": {
+        "devices": {
+            "selected": "default",
+            "default": {
+                "host_type": "local_no_rpc",
+                "target": "opencl",
+                "target_framework": "opencl",
+                "host": "llvm",
+                "address": "127.0.0.1",
+                "port": 5000
+            }
+        }
+    },
+    "onnx": {
+        "threshold": 0
+    }
+}
