@@ -224,10 +224,18 @@ def main():
 
                 evaluation = onnx_runner.evaluate(base_model_out, opt_model_out)
 
+                dissimilar_percentage1 = evaluation["percentage_dissimilar1"]
+                dissimilar_percentage5 = evaluation["percentage_dissimilar5"]
                 dissimilar_percentage = evaluation["percentage_dissimilar"]
-                print("Dissimilarity for " + current_pass + ": " + str(dissimilar_percentage))
+                print("Dissimilarity for " + current_pass + " (top-1): " + str(dissimilar_percentage1))
+                print("Dissimilarity for " + current_pass + " (top-5): " + str(dissimilar_percentage5))
+                print("Dissimilarity for " + current_pass + " (top-K): " + str(dissimilar_percentage))
 
-                model_comparisons[model_name_opset][current_pass] = str(dissimilar_percentage)
+                model_comparisons[model_name_opset][current_pass] = {
+                    "first": str(dissimilar_percentage1),
+                    "top5": str(dissimilar_percentage5),
+                    "topK": str(dissimilar_percentage)
+                }
                 # model_comparisons[model_name_opset][current_pass] = {
                 #     "dissimilarity": str(dissimilar_percentage)
                 # }

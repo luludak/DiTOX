@@ -2,16 +2,11 @@
 import os
 from .comparator import *
 import scipy.stats as stats
-import numpy as np
 
 class Evaluator:
     def __init__(self, topK=5):
         self.topK = topK
         pass
-
-    def evaluate_tensors(self, source_tensor, target_tensor):
-        return np.allclose(source_tensor, target_tensor)
-
 
     def evaluate_objects(self, source_object, target_object, off_by_one=False):
         source_preds = source_object
@@ -26,6 +21,11 @@ class Evaluator:
         
         tau, p_value = stats.kendalltau(source_preds, target_preds)
 
+        tau5, p_value5 = (None, None)
+        if len(source_object) >= 5:
+            tau5, p_value5 = stats.kendalltau(source_object[0:5], target_object[0:5])
+        
+
         return {
             "base_label1": source_preds[0],
             "eval_label1": target_preds[0],
@@ -33,6 +33,10 @@ class Evaluator:
                "kendalltau": {
                     "tau": tau,
                     "p-value": p_value
+                },
+                "kendalltau5": {
+                    "tau": tau5,
+                    "p-value": p_value5
                 },
                 "first_only": first_only
             }
@@ -62,9 +66,13 @@ class Evaluator:
         total_value_percentage = (float(total_value)/lines_no)*100
         original_list = list(original_obj.keys())
         mutants_list = list(mutant_obj.keys())
-        tau, p_value = stats.kendalltau(original_list, mutants_list)
-        
 
+        tau, p_value = stats.kendalltau(original_list, mutants_list)
+
+        tau5, p_value5 = (None, None)
+        if len(original_list) >= 5:
+            tau5, p_value5 = stats.kendalltau(original_list[0:5], mutants_list[0:5])
+        
         return {
             "path_to_file": mutant_file_path,
             "base_comparison_file": original_file_path,
@@ -80,6 +88,10 @@ class Evaluator:
                 "kendalltau": {
                     "tau": str(tau),
                     "p-value": str(p_value)
+                },
+                "kendalltau5": {
+                    "tau": str(tau5),
+                    "p-value": str(p_value5)
                 },
                 "custom": str(total_value_percentage),
                 "first_only": str(first_only),

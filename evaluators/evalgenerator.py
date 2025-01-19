@@ -415,6 +415,10 @@ class EvaluationGenerator:
         target_images = target_object.keys()
         evaluation_object = {
             "images": {},
+            "similar1": [],
+            "dissimilar1": [],
+            "similar5": [],
+            "dissimilar5": [],
             "similar": [],
             "dissimilar": [],
         }
@@ -438,9 +442,23 @@ class EvaluationGenerator:
                 evaluation_object["images"][image] = {
                     "tau": image_evaluation["comparisons"]["kendalltau"]["tau"],
                     "p-value": image_evaluation["comparisons"]["kendalltau"]["p-value"],
+                    "tau5": image_evaluation["comparisons"]["kendalltau5"]["tau"],
+                    "p-value5": image_evaluation["comparisons"]["kendalltau5"]["p-value"],
                 }
 
                 # TODO: Consider setting KT count heuristic for similar and dissimilar.
+
+                if image_evaluation["comparisons"]["first_only"] == 1:
+                    #image_evaluation["comparisons"]["first_only"] == 1:
+                    evaluation_object["similar1"].append(image)
+                else:
+                    evaluation_object["dissimilar1"].append(image)
+
+                if image_evaluation["comparisons"]["kendalltau5"]["tau"] > 0.98:
+                    #image_evaluation["comparisons"]["first_only"] == 1:
+                    evaluation_object["similar5"].append(image)
+                else:
+                    evaluation_object["dissimilar5"].append(image)
 
                 if image_evaluation["comparisons"]["kendalltau"]["tau"] > 0.98:
                     #image_evaluation["comparisons"]["first_only"] == 1:
@@ -462,6 +480,10 @@ class EvaluationGenerator:
 
         # and len(source_images) == len(target_images)
         if (len(source_images) != 0):
+            evaluation_object["percentage_similar5"] = (len(evaluation_object["similar5"])/len(target_images)) * 100
+            evaluation_object["percentage_dissimilar5"] = (len(evaluation_object["dissimilar5"])/len(target_images)) * 100
+            evaluation_object["percentage_similar1"] = (len(evaluation_object["similar1"])/len(target_images)) * 100
+            evaluation_object["percentage_dissimilar1"] = (len(evaluation_object["dissimilar1"])/len(target_images)) * 100
             evaluation_object["percentage_similar"] = (len(evaluation_object["similar"])/len(target_images)) * 100
             evaluation_object["percentage_dissimilar"] = (len(evaluation_object["dissimilar"])/len(target_images)) * 100
         return evaluation_object

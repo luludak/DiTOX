@@ -110,7 +110,7 @@ class ONNXRunner:
             # In case of a double output.
             # if(len(ranks) == 2):
             #     ranks = ranks[0]
-            extracted_ranks = ranks[0:5]
+            extracted_ranks = ranks[0:10]
             # print(extracted_ranks)
             # We do not consider probabilities for now
             if include_certainties:
