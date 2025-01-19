@@ -1,6 +1,22 @@
 {
     "tvm": {
+        "models": {
+            "mobilenet": {
+                "name": "InceptionV3_torch.onnx",
+                    "model_name": "InceptionV3_torch",
+                    "image_dimension": [299, 299],
+                    "input": [1, 3, 299, 299],
+                    "input_name": "inputs:0",
+                    "output": [1, 1000],
+                    "output_name": "output",
+                    "library": "onnx",
+                    "preprocessing_enabled": true,
+                    "debug_enabled": true,
+                    "dtype": "float32"
+            }
+        },
         "devices": {
+            "id": 0,
             "selected": "default",
             "default": {
                 "host_type": "local_no_rpc",

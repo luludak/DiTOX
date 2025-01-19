@@ -2,11 +2,16 @@
 import os
 from .comparator import *
 import scipy.stats as stats
+import numpy as np
 
 class Evaluator:
     def __init__(self, topK=5):
         self.topK = topK
         pass
+
+    def evaluate_tensors(self, source_tensor, target_tensor):
+        return np.allclose(source_tensor, target_tensor)
+
 
     def evaluate_objects(self, source_object, target_object, off_by_one=False):
         source_preds = source_object
@@ -31,20 +36,6 @@ class Evaluator:
                 },
                 "first_only": first_only
             }
-            #             "base_label1": source_preds[0],
-            # "eval_label1": target_preds[0],
-            # "comparisons": {
-            #     "jaccard": str(jaccard_similarity(source_preds, target_preds)),
-            #     "euclideanDistance" :  str(euclidean_distance(source_preds, target_preds)),
-            #     "manhattanDistance": str(manhattan_distance(source_preds, target_preds)),
-            #     "minkowskiDistance": str(minkowski_distance(source_preds, target_preds, 1.5)), # p values: 1 is for Manhattan, 2 is for Euclidean. Set it in between.
-            #     "kendalltau": {
-            #         "tau": tau,
-            #         "p-value": p_value
-            #     },
-            #     "first_only": first_only,
-            #     "rbo": str(rbo(source_preds, target_preds, 0.8))
-            # }
         }
 
 

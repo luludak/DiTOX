@@ -80,14 +80,24 @@ class ONNXRunner:
             img = Image.open(img_path)
 
             # Convert monochrome to RGB.
-            if(img.mode == "L" or img.mode == "BGR"):
-                img = img.convert("RGB")
+            if (len(config["input_shape"]) > 3 and \
+                (config["input_shape"][1] == 1 or config["input_shape"][3] == 1)):
+                img = img.convert("L")
+                # print(np.array(img).shape)
+            else:
+                if(img.mode == "L" or img.mode == "BGR"):
+                    img = img.convert("RGB")
+                
 
             img = img.resize(config["input_dimension"])
             img = model_preprocessor.preprocess(config["model_name"], img, True)
 
-            input_name = onnx_model.graph.input[0].name
-            output = ort_sess.run(None, {input_name : img.astype(np.float32)})  
+            input_name = onnx_model.graph.input[0].name if "input_name" not in config else config["input_name"]
+            # print(img.astype(np.float32))
+            output = ort_sess.run(None, {input_name : img.astype(np.float32)})
+
+            if len(output) > 1:
+                output = output[2]
 
             scores = softmax(output)
             if(len(scores) > 2):
@@ -98,10 +108,10 @@ class ONNXRunner:
             scores = np.squeeze(scores)
             ranks = np.argsort(scores)[::-1]
             # In case of a double output.
-            if(len(ranks) == 2):
-                ranks = ranks[0]
+            # if(len(ranks) == 2):
+            #     ranks = ranks[0]
             extracted_ranks = ranks[0:5]
-
+            # print(extracted_ranks)
             # We do not consider probabilities for now
             if include_certainties:
                 output_data[img_name] = [(rank, str(scores[rank])) for rank in extracted_ranks.tolist()]

@@ -4,8 +4,18 @@ import onnx
 import onnxruntime
 import json
 import time
+import hashlib
+import subprocess
+
+os.environ['CURL_CA_BUNDLE'] = ''
+
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
 from os import listdir
-from os.path import isfile, join #, exists, normpath, basename
+from pathlib import Path
+from os.path import isfile, join
 from helpers.model_helper import load_config
 from benchmarking.model_benchmarking import benchmark
 from onnxruntime.quantization import quantize_static, quantize_dynamic, QuantFormat, QuantType
@@ -15,262 +25,230 @@ from onnxruntime.quantization.qdq_loss_debug import (
     modify_model_output_intermediate_tensors)
 from helpers.model_helper import get_size
 
-from readers import input_reader
-from runners.tvm_runner import TVMRunner
+# from builders.tvm_builder import TVMBuilder
+# from runners.tvm_runner import TVMRunner
 from runners.onnx_runner import ONNXRunner
 
-def _generate_aug_model_path(model_path: str) -> str:
-    aug_model_path = (
-        model_path[: -len(".onnx")] if model_path.endswith(".onnx") else model_path
-    )
-    return aug_model_path + ".save_tensors.onnx"
+from onnx import hub
 
+# import urllib3
+# resp = urllib3.request("GET", "https://github.com/onnx/models/")
+# print(resp.status)
+
+def get_model_path(script_dir, model_obj):
+    return script_dir + "/models_cache/" + model_obj.model_path.replace("/model/", "/model/" + \
+            model_obj.metadata["model_sha"] + "_").replace("/models/", "/models/" + \
+            model_obj.metadata["model_sha"] + "_").replace("/preproc/", "/preproc/" + \
+            model_obj.metadata["model_sha"] + "_")
+        
 
 def main():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     calibr_images_folder = script_dir + '/images/one-hundred/'
-    images_folder = script_dir + '/images/one-hundred/'
+    images_folder = script_dir + '/images/imagenet/'
     small_calibr_images_folder = script_dir + '/images/ten'
-    
-
-    # Generic config.
-    config = load_config('./config.json')
-
-    # Common to all models configuration
-    device_name = config["tvm"]["devices"]["selected"]
-    build = config["tvm"]["devices"][device_name]
-
-    tvm_runner = TVMRunner({"build": build})
-    onnx_runner = ONNXRunner({})
-
-    # Process input parameters and setup model input data reader
-    #args = get_args()
-    float_model_path = script_dir + '/models/ResNet101_torch.onnx' # args.float_model
-    qdq_model_path = script_dir + '/models/out/ResNet101_torch_quant.onnx' # args.qdq_model
-    model_config = load_config(float_model_path)
-    # (self, onnx_path, output_model_path, input_shape)
-    shape = model_config["shape"]
-    input_dimension = model_config["input_dimension"]
-    # tvm_runner.build_tvm(qdq_model_path, script_dir + "/models/tvm", shape)
-    # return
 
     images_paths = [join(images_folder, f) for f in listdir(images_folder) \
-                if isfile(join(images_folder, f))]
-    
-    calibration_dataset_path = calibr_images_folder #args.calibrate_dataset
-    small_calibration_dataset_path = small_calibr_images_folder
+            if isfile(join(images_folder, f))]
 
-    input_data_reader = input_reader.InputReader(
-        calibration_dataset_path, float_model_path, model_config["model_name"]
-    )
+    all_models = hub.list_models(tags=["vision"])
 
-    small_input_data_reader = input_reader.InputReader(
-        small_calibration_dataset_path, float_model_path, model_config["model_name"]
-    )
+    hub.set_dir(script_dir + "/models_cache")
 
-    #Calibrate and quantize model
-    # Turn off model optimization during quantization
-    # quantize_dynamic(
-    #     float_model_path,
-    #     qdq_model_path,
-    #     # input_data_reader,
-    #     # quant_format=QuantFormat.QDQ,
-    #     # per_channel=False,
-    #     weight_type=QuantType.QUInt8
-    # )
-    # quantize_static(
-    #     float_model_path,
-    #     qdq_model_path,
-    #     input_data_reader,
-    #     quant_format=QuantFormat.QDQ,
-    #     per_channel=False,
-    #     weight_type=QuantType.QInt8
-    # )
-    # print("Calibrated and quantized model saved.")
+    model_comparisons = {}
+    model_comparisons["no_dissimilar"] = 0
+    model_comparisons["models_run"] = 0
+    model_comparisons["model_instances_run"] = 0
+    model_comparisons["failed_conversions_no"] = 0
+    model_comparisons["skipped_models"] = []
+    model_comparisons["failed_models"] = []
+    model_comparisons["conversion_errors"] = {}
+    model_comparisons_file = script_dir + "/basic_model_comparisons.js"
 
-    print ("Running original model...")
-    base_model_out = onnx_runner.execute_onnx_model(onnx.load(float_model_path), images_paths, config={
-        "input_shape": shape,
-        "input_dimension": input_dimension,
-        "model_name": model_config["model_name"]
-    })
+    onnx_runner = ONNXRunner({})
 
-    total_dissimilar_percentage = 100
-    prev_dissimilar = 100
-    threshold = config["onnx"]["threshold"]
-    considered_nodes = []
-    nodes_to_exclude = [] #["/features/features.0/features.0.0/Conv", "/classifier/classifier.1/Gemm", "classifier.1.weight"]
-    new_quant_model_path = qdq_model_path
+    model_no = 0
+    skip_until = 0 #153
 
-    float_model = onnx.load(float_model_path)
+    for model_obj in all_models:
 
-    quantize_static(
-        float_model_path,
-        qdq_model_path,
-        input_data_reader,
-        quant_format=QuantFormat.QDQ,
-        per_channel=False,
-        weight_type=QuantType.QInt8,
-        nodes_to_exclude=nodes_to_exclude
-    )
+        # print(str(model_no + 1) + ". " + model_obj.model)
+        model_no += 1
+        if (model_no < skip_until):
+            continue
+        #  or (model_no >= 156 and model_no <= 166) 149
+        # if (model_no == 95 or model_no == 113 or model_no == 115 or model_no < 153 or (model_no >= 129 and model_no <= 149)):
+        #     continue
 
-    # nodes_to_exclude = [n.name for n in float_model.graph.node]
+        print("Model Number: " + str(model_no))
+        model_name = model_obj.model
+        model_opset = model_obj.opset
+        model_name_opset = model_name + "-" + str(model_opset)
+        tags = model_obj.tags
 
-    aug_float_model_path = _generate_aug_model_path(float_model_path)
-    modify_model_output_intermediate_tensors(float_model_path, aug_float_model_path)
-    small_input_data_reader.rewind()
-    float_activations = collect_activations(aug_float_model_path, small_input_data_reader)
+        print("Model Name: " + model_name)
+        print(model_obj)
 
-    aug_qdq_model_path = _generate_aug_model_path(qdq_model_path)
-    modify_model_output_intermediate_tensors(qdq_model_path, aug_qdq_model_path)
-    small_input_data_reader.rewind()
-    qdq_activations = collect_activations(aug_qdq_model_path, small_input_data_reader)
+        # if not model_name.startswith("Emotion") or model_opset < 3:
+        if "classification" not in tags or model_opset < 7 or "preproc" in model_name:
+            model_comparisons["skipped_models"].append(model_name_opset)
+            continue
 
-    act_matching = create_activation_matching(qdq_activations, float_activations)
-    act_error = compute_activation_error(act_matching)
+        model_path = get_model_path(script_dir, model_obj)
 
-    actlist = sorted(act_error.items(), key = lambda x: x[1]['xmodel_err'], reverse=True)
-
-    matched_weights = create_weight_matching(float_model_path, new_quant_model_path)
-    weights_error = compute_weight_error(matched_weights)
-    
-    wlist = sorted(weights_error.items(), key = lambda x: x[1], reverse=True)
-    base_benchmark = benchmark(float_model_path, model_config)
-
-    all_dissimilarities = []
-    quantized_benchmark = []
-    quantized_sizes = []
-
-    result_object = {
-        "activations": actlist,
-        "weights": wlist,
-        "excluded_nodes": nodes_to_exclude,
-        "dissimilarities": all_dissimilarities,
-        "benchmarks": {
-            "original": base_benchmark,
-            "quantized": quantized_benchmark
-        },
-        "size": {
-            "original": get_size(float_model_path),
-            "quantized": quantized_sizes
-        }
-    }
-
-    actlist = actlist + wlist
-
-    while True:
-
-        print("Building Quantized Model: " + new_quant_model_path)
-        print(nodes_to_exclude)
-
-        input_data_reader.rewind()
-        quantize_static(
-            float_model_path,
-            new_quant_model_path,
-            input_data_reader,
-            quant_format=QuantFormat.QDQ,
-            per_channel=False,
-            weight_type=QuantType.QInt8,
-            nodes_to_exclude=nodes_to_exclude
-        )
-
-        print ("Running quantized model...")
-        quant_model_out = onnx_runner.execute_onnx_model(onnx.load(new_quant_model_path), images_paths, config={
-            "input_shape": shape,
-            "input_dimension": input_dimension,
-            "model_name": model_config["model_name"]
-        })
-
-        # print(quant_model_out)
-
-        evaluation = onnx_runner.evaluate(base_model_out, quant_model_out)
-
-        dissimilar_percentage = evaluation["percentage_dissimilar"]
-
-        all_dissimilarities.append(dissimilar_percentage)
-        quantized_benchmark.append(benchmark(new_quant_model_path, model_config))
-        quantized_sizes.append(get_size(new_quant_model_path))
-
-        print("Dissimilarity: " + str(dissimilar_percentage))
-
-        if (dissimilar_percentage <= total_dissimilar_percentage):
-            total_dissimilar_percentage = dissimilar_percentage
-
-            if (dissimilar_percentage <= threshold):
-                print("Threshold reached.")
-                break
+        model_shape = [1, 1, 64, 64]
+        input_name = None
+        if "io_ports" in model_obj.metadata:
+            first_input = model_obj.metadata["io_ports"]["inputs"][0]
+            model_shape = first_input["shape"]
+            input_name = first_input["name"]
         
-        # else:
-        #     node_out = nodes_to_exclude.pop()
-        #     print (node_out + " removed from list to ignore upon quantization.")
+        if "R-CNN" in model_name:
+            model_shape = [1, 3, 224, 224]
+        elif "FCN" in model_name or "YOLOv3" in model_name:
+            model_shape = [1, 3, 224, 224]
+
+        m_shape = model_shape.copy()
+        if (len(m_shape) > 0):
+            m_shape.pop(0)
+
+        img_dimension = []
+        for img_dim in m_shape:
+            if type(img_dim) == str:
+                continue
             
-        # prev_dissimilar = dissimilar_percentage
-        # print("benchmarking fp32 model...")
-        # benchmark(float_model_path, model_config)
+            if (img_dim > 5):
+                img_dimension.append(img_dim)
 
-        # print("------------------------------------------------\n")
-        # print("benchmarking int8 model...")
-        # benchmark(qdq_model_path, model_config)
+        keywords = ["tf", "keras", "torch", "tflite", "densenet", \
+            "resnet", "mobilenet", "inception", "shufflenet", "googlenet", "version-rfb"]
 
-        # quantize_dynamic(float_model_path, qdq_model_path, weight_type=QuantType.QUInt8)
+        # Check if any known library is in name.
+        # If not, PyTorch preprocessing configuration will be used.
+        contains_keyword = False
+        for keyword in keywords:
+            if keyword in model_name.lower():
+                contains_keyword = True
+                break
 
-        # print("------------------------------------------------\n")
-        # print("Comparing weights of float model vs qdq model.....")
+        model_config = {
+            "model_name": model_name + "_torch" if not contains_keyword else "",
+            "input_name": input_name,
+            "input_shape": model_shape,
+            "input_dimension": img_dimension
+        }
 
+        print(model_config)
 
-        # print(wlist)
-        for item in actlist:
-            if item[0] not in considered_nodes:
-                considered_nodes.append(item[0])
-                nodes = onnx_runner.get_nodes_containing_input(float_model, item[0])
-                if nodes is []:
+        if os.path.exists(model_path):
+            model = onnx.load(model_path)
+        else:
+            model = hub.load(model_name, opset=model_opset)
+
+        original_hash = hashlib.md5(open(model_path,'rb').read()).hexdigest()
+        opt_model_path = model_path.replace(".onnx", "_opt.onnx")
+
+        passes = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
+            "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
+            "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
+            "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
+            "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
+            "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
+            "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
+            "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \
+            "replace_einsum_with_matmul", "lift_lexical_references", "split_init", "split_predict", "fuse_concat_into_reshape", \
+            "eliminate_nop_reshape", "eliminate_nop_with_unit", "eliminate_common_subexpression", "fuse_qkv", "fuse_consecutive_unsqueezes", \
+            "eliminate_deadend", "eliminate_identity", "eliminate_shape_op", "fuse_consecutive_slices", "eliminate_unused_initializer", \
+            "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
+
+        # TODO: Cache!
+        print("Running original model...")
+        print(model_path)
+        base_model_out = None
+        try:
+            base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+        except:
+            print(model_name + " - an error occured.")
+            model_comparisons["failed_models"].append(current_pass)
+            continue
+
+        model_comparisons["models_run"] += 1
+
+        model_comparisons[model_name_opset] = {
+            "skipped": [],
+            "failed": [],
+            "different": 0,
+            "run": 0
+        }
+
+        basic_run = True
+
+        for current_pass in passes:
+            conversion_failed = False
+            try:
+                if basic_run:
+                    p = subprocess.Popen(['python3 -m onnxoptimizer ' + model_path + " " + opt_model_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+                    current_pass = "all"
+                else:
+                    p = subprocess.Popen(['python3 -m onnxoptimizer ' + model_path + " " + opt_model_path + " -p " + current_pass], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+                
+                (output, err) = p.communicate()  
+                p.wait()
+                if p.returncode != 0:
+                    print(output)
+                    if model_name_opset not in model_comparisons["conversion_errors"]:
+                        model_comparisons["conversion_errors"][model_name_opset] = {}
+                    model_comparisons["conversion_errors"][model_name_opset][current_pass] = repr(output)
+                    model_comparisons["failed_conversions_no"] += 1
+                    conversion_failed = True
+            except subprocess.CalledProcessError as e:
+                print('Fatal error: code={}, out="{}"'.format(e.returncode, e.output))
+
+            opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
+
+            if (original_hash == opt_hash):
+                print(current_pass + " has no effect on model " + model_name)
+                model_comparisons[model_name_opset]["skipped"].append(current_pass)
+            elif (not conversion_failed):
+                # TODO: Add optimizer.
+                print("Running optimized model. Pass: " + current_pass)
+                # print(opt_model_path)
+                try:
+                    onnx_model = onnx.load(opt_model_path)
+                    opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
+                except:
+                    print(model_name + " - an error occured.")
+                    model_comparisons[model_name_opset]["failed"].append(current_pass)
                     continue
 
-                for node in nodes:
-                    nodes_to_exclude.append(node.name)
+                evaluation = onnx_runner.evaluate(base_model_out, opt_model_out)
+
+                dissimilar_percentage = evaluation["percentage_dissimilar"]
+                print("Dissimilarity for " + current_pass + ": " + str(dissimilar_percentage))
+
+                model_comparisons[model_name_opset][current_pass] = str(dissimilar_percentage)
+                # model_comparisons[model_name_opset][current_pass] = {
+                #     "dissimilarity": str(dissimilar_percentage)
+                # }
+
+                if (dissimilar_percentage > 0):
+                    model_comparisons[model_name_opset]["different"] += 1
+
+                model_comparisons["no_dissimilar"] += 1 if dissimilar_percentage != 0 else 0
+                model_comparisons["model_instances_run"] += 1
+                model_comparisons[model_name_opset]["run"] += 1
+                json_object = json.dumps(model_comparisons, indent=2)
+
+            # TODO: Remove after debugging.
+            with open(model_comparisons_file, "w") as outfile:
+                outfile.write(json_object)
+            
+            if basic_run:
                 break
 
-        new_quant_model_path = new_quant_model_path.split("quant")[0] + "quant_" + str(time.time()) + ".onnx"
-        
-
-    # print("Nodes Excluded:")
-    # print(nodes_to_exclude)
-
-    result_object["final_model_path"] = new_quant_model_path
-
-    out_json = json.dumps(result_object, indent=2)
-    with open(float_model_path.replace(".onnx", "_out.json"), "w") as outfile:
-        outfile.write(out_json)
-    
-    # print("------------------------------------------------\n")
-    # print("Augmenting models to save intermediate activations......")
-
-    # aug_float_model_path = _generate_aug_model_path(float_model_path)
-    # modify_model_output_intermediate_tensors(float_model_path, aug_float_model_path)
-
-    # aug_qdq_model_path = _generate_aug_model_path(qdq_model_path)
-    # modify_model_output_intermediate_tensors(qdq_model_path, aug_qdq_model_path)
-
-    # print("------------------------------------------------\n")
-    # print("Running the augmented floating point model to collect activations......")
-    # input_data_reader.rewind()
-    # float_activations = collect_activations(aug_float_model_path, input_data_reader)
-
-    # print("------------------------------------------------\n")
-    # print("Running the augmented qdq model to collect activations......")
-    # input_data_reader.rewind()
-    # qdq_activations = collect_activations(aug_qdq_model_path, input_data_reader)
-
-    # print("------------------------------------------------\n")
-    # print("Comparing activations of float model vs qdq model......")
-
-    # act_matching = create_activation_matching(qdq_activations, float_activations)
-    # act_error = compute_activation_error(act_matching)
-
-
-    # actlist = sorted(act_error.items(), key = lambda x: x[1]['qdq_err'], reverse=True)
-    # print(actlist)
+        with open(model_comparisons_file, "w") as outfile:
+                outfile.write(json_object)
 
 if __name__ == "__main__":
     main()

@@ -404,7 +404,7 @@ class EvaluationGenerator:
                 outfile.close()
 
     # Generate tau comparison for images.
-    def generate_objects_comparison(self, source_object, target_object):
+    def generate_objects_comparison(self, source_object, target_object, type="classification"):
 
         # Loop images
         # Run object comparison.
@@ -432,19 +432,33 @@ class EvaluationGenerator:
             elif len(target_img) == 2 and target_img[0] == target_img[1]:
                 target_img = target_img[0][0:len(source_img)]
 
+            if type == "classification":
             
-            image_evaluation = self.evaluator.evaluate_objects(source_img, target_img)
-            evaluation_object["images"][image] = {
-                "tau": image_evaluation["comparisons"]["kendalltau"]["tau"],
-                "p-value": image_evaluation["comparisons"]["kendalltau"]["p-value"],
-            }
+                image_evaluation = self.evaluator.evaluate_objects(source_img, target_img)
+                evaluation_object["images"][image] = {
+                    "tau": image_evaluation["comparisons"]["kendalltau"]["tau"],
+                    "p-value": image_evaluation["comparisons"]["kendalltau"]["p-value"],
+                }
 
-            if image_evaluation["comparisons"]["first_only"] == 1:
-                evaluation_object["similar"].append(image)
-                images_similar += 1
+                # TODO: Consider setting KT count heuristic for similar and dissimilar.
+
+                if image_evaluation["comparisons"]["kendalltau"]["tau"] > 0.98:
+                    #image_evaluation["comparisons"]["first_only"] == 1:
+                    evaluation_object["similar"].append(image)
+                    images_similar += 1
+                else:
+                    evaluation_object["dissimilar"].append(image)
+                    images_dissimilar += 1
+            
             else:
-                evaluation_object["dissimilar"].append(image)
-                images_dissimilar += 1
+                are_tensors_close = np.allclose(source_img, target_img)
+                if are_tensors_close:
+                    evaluation_object["similar"].append(image)
+                    images_similar += 1
+                else:
+                    evaluation_object["dissimilar"].append(image)
+                    images_dissimilar += 1
+
 
         # and len(source_images) == len(target_images)
         if (len(source_images) != 0):

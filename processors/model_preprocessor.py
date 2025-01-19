@@ -35,6 +35,12 @@ class ModelPreprocessor:
 
         lower_model_name = model_name.lower()
         library_or_name = self.data["library"] if self.data["library"] is not None else lower_model_name
+        
+        np_arr = np.array(img_data)
+        if (len(np_arr.shape) == 2):
+            np_arr = np.expand_dims(np_arr, axis=(0, 1))
+            return np_arr
+
         if (not preprocessing_enabled):
             img_data = np.expand_dims(np.array(img_data), axis=0)
             if ((self.data["input"][1] == 3 and img_data.shape[1] != 3 or (self.data["input"][1] != 3  and img_data.shape[1] == 3))):
