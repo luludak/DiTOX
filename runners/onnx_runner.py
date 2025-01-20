@@ -14,11 +14,12 @@ from PIL import Image
 
 class ONNXRunner:
 
-    def __init__(self, config):
+    def __init__(self, config, topK=10):
         self.evaluation_generator = EvaluationGenerator()
+        self.topK = topK
 
-    def evaluate(self, source_run_obj, target_run_obj):
-        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj)
+    def evaluate(self, source_run_obj, target_run_obj, type=["classification"]):
+        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type)
 
     def execute_and_evaluate_single_model(self, onnx_model, run_obj, image_path, config, include_certainties=False):
         image_obj = self.execute_onnx_model(onnx_model, [image_path], config, print_percentage=False, include_certainties=include_certainties)
@@ -96,26 +97,27 @@ class ONNXRunner:
             # print(img.astype(np.float32))
             output = ort_sess.run(None, {input_name : img.astype(np.float32)})
 
-            if len(output) > 1:
-                output = output[2]
+            if len(output) == 1:
 
-            scores = softmax(output)
-            if(len(scores) > 2):
-                squeeze(scores, [0, 2])
-            # elif(len(scores) == 2 and (scores[0] == scores[1]).all()):
-            #     scores = scores[0]
+                scores = softmax(output_tensor)
 
-            scores = np.squeeze(scores)
-            ranks = np.argsort(scores)[::-1]
-            # In case of a double output.
-            # if(len(ranks) == 2):
-            #     ranks = ranks[0]
-            extracted_ranks = ranks[0:10]
-            # print(extracted_ranks)
-            # We do not consider probabilities for now
-            if include_certainties:
-                output_data[img_name] = [(rank, str(scores[rank])) for rank in extracted_ranks.tolist()]
+                scores = np.squeeze(scores)
+                ranks = np.argsort(scores)[::-1]
+                extracted_ranks = ranks[0:self.topK]
+                if include_certainties:
+                    output_data[img_name] = [(rank, str(scores[rank])) for rank in extracted_ranks.tolist()]
+                else:
+                    output_data[img_name] = extracted_ranks.tolist()
             else:
-                output_data[img_name] = extracted_ranks.tolist()
+                if (img_name not in output_data):
+                    output_data[img_name] = []
+
+                for i, output_tensor in enumerate(output):
+                    output_tensor = np.squeeze(output_tensor)
+                    if (output_tensor.ndim == 1):
+                        ranks = np.argsort(output_tensor)[::-1]
+                        output_tensor = ranks[0:self.topK]
+                    output_data[img_name].append(output_tensor)
         return output_data
+
 

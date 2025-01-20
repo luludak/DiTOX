@@ -15,8 +15,6 @@ class Evaluator:
         if(off_by_one):
             target_preds = [int(t) - 1 for t in target_preds]
 
-        #first_only = 1 if (source_preds[0] == target_preds[0] or source_preds[0] + 1 == target_preds[0] or source_preds[0] - 1 == target_preds[0]) else 0
-
         first_only = 1 if (source_preds[0] == target_preds[0]) else 0
         
         tau, p_value = stats.kendalltau(source_preds, target_preds)
@@ -41,7 +39,6 @@ class Evaluator:
                 "first_only": first_only
             }
         }
-
 
     def evaluate(self, original_file_path, mutant_file_path):
 
@@ -100,12 +97,10 @@ class Evaluator:
             
         }
         
-
     def compare_to_original(self, original_file_path, mutant_file_path):
 
         if (not os.path.exists(original_file_path) or not os.path.exists(mutant_file_path)):
             return False
-
 
         original_obj, lines_no, original_first_line, exec_time1 = self.file_to_object(original_file_path)
         mutant_obj, mutant_lines_no, mutant_first_line, exec_time2 = self.file_to_object(mutant_file_path)

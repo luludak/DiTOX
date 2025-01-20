@@ -69,13 +69,14 @@ def main():
     onnx_runner = ONNXRunner({})
 
     model_no = 0
-    skip_until = 0 #153
+    skip_until = 153
+    run_up_to = 153
 
     for model_obj in all_models:
 
         # print(str(model_no + 1) + ". " + model_obj.model)
         model_no += 1
-        if (model_no < skip_until):
+        if (model_no < skip_until or model_no > run_up_to):
             continue
         #  or (model_no >= 156 and model_no <= 166) 149
         # if (model_no == 95 or model_no == 113 or model_no == 115 or model_no < 153 or (model_no >= 129 and model_no <= 149)):
@@ -91,7 +92,8 @@ def main():
         print(model_obj)
 
         # if not model_name.startswith("Emotion") or model_opset < 3:
-        if "classification" not in tags or model_opset < 7 or "preproc" in model_name:
+        # TODO: Add rest of models.
+        if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name:
             model_comparisons["skipped_models"].append(model_name_opset)
             continue
 
@@ -167,10 +169,11 @@ def main():
         print(model_path)
         base_model_out = None
         try:
+            # pass
             base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
         except:
-            print(model_name + " - an error occured.")
-            model_comparisons["failed_models"].append(current_pass)
+            print(model_name + " - an error occured!")
+            model_comparisons["failed_models"].append(model_name)
             continue
 
         model_comparisons["models_run"] += 1
@@ -206,7 +209,7 @@ def main():
                 print('Fatal error: code={}, out="{}"'.format(e.returncode, e.output))
 
             opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
-
+            # break
             if (original_hash == opt_hash):
                 print(current_pass + " has no effect on model " + model_name)
                 model_comparisons[model_name_opset]["skipped"].append(current_pass)
@@ -222,28 +225,43 @@ def main():
                     model_comparisons[model_name_opset]["failed"].append(current_pass)
                     continue
 
-                evaluation = onnx_runner.evaluate(base_model_out, opt_model_out)
+                evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
 
-                dissimilar_percentage1 = evaluation["percentage_dissimilar1"]
-                dissimilar_percentage5 = evaluation["percentage_dissimilar5"]
-                dissimilar_percentage = evaluation["percentage_dissimilar"]
-                print("Dissimilarity for " + current_pass + " (top-1): " + str(dissimilar_percentage1))
-                print("Dissimilarity for " + current_pass + " (top-5): " + str(dissimilar_percentage5))
-                print("Dissimilarity for " + current_pass + " (top-K): " + str(dissimilar_percentage))
+                if ("object detection segmentation" not in tags):
+                    dissimilar_percentage1 = evaluation["percentage_dissimilar1"]
+                    dissimilar_percentage5 = evaluation["percentage_dissimilar5"]
+                    dissimilar_percentage = evaluation["percentage_dissimilar"]
+                    print("Dissimilarity for " + current_pass + " (top-1): " + str(dissimilar_percentage1))
+                    print("Dissimilarity for " + current_pass + " (top-5): " + str(dissimilar_percentage5))
+                    print("Dissimilarity for " + current_pass + " (top-K): " + str(dissimilar_percentage))
 
-                model_comparisons[model_name_opset][current_pass] = {
-                    "first": str(dissimilar_percentage1),
-                    "top5": str(dissimilar_percentage5),
-                    "topK": str(dissimilar_percentage)
-                }
-                # model_comparisons[model_name_opset][current_pass] = {
-                #     "dissimilarity": str(dissimilar_percentage)
-                # }
+                    model_comparisons[model_name_opset][current_pass] = {
+                        "first": str(dissimilar_percentage1),
+                        "top5": str(dissimilar_percentage5),
+                        "topK": str(dissimilar_percentage)
+                    }
 
-                if (dissimilar_percentage > 0):
-                    model_comparisons[model_name_opset]["different"] += 1
+                    if (dissimilar_percentage > 0):
+                        model_comparisons[model_name_opset]["different"] += 1
 
-                model_comparisons["no_dissimilar"] += 1 if dissimilar_percentage != 0 else 0
+                    model_comparisons["no_dissimilar"] += 1 if dissimilar_percentage != 0 else 0
+                else:
+
+                    output =[node.name for node in model.graph.output]
+                    model_comparisons[model_name_opset][current_pass] = {}
+
+                    for i, output_node in enumerate(output):
+                    # for i, diss in enumerate(evaluation["percentage_dissimilar"]):
+                        cmp_object = {}
+                        if (evaluation["percentage_dissimilar1"][i] != -1):
+                            cmp_object["first"] = evaluation["percentage_dissimilar1"][i]
+                        if (evaluation["percentage_dissimilar5"][i] != -1):
+                            cmp_object["top5"] = evaluation["percentage_dissimilar5"][i]
+                        cmp_object["topK"] = evaluation["percentage_dissimilar"][i]
+
+                        model_comparisons[model_name_opset][current_pass][output[i]] = cmp_object
+
+
                 model_comparisons["model_instances_run"] += 1
                 model_comparisons[model_name_opset]["run"] += 1
                 json_object = json.dumps(model_comparisons, indent=2)
@@ -255,8 +273,8 @@ def main():
             if basic_run:
                 break
 
-        with open(model_comparisons_file, "w") as outfile:
-                outfile.write(json_object)
+        # with open(model_comparisons_file, "w") as outfile:
+        #         outfile.write(json_object)
 
 if __name__ == "__main__":
     main()
