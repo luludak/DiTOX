@@ -431,11 +431,11 @@ class EvaluationGenerator:
             source_img = source_object[image]
             target_img = target_object[image]
 
-            if len(source_img) == 2 and source_img[0] == source_img[1]:
-                source_img = source_img[0][0:len(target_img)]
+            # if len(source_img) == 2 and source_img[0] == source_img[1]:
+            #     source_img = source_img[0][0:len(target_img)]
                     
-            elif len(target_img) == 2 and target_img[0] == target_img[1]:
-                target_img = target_img[0][0:len(source_img)]
+            # elif len(target_img) == 2 and target_img[0] == target_img[1]:
+            #     target_img = target_img[0][0:len(source_img)]
 
             if "object detection segmentation" not in type:
 

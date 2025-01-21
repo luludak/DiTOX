@@ -184,7 +184,7 @@ def main():
             base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
         except Exception as e:
             print(e)
-            print(model_name + " - an error occured!")
+            print(model_name + " - a base model error occured!")
             model_comparisons["failed_models"].append(model_name)
             continue
 
@@ -233,8 +233,10 @@ def main():
                     onnx_model = onnx.load(opt_model_path)
                     opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
                 except:
-                    print(model_name + " - an error occured.")
+                    print(model_name + " - an optimized model error occured.")
                     model_comparisons[model_name_opset]["failed"].append(current_pass)
+                    if basic_run:
+                        break
                     continue
 
                 evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
