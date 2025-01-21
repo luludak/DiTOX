@@ -46,7 +46,7 @@ def main():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     calibr_images_folder = script_dir + '/images/one-hundred/'
-    images_folder = script_dir + '/images/one/'
+    images_folder = script_dir + '/images/ten/'
     small_calibr_images_folder = script_dir + '/images/ten'
 
     images_paths = [join(images_folder, f) for f in listdir(images_folder) \
@@ -64,10 +64,9 @@ def main():
     model_comparisons["skipped_models"] = []
     model_comparisons["failed_models"] = []
     model_comparisons["conversion_errors"] = {}
-    model_comparisons_file = script_dir + "/model_comparisons.json"
+    model_comparisons_file = script_dir + "/object_detection_model_comparisons.json"
     base_file = script_dir + "/classification.json"
 
-    onnx_runner = ONNXRunner({})
 
     f = open(base_file, "r")
     base_object = json.load(f)
@@ -80,14 +79,12 @@ def main():
     print(different_models)
  
     model_no = 0
-    skip_until = 0
+    skip_until = 153
     run_up_to = 200
 
     json_object = None
 
     for model_obj in all_models:
-
-        # print(str(model_no + 1) + ". " + model_obj.model)
         model_no += 1
         if (model_no < skip_until or model_no > run_up_to):
             continue
@@ -100,7 +97,7 @@ def main():
 
         print("Model Name: " + model_name)
         print(model_obj)
-        # TODO: Enable on check.
+        # TODO: Enable on check for classification models.
         # if (model_name_opset not in different_models):
         #     continue
 
@@ -162,6 +159,8 @@ def main():
         else:
             model = hub.load(model_name, opset=model_opset)
 
+        model_runner = ONNXRunner(config={}, onnx_model=model)
+
         original_hash = hashlib.md5(open(model_path,'rb').read()).hexdigest()
         opt_model_path = model_path.replace(".onnx", "_opt.onnx")
 
@@ -179,17 +178,19 @@ def main():
             "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
 
         # TODO: Cache!
-        print("Running original model...")
+        # print("Running original model...")
         print(model_path)
         base_model_out = None
-        try:
-            # pass
-            base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
-        except Exception as e:
-            print(e)
-            print(model_name + " - a base model error occured!")
-            model_comparisons["failed_models"].append(model_name)
-            continue
+        # try:
+        #     # pass
+
+        #     # TODO: Perform one-by-one comparison and store ONLY the result.
+        #     base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+        # except Exception as e:
+        #     print(e)
+        #     print(model_name + " - a base model error occured!")
+        #     model_comparisons["failed_models"].append(model_name)
+        #     continue
 
         model_comparisons["models_run"] += 1
 
@@ -236,24 +237,47 @@ def main():
                 model_comparisons[model_name_opset]["skipped"].append(current_pass)
             elif (not conversion_failed):
                 # TODO: Add optimizer.
-                print("Running optimized model. Pass: " + current_pass)
+                print("Running and evaluating both models. Pass: " + current_pass)
                 # print(opt_model_path)
+                images_evaluation = {}
                 try:
-                    onnx_model = onnx.load(opt_model_path)
-                    opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
-                except:
+                    
+                    # model = onnx.load(model_path)
+                    opt_model = onnx.load(opt_model_path)
+                    opt_model_runner = ONNXRunner(config={}, onnx_model=opt_model)
+                    count = 0
+                    images_length = len(images_paths)
+                    step = (images_length // 4) if images_length > 4 else images_length
+
+                    for image_path in images_paths:
+                        base_model_out = model_runner.execute_onnx_model(images_paths, config=model_config)
+                        opt_model_out = opt_model_runner.execute_onnx_model(images_paths, config=model_config)
+                        
+                        # Does not matter which runner is used.
+                        evaluation = model_runner.evaluate(base_model_out, opt_model_out, type=tags)
+                        images_evaluation[image_path] = evaluation
+                        
+                        if(count % step == 0):
+                            print("Complete: " + str((count // step) * 25) + "%")
+                        count += 1
+
+
+                except Exception as e:
+                    print(e)
                     print(model_name + " - an optimized model error occured.")
                     model_comparisons[model_name_opset]["failed"].append(current_pass)
                     if basic_run:
                         break
                     continue
 
-                evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
+                # DO IT PER-IMAGE. The comparator objects are just huge.
+                # evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
 
                 if ("object detection segmentation" not in tags):
-                    dissimilar_percentage1 = evaluation["percentage_dissimilar1"]
-                    dissimilar_percentage5 = evaluation["percentage_dissimilar5"]
-                    dissimilar_percentage = evaluation["percentage_dissimilar"]
+
+                    dissimilar_percentage1 = (sum(images_evaluation[i]["percentage_dissimilar1"] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
+                    dissimilar_percentage5 = (sum(images_evaluation[i]["percentage_dissimilar5"] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
+                    dissimilar_percentage = (sum(images_evaluation[i]["percentage_dissimilar"] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
                     print("Dissimilarity for " + current_pass + " (top-1): " + str(dissimilar_percentage1))
                     print("Dissimilarity for " + current_pass + " (top-5): " + str(dissimilar_percentage5))
                     print("Dissimilarity for " + current_pass + " (top-K): " + str(dissimilar_percentage))
@@ -270,19 +294,25 @@ def main():
                     model_comparisons["no_dissimilar"] += 1 if dissimilar_percentage != 0 else 0
                 else:
 
-                    output =[node.name for node in model.graph.output]
+                    output = [node.name for node in model.graph.output]
                     model_comparisons[model_name_opset][current_pass] = {}
-
-                    for i, output_node in enumerate(output):
+                    print(images_evaluation)
+                    for out_i, output_node in enumerate(output):
                     # for i, diss in enumerate(evaluation["percentage_dissimilar"]):
+                        # cmp_object = {}
+                        # if (evaluation["percentage_dissimilar1"][i] != -1):
+                        #     cmp_object["first"] = evaluation["percentage_dissimilar1"][i]
+                        # if (evaluation["percentage_dissimilar5"][i] != -1):
+                        #     cmp_object["top5"] = evaluation["percentage_dissimilar5"][i]
+                        # cmp_object["topK"] = evaluation["percentage_dissimilar"][i]
                         cmp_object = {}
-                        if (evaluation["percentage_dissimilar1"][i] != -1):
-                            cmp_object["first"] = evaluation["percentage_dissimilar1"][i]
-                        if (evaluation["percentage_dissimilar5"][i] != -1):
-                            cmp_object["top5"] = evaluation["percentage_dissimilar5"][i]
-                        cmp_object["topK"] = evaluation["percentage_dissimilar"][i]
+                        if all(images_evaluation[i]["percentage_dissimilar1"][out_i] != -1 for i in images_evaluation):
+                            cmp_object["first"] = (sum(images_evaluation[i]["percentage_dissimilar1"][out_i] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
+                        if all(images_evaluation[i]["percentage_dissimilar5"][out_i] != -1 for i in images_evaluation):
+                            cmp_object["top5"] = (sum(images_evaluation[i]["percentage_dissimilar5"][out_i] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
+                        cmp_object["topK"] = (sum(images_evaluation[i]["percentage_dissimilar"][out_i] > 99 for i in images_evaluation) / len(images_evaluation)) * 100
 
-                        model_comparisons[model_name_opset][current_pass][output[i]] = cmp_object
+                        model_comparisons[model_name_opset][current_pass][output[out_i]] = cmp_object
 
 
                 model_comparisons["model_instances_run"] += 1

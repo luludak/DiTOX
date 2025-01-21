@@ -14,9 +14,11 @@ from PIL import Image
 
 class ONNXRunner:
 
-    def __init__(self, config, topK=10):
+    def __init__(self, config, onnx_model, topK=10):
         self.evaluation_generator = EvaluationGenerator()
         self.topK = topK
+        self.onnx_model = onnx_model
+        self.ort_sess = ort.InferenceSession(onnx_model.SerializeToString(), providers=['CPUExecutionProvider'])
 
     def evaluate(self, source_run_obj, target_run_obj, type=["classification"]):
         return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type)
@@ -35,14 +37,6 @@ class ONNXRunner:
         # Return single evaluation.
         image_name = list(image_obj.keys())[0]
         return self.evaluate(run_obj, image_obj)["images"][image_name]        
- 
-    def execute_single(self, onnx_path, image_path, config, include_certainties=False):
-        # Execute and return for single image.
-        return self.execute_onnx_path(onnx_path, [image_path], config, include_certainties)
-
-    def execute_onnx_path(self, onnx_path, images_paths, config, image_names=None, print_percentage=True, include_certainties=False): 
-        onnx_model = onnx.load(onnx_path)
-        return self.execute_onnx_model(onnx_model, images_paths, config, image_names, print_percentage, include_certainties)
 
     def get_nodes_containing_input(self, base_model, input_name):
 
@@ -54,7 +48,7 @@ class ONNXRunner:
         return nodes_found
 
 
-    def execute_onnx_model(self, onnx_model, images_paths, config, image_names=None, print_percentage=True, include_certainties=False):
+    def execute_onnx_model(self, images_paths, config, image_names=None, print_percentage=True, include_certainties=False):
         # Execute and return all data.
         
         has_symbolic_input = False
@@ -74,8 +68,6 @@ class ONNXRunner:
         # Set library to None, so that the name is utilized for preprocessing selection.
         model_preprocessor = ModelPreprocessor(self.preprocessing_data)
 
-        ort_sess = ort.InferenceSession(onnx_model.SerializeToString(), providers=['CPUExecutionProvider'])
-
         output_data = {}
         count = 0
         images_length = len(images_paths)
@@ -83,8 +75,8 @@ class ONNXRunner:
 
         for img_path in images_paths:
             
-            if(print_percentage and count % step == 0):
-                print("Complete: " + str((count // step) * 25) + "%")
+            # if(print_percentage and count % step == 0):
+            #     print("Complete: " + str((count // step) * 25) + "%")
 
             count += 1
             img_name = Path(img_path).name
@@ -103,18 +95,18 @@ class ONNXRunner:
             img = img.resize(input_dimension)
             img = model_preprocessor.preprocess(config["model_name"], img, True)
 
-            input_name = onnx_model.graph.input[0].name if "input_name" not in config else config["input_name"]
+            input_name = self.onnx_model.graph.input[0].name if "input_name" not in config else config["input_name"]
             # print(img.astype(np.float32))
-            shape = onnx_model.graph.input[0].type.tensor_type.shape.dim
+            shape = self.onnx_model.graph.input[0].type.tensor_type.shape.dim
             if (len(shape) < len(img.shape)):
                 img = np.squeeze(img)
             
             # TODO: Refactor. Hack for SSD-MobilenetV1 models.
             input_obj = {input_name: img.astype(np.uint8 if has_symbolic_input else np.float32)}
-            if len(onnx_model.graph.input) == 2:
+            if len(self.onnx_model.graph.input) == 2:
                 input_obj["image_shape"] = [[224.0, 224.0]]
             # print(input_obj)
-            output = ort_sess.run(None, input_obj)
+            output = self.ort_sess.run(None, input_obj)
 
             if len(output) == 1 and np.array(output).ndim == 1:
 
