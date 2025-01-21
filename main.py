@@ -64,8 +64,8 @@ def main():
     model_comparisons["skipped_models"] = []
     model_comparisons["failed_models"] = []
     model_comparisons["conversion_errors"] = {}
-    model_comparisons_file = script_dir + "/model_comparisons.js"
-    base_file = script_dir + "/classification.js"
+    model_comparisons_file = script_dir + "/model_comparisons.json"
+    base_file = script_dir + "/classification.json"
 
     onnx_runner = ONNXRunner({})
 
@@ -82,6 +82,8 @@ def main():
     model_no = 0
     skip_until = 0
     run_up_to = 200
+
+    json_object = None
 
     for model_obj in all_models:
 
@@ -154,6 +156,7 @@ def main():
 
         print(model_config)
 
+
         if os.path.exists(model_path):
             model = onnx.load(model_path)
         else:
@@ -217,10 +220,16 @@ def main():
                     model_comparisons["conversion_errors"][model_name_opset][current_pass] = repr(output)
                     model_comparisons["failed_conversions_no"] += 1
                     conversion_failed = True
+                    if basic_run:
+                        break
+                    continue
             except subprocess.CalledProcessError as e:
                 print('Fatal error: code={}, out="{}"'.format(e.returncode, e.output))
 
-            opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
+            try:
+                opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
+            except:
+                continue
             # break
             if (original_hash == opt_hash):
                 print(current_pass + " has no effect on model " + model_name)
@@ -287,7 +296,8 @@ def main():
             if basic_run:
                 break
 
-        with open(model_comparisons_file, "w") as outfile:
+        if json_object is not None:
+            with open(model_comparisons_file, "w") as outfile:
                 outfile.write(json_object)
 
 if __name__ == "__main__":

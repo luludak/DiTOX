@@ -510,11 +510,12 @@ class EvaluationGenerator:
                     else:
                         if source_img[i].shape == target_img[i].shape:
                             diff_array = abs(source_img[i] - target_img[i])
-                            # print(diff_array)
                             diff = (diff_array < 1e-07).sum()
                             total = (source_img[i] == source_img[i]).sum()
-                            # print(diff/total)
-                            result = diff/total > 0.98
+                            if total != 0:
+                                result = (float)(diff/total) > 0.98
+                            else:
+                                retult = -1
                             # result = np.allclose(source_img[i], target_img[i])
                         else:
                             print("Shape mismatch!")

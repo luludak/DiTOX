@@ -56,11 +56,21 @@ class ONNXRunner:
 
     def execute_onnx_model(self, onnx_model, images_paths, config, image_names=None, print_percentage=True, include_certainties=False):
         # Execute and return all data.
+        
+        has_symbolic_input = False
+        input_dimension = config["input_dimension"]
+        if len(input_dimension) == 0:
+            input_dimension = [224, 224]
+            has_symbolic_input = True
+        
         self.preprocessing_data = {
             "input": config["input_shape"],
-            "input_dimension": config["input_dimension"],
+            "input_dimension": input_dimension,
             "library": None
         }
+
+        # Best effort approach for symbolic dimensions.
+
         # Set library to None, so that the name is utilized for preprocessing selection.
         model_preprocessor = ModelPreprocessor(self.preprocessing_data)
 
@@ -90,12 +100,21 @@ class ONNXRunner:
                     img = img.convert("RGB")
                 
 
-            img = img.resize(config["input_dimension"])
+            img = img.resize(input_dimension)
             img = model_preprocessor.preprocess(config["model_name"], img, True)
 
             input_name = onnx_model.graph.input[0].name if "input_name" not in config else config["input_name"]
             # print(img.astype(np.float32))
-            output = ort_sess.run(None, {input_name : img.astype(np.float32)})
+            shape = onnx_model.graph.input[0].type.tensor_type.shape.dim
+            if (len(shape) < len(img.shape)):
+                img = np.squeeze(img)
+            
+            # TODO: Refactor. Hack for SSD-MobilenetV1 models.
+            input_obj = {input_name: img.astype(np.uint8 if has_symbolic_input else np.float32)}
+            if len(onnx_model.graph.input) == 2:
+                input_obj["image_shape"] = [[224.0, 224.0]]
+            # print(input_obj)
+            output = ort_sess.run(None, input_obj)
 
             if len(output) == 1 and np.array(output).ndim == 1:
 
