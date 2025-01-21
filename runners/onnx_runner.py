@@ -99,7 +99,7 @@ class ONNXRunner:
 
             if len(output) == 1:
 
-                scores = softmax(output_tensor)
+                scores = softmax(output)
 
                 scores = np.squeeze(scores)
                 ranks = np.argsort(scores)[::-1]

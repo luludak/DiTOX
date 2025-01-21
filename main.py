@@ -64,13 +64,24 @@ def main():
     model_comparisons["skipped_models"] = []
     model_comparisons["failed_models"] = []
     model_comparisons["conversion_errors"] = {}
-    model_comparisons_file = script_dir + "/basic_model_comparisons.js"
+    model_comparisons_file = script_dir + "/model_comparisons.js"
+    base_file = script_dir + "/classification.js"
 
     onnx_runner = ONNXRunner({})
 
+    f = open(base_file, "r")
+    base_object = json.load(f)
+
+    different_models = []
+    for key in base_object:
+        elem = base_object[key]
+        if isinstance(elem, dict) and "different" in elem and elem["different"] != 0:
+            different_models.append(key)
+    print(different_models)
+ 
     model_no = 0
-    skip_until = 153
-    run_up_to = 153
+    skip_until = 0
+    run_up_to = 200
 
     for model_obj in all_models:
 
@@ -78,9 +89,6 @@ def main():
         model_no += 1
         if (model_no < skip_until or model_no > run_up_to):
             continue
-        #  or (model_no >= 156 and model_no <= 166) 149
-        # if (model_no == 95 or model_no == 113 or model_no == 115 or model_no < 153 or (model_no >= 129 and model_no <= 149)):
-        #     continue
 
         print("Model Number: " + str(model_no))
         model_name = model_obj.model
@@ -90,10 +98,12 @@ def main():
 
         print("Model Name: " + model_name)
         print(model_obj)
+        if (model_name_opset not in different_models):
+            continue
 
         # if not model_name.startswith("Emotion") or model_opset < 3:
         # TODO: Add rest of models.
-        if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name:
+        if "classification" not in tags or model_opset < 7 or "preproc" in model_name:
             model_comparisons["skipped_models"].append(model_name_opset)
             continue
 
@@ -171,7 +181,8 @@ def main():
         try:
             # pass
             base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
-        except:
+        except Exception as e:
+            print(e)
             print(model_name + " - an error occured!")
             model_comparisons["failed_models"].append(model_name)
             continue
@@ -185,7 +196,7 @@ def main():
             "run": 0
         }
 
-        basic_run = True
+        basic_run = False
 
         for current_pass in passes:
             conversion_failed = False
