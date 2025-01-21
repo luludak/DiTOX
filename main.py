@@ -46,7 +46,7 @@ def main():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     calibr_images_folder = script_dir + '/images/one-hundred/'
-    images_folder = script_dir + '/images/imagenet/'
+    images_folder = script_dir + '/images/one/'
     small_calibr_images_folder = script_dir + '/images/ten'
 
     images_paths = [join(images_folder, f) for f in listdir(images_folder) \
@@ -98,12 +98,13 @@ def main():
 
         print("Model Name: " + model_name)
         print(model_obj)
-        if (model_name_opset not in different_models):
-            continue
+        # TODO: Enable on check.
+        # if (model_name_opset not in different_models):
+        #     continue
 
         # if not model_name.startswith("Emotion") or model_opset < 3:
         # TODO: Add rest of models.
-        if "classification" not in tags or model_opset < 7 or "preproc" in model_name:
+        if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name:
             model_comparisons["skipped_models"].append(model_name_opset)
             continue
 
@@ -196,7 +197,7 @@ def main():
             "run": 0
         }
 
-        basic_run = False
+        basic_run = True
 
         for current_pass in passes:
             conversion_failed = False
@@ -284,8 +285,8 @@ def main():
             if basic_run:
                 break
 
-        # with open(model_comparisons_file, "w") as outfile:
-        #         outfile.write(json_object)
+        with open(model_comparisons_file, "w") as outfile:
+                outfile.write(json_object)
 
 if __name__ == "__main__":
     main()

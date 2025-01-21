@@ -97,7 +97,7 @@ class ONNXRunner:
             # print(img.astype(np.float32))
             output = ort_sess.run(None, {input_name : img.astype(np.float32)})
 
-            if len(output) == 1:
+            if len(output) == 1 and np.array(output).ndim == 1:
 
                 scores = softmax(output)
 

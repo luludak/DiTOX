@@ -479,8 +479,8 @@ class EvaluationGenerator:
                         evaluation_object["dissimilar1"].append([])
                         evaluation_object["similar5"].append([])
                         evaluation_object["dissimilar5"].append([])
-                        
-                    if source_tensor.ndim == 1:
+
+                    if  np.array(source_tensor).ndim == 1:
                         result = self.evaluator.evaluate_objects(source_img[i], target_img[i])
                 
                         eval_object = {
@@ -549,7 +549,7 @@ class EvaluationGenerator:
                 for i, img in enumerate(first_image):
 
                     # if len(evaluation_object["similar1"][i]) + len(evaluation_object["dissimilar1"][i]) != 0:
-                    if (img.ndim == 1):
+                    if (np.array(img).ndim == 1):
                         evaluation_object["percentage_similar1"].append((len(evaluation_object["similar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_dissimilar1"].append((len(evaluation_object["dissimilar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_similar5"].append((len(evaluation_object["similar5"][i])/len(target_images)) * 100)
