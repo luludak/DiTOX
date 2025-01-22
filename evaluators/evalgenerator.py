@@ -501,11 +501,13 @@ class EvaluationGenerator:
                         else:
                             evaluation_object["dissimilar"][i].append(image)
 
-                        if eval_object["tau5"] > 0.98:
-                            #image_evaluation["comparisons"]["first_only"] == 1:
-                            evaluation_object["similar5"][i].append(image)
-                        else:
-                            evaluation_object["dissimilar5"][i].append(image)
+                        # For less-than 5 predictions.
+                        if eval_object["tau5"] is not None:
+                            if eval_object["tau5"] > 0.98:
+                                #image_evaluation["comparisons"]["first_only"] == 1:
+                                evaluation_object["similar5"][i].append(image)
+                            else:
+                                evaluation_object["dissimilar5"][i].append(image)
 
                     else:
                         if source_img[i].shape == target_img[i].shape:
