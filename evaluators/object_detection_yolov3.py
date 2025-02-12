@@ -40,6 +40,9 @@ class YOLOV3ObjectDetectionEvaluator:
         return intersection_area / union_area if union_area > 0 else 0
 
     def compute_f1(self, bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B):
+        return self.compute_metrics(bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B)["F1"]
+
+    def compute_metrics(self, bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B):
         """
         Computes the F1 score for YOLOv3 model predictions.
         
@@ -115,7 +118,11 @@ class YOLOV3ObjectDetectionEvaluator:
         
         # Calculate F1 score
         f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-        return f1_score
+        return {
+            "F1": f1_score,
+            "precision": precision,
+            "recall": recall
+        }
 
 # Example usage:
 # evaluator = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.5)

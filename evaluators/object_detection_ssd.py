@@ -112,6 +112,9 @@ class SSDObjectDetectionEvaluator:
         return inter_area / union_area if union_area > 0 else 0
 
     def compute_f1(self, bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B):
+        se;f.compute_metrics(bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B)["F1"]
+
+    def compute_metrics(self, bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B):
         """
         Compute F1 score by comparing model B (optimized) predictions against model A (original) as pseudo-ground truth.
         
@@ -163,5 +166,10 @@ class SSDObjectDetectionEvaluator:
 
             f1_per_class.append(f1)
 
-        return np.mean(f1_per_class) if f1_per_class else 0.0  # Return mean F1 across all classes
+        f1 = np.mean(f1_per_class) if f1_per_class else 0.0  # Return mean F1 across all classes
 
+        return {
+            "F1": f1,
+            "precision": precision,
+            "recall": recall
+        }

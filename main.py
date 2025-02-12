@@ -126,7 +126,7 @@ def main():
 
             # if not model_name.startswith("Emotion") or model_opset < 3:
             # TODO: Add rest of models.
-            if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name or "YOLOv3" not in model_name_opset:
+            if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name: # or "YOLOv2" not in model_name_opset:
                 model_comparisons["skipped_models"].append(model_name_opset)
                 continue
             
@@ -304,9 +304,9 @@ def main():
 
                                 extractor = YOLOV3Extractor()
 
-                                f1s_5 = []
-                                f1s_7 = []
-                                f1s_9 = []
+                                metrics_5 = []
+                                metrics_7 = []
+                                metrics_9 = []
                                 evaluator_5 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.5)
                                 evaluator_7 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.75)
                                 evaluator_9 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.9)
@@ -321,8 +321,6 @@ def main():
                                     base_labels = base_data[1]
                                     base_scores = base_data[2]
 
-                                    # print(base_labels)
-
                                     opt_data = extractor.extract_yolo_outputs(opt_image)
                                     opt_bboxes = opt_data[0]
                                     opt_labels = opt_data[1]
@@ -331,27 +329,35 @@ def main():
                                     # Skip undetected classes.
                                     if (base_labels == [] and opt_labels == []):
                                         continue
-                                    # print(opt_bboxes)
 
-                                    f1_5 = evaluator_5.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_5.append(f1_5)
+                                    metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_5.append(metric_5)
 
-                                    f1_7 = evaluator_7.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_7.append(f1_7)
+                                    metric_7 = evaluator_7.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_7.append(metric_7)
 
-                                    f1_9 = evaluator_9.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_9.append(f1_9)
+                                    metric_9 = evaluator_9.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_9.append(metric_9)
+
                                 
-                                # print("Avg mAP:" + str(np.mean(f1s) if f1s else 0.0))
-                                # print("Median mAP:" + str(np.median(f1s) if f1s else 0.0))
                                 model_comparisons[model_name_opset][current_pass][output[0]] = {
-                                    "avg_f1_0_5": np.mean(f1s_5) * 100,
-                                    "median_map_0_5": np.median(f1s_5) * 100,
-                                    "avg_f1_0_7": np.mean(f1s_7) * 100,
-                                    "median_map_0_7": np.median(f1s_7) * 100,
-                                    "avg_f1_0_9": np.mean(f1s_9) * 100,
-                                    "median_map_0_9": np.median(f1s_9) * 100,
+                                    "metrics_0_5": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_5]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_5]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_5]) * 100,
+                                    },
+                                    "metrics_0_7": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_7]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_7]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_7]) * 100,
+                                    },
+                                    "metrics_0_9": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_9]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_9]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_9]) * 100,
+                                    }
                                 }
+
 
                                 cmp_object = {}
                                 if (evaluation["percentage_dissimilar1"][1] != -1):
@@ -365,9 +371,9 @@ def main():
                             elif "YOLOv2-9" in model_name_opset:
                                 extractor = YOLOV2Extractor()
 
-                                f1s_5 = []
-                                f1s_7 = []
-                                f1s_9 = []
+                                metrics_5 = []
+                                metrics_7 = []
+                                metrics_9 = []
                                 evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
                                 evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
                                 evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
@@ -392,30 +398,39 @@ def main():
                                         continue
                                     # print(opt_bboxes)
 
-                                    f1_5 = evaluator_5.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_5.append(f1_5)
+                                    metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_5.append(metric_5)
 
-                                    f1_7 = evaluator_7.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_7.append(f1_7)
+                                    metric_7 = evaluator_7.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_7.append(metric_7)
 
-                                    f1_9 = evaluator_9.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_9.append(f1_9)
-                                
-                                # print("Avg mAP:" + str(np.mean(f1s) if f1s else 0.0))
-                                # print("Median mAP:" + str(np.median(f1s) if f1s else 0.0))
+                                    metric_9 = evaluator_9.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_9.append(metric_9)
+
                                 model_comparisons[model_name_opset][current_pass][output[0]] = {
-                                    "avg_f1_0_5": np.mean(f1s_5) * 100,
-                                    "median_map_0_5": np.median(f1s_5) * 100,
-                                    "avg_f1_0_7": np.mean(f1s_7) * 100,
-                                    "median_map_0_7": np.median(f1s_7) * 100,
-                                    "avg_f1_0_9": np.mean(f1s_9) * 100,
-                                    "median_map_0_9": np.median(f1s_9) * 100,
+                                    "metrics_0_5": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_5]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_5]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_5]) * 100,
+                                    },
+                                    "metrics_0_7": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_7]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_7]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_7]) * 100,
+                                    },
+                                    "metrics_0_9": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_9]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_9]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_9]) * 100,
+                                    }
                                 }
 
+
                             elif "SSD-12" in model_name_opset:
-                                f1s_5 = []
-                                f1s_7 = []
-                                f1s_9 = []
+
+                                metrics_5 = []
+                                metrics_7 = []
+                                metrics_9 = []
                                 evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
                                 evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
                                 evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
@@ -433,23 +448,33 @@ def main():
                                     opt_bboxes = np.squeeze(opt_image[0])
                                     opt_labels = np.squeeze(opt_image[1])
                                     opt_scores = np.squeeze(opt_image[2])
-                                    f1_5 = evaluator_5.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_5.append(f1_5)
 
-                                    f1_7 = evaluator_7.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_7.append(f1_7)
+                                    metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_5.append(metric_5)
 
-                                    f1_9 = evaluator_9.compute_f1(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
-                                    f1s_9.append(f1_9)
-                                # print("Avg mAP:" + str(np.mean(f1s) if f1s else 0.0))
-                                # print("Median mAP:" + str(np.median(f1s) if f1s else 0.0))
+                                    metric_7 = evaluator_7.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_7.append(metric_7)
+
+                                    metric_9 = evaluator_9.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
+                                    metrics_9.append(metric_9)
+
+                                
                                 model_comparisons[model_name_opset][current_pass][output[0]] = {
-                                    "avg_f1_0_5": np.mean(f1s_5) * 100,
-                                    "median_map_0_5": np.median(f1s_5) * 100,
-                                    "avg_f1_0_7": np.mean(f1s_7) * 100,
-                                    "median_map_0_7": np.median(f1s_7) * 100,
-                                    "avg_f1_0_9": np.mean(f1s_9) * 100,
-                                    "median_map_0_9": np.median(f1s_9) * 100,
+                                    "metrics_0_5": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_5]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_5]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_5]) * 100,
+                                    },
+                                    "metrics_0_7": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_7]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_7]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_7]) * 100,
+                                    },
+                                    "metrics_0_9": {
+                                        "avg_f1": np.mean([o["F1"] for o in metrics_9]) * 100,
+                                        "avg_prec": np.mean([o["precision"] for o in metrics_9]) * 100,
+                                        "avg_recall": np.mean([o["recall"] for o in metrics_9]) * 100,
+                                    }
                                 }
 
                                 cmp_object = {}
