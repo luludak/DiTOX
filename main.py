@@ -86,7 +86,7 @@ def main():
 
     all_images_paths.sort()
 
-    images_chunk = 100
+    images_chunk = 500
     starts_from = 0
     limit = 5501
     ends_at = starts_from + images_chunk
