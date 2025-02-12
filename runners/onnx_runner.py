@@ -81,12 +81,12 @@ class ONNXRunner:
         output_data = {}
         count = 0
         images_length = len(images_paths)
-        step = (images_length // 10) if images_length > 10 else images_length
+        step = (images_length // 4) if images_length > 10 else images_length
 
         for img_path in images_paths:
             
             if(print_percentage and count % step == 0):
-                print("Complete: " + str((count // step) * 10) + "%")
+                print("Complete: " + str((count // step) * 25) + "%")
 
             count += 1
             img_name = Path(img_path).name
