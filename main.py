@@ -7,6 +7,7 @@ import time
 import hashlib
 import subprocess
 import numpy as np
+import onnxruntime as ort
 
 os.environ['CURL_CA_BUNDLE'] = ''
 
@@ -35,8 +36,23 @@ from evaluators.object_detection_yolov3 import YOLOV3ObjectDetectionEvaluator
 # from builders.tvm_builder import TVMBuilder
 # from runners.tvm_runner import TVMRunner
 from runners.onnx_runner import ONNXRunner
-
+from onnx.numpy_helper import to_array
 from onnx import hub
+
+from transformers import RobertaTokenizer
+from datasets import load_dataset
+
+tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+glue_data = load_dataset("glue", "sst2")
+test_sentences = [example["sentence"] for example in glue_data["test"]]
+print(len(test_sentences))
+# text = glue_data["test"][0]["sentence"]
+# tokens = tokenizer(text, return_tensors="np")
+
+# input_dict = {session.get_inputs()[0].name: tokens["input_ids"].astype(np.int64)}
+# print(input_dict)
+# outputs = session.run(None, input_dict)
+
 
 # import urllib3
 # resp = urllib3.request("GET", "https://github.com/onnx/models/")
@@ -56,11 +72,11 @@ def main():
     images_folder = script_dir + '/images/imagenet'
     small_calibr_images_folder = script_dir + '/images/one'
 
-    all_models = hub.list_models(tags=["vision"])
+    all_models = hub.list_models(tags=["text"])
 
     hub.set_dir(script_dir + "/models_cache")
-
-    model_comparisons_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
+    
+    model_comparisons_file = script_dir + "/text/all_text_chunk_0_500.json"
     # base_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
 
 
@@ -88,8 +104,9 @@ def main():
 
     images_chunk = 500
     starts_from = 0
-    limit = 5501
+    limit = 5501 
     ends_at = starts_from + images_chunk
+    tags = "text"
 
     while ends_at <= len(all_images_paths) and ends_at < limit:
 
@@ -103,7 +120,12 @@ def main():
         model_comparisons["failed_models"] = []
         model_comparisons["conversion_errors"] = {}
 
-        images_paths = [x for x in all_images_paths[starts_from:ends_at]]
+        images_paths = None
+        inputs = None
+
+        if "text" not in tags:
+            images_paths = [x for x in all_images_paths[starts_from:ends_at]]
+ 
         # print(images_paths[0])
         # return
         print(" ---- Image Chunk: " + str(starts_from) + " to " + str(ends_at))
@@ -111,6 +133,8 @@ def main():
 
         model_no = 0
         for model_obj in all_models:
+            text_inputs = None
+            text_expected_outputs = None
             model_no += 1
             if (model_no < skip_until or model_no > run_up_to):
                 continue
@@ -121,20 +145,69 @@ def main():
             tags = model_obj.tags
 
             # TODO: Enable on check for classification models.
-            if (model_name_opset not in different_models):
-                continue
+            # if (model_name_opset not in different_models):
+            #     continue
 
             # if not model_name.startswith("Emotion") or model_opset < 3:
             # TODO: Add rest of models.
-            if "object detection segmentation" not in tags or model_opset < 7 or "preproc" in model_name: # or "YOLOv2" not in model_name_opset:
-                model_comparisons["skipped_models"].append(model_name_opset)
-                continue
+            # "object detection segmentation"
+            # if "text" not in tags or model_opset < 7 or "preproc" in model_name: # or "YOLOv2" not in model_name_opset:
+            #     model_comparisons["skipped_models"].append(model_name_opset)
+            #     continue
             
+
+            if "text" in tags:
+                # print(model_name)
+                # local_path = hub.get_dir() + "/" + model_name
+                # print(local_path)
+                # if os.path.exists(local_path):
+                #     model_path_data = hub.ModelPath(local_path)
+                # else:
+                
+                model_path_data = hub.download_model_with_test_data(model_name)
+
+                data_path = model_path_data + "/test_data_set_0/"
+                data_path = Path(data_path)
+                model_path = list(Path(model_path_data).glob("*.onnx"))
+
+                # print(model_path)
+                print ("PATH: " + model_path_data)
+
+                if len(model_path) == 0:
+                    continue
+
+
+                model_path = [f for f in model_path if "_opt" not in str(f)]
+                
+                model_path = str(model_path[0])
+                
+
+                input_pb_files = sorted(data_path.glob("input_*.pb"))
+                output_pb_files = sorted(data_path.glob("output_*.pb"))
+
+                inputs_len = len(input_pb_files)
+                
+                if inputs_len > limit:
+                    limit = inputs_len
+
+                text_inputs = [to_array(onnx.load_tensor(str(p))) for p in input_pb_files] #[starts_from:ends_at]
+                text_expected_outputs = [to_array(onnx.load_tensor(str(p))) for p in output_pb_files] #[starts_from:ends_at]
+                print(len(text_inputs))
+
+
+                # text_inputs = [to_array(onnx.load_tensor(p)) for p in model_path_data.test_data[0].inputs[starts_from:ends_at]]
+                # # print(text_inputs)
+                # text_expected_outputs = [to_array(onnx.load_tensor(p)) for p in model_path_data.test_data[0].outputs[starts_from:ends_at]]
+
+                # If chunk of inputs smaller, continue.
+                if (len(text_inputs) == 0):
+                    continue
+
             print("Model Number: " + str(model_no))
             print("Model Name: " + model_name)
             print(model_obj)
 
-            model_path = get_model_path(script_dir, model_obj)
+            # model_path = get_model_path(script_dir, model_obj)
 
             model_shape = [1, 1, 64, 64]
             input_name = None
@@ -178,10 +251,8 @@ def main():
                 "input_dimension": img_dimension
             }
 
-            print(model_config)
-
-
             if os.path.exists(model_path):
+                print(model_path)
                 model = onnx.load(model_path)
             else:
                 model = hub.load(model_name, opset=model_opset)
@@ -206,9 +277,31 @@ def main():
             print("Running original model...")
             print(model_path)
             base_model_out = None
+            base_match_percentage = 0
+            
             try:
+                if "text" not in tags:
                 # pass
-                base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+
+                    base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+                else:
+                    # TODO: move to runner.
+                    session = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
+
+                    # Prepare input dictionary
+                    print(len(text_inputs))
+                    input_dict = {session.get_inputs()[i].name: text_inputs[i] for i in range(len(text_inputs))}
+                    # Run inference
+                    outputs = session.run(None, input_dict)
+
+                    # Compare outputs and calculate match percentage
+                    matches = []
+                    for output, expected in zip(outputs, text_expected_outputs):
+                        matches.append(np.allclose(output, expected, atol=1e-5))
+
+                    base_match_percentage = (sum(matches) / len(matches)) * 100
+
+                    print ("Base Percentage: " + str(base_match_percentage) + "%")
             except Exception as e:
                 print(e)
                 print(model_name + " - a base model error occured!")
@@ -227,6 +320,7 @@ def main():
             basic_run = True
 
             for current_pass in passes:
+                opt_match_percentage = 0
                 conversion_failed = False
                 try:
                     if basic_run:
@@ -262,10 +356,29 @@ def main():
                 elif (not conversion_failed):
                     # TODO: Add optimizer.
                     print("Running optimized model. Pass: " + current_pass)
-                    # print(opt_model_path)
+                    print(opt_model_path)
                     try:
                         onnx_model = onnx.load(opt_model_path)
-                        opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
+                        
+                        if "text" not in tags:
+                            opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
+                        else:
+                            # TODO: move to runner.
+                            session = ort.InferenceSession(onnx_model.SerializeToString(), providers=["CPUExecutionProvider"])
+
+                            # Prepare input dictionary
+                            input_dict = {session.get_inputs()[i].name: text_inputs[i] for i in range(len(text_inputs))}
+                            # Run inference
+                            outputs = session.run(None, input_dict)
+
+                            # Compare outputs and calculate match percentage
+                            matches = []
+                            for output, expected in zip(outputs, text_expected_outputs):
+                                matches.append(np.allclose(output, expected, atol=1e-5))
+
+                            opt_match_percentage = (sum(matches) / len(matches)) * 100
+
+                            print ("Optimized Percentage: " + str(opt_match_percentage) + "%")
                     except Exception as e:
                         print(e)
                         if model_name_opset not in model_comparisons["conversion_errors"]:
@@ -276,8 +389,15 @@ def main():
 
                     if not conversion_failed:
                         
+                        if ("text" in tags):
+                            percentage_diff = abs(base_match_percentage - opt_match_percentage)
+                            model_comparisons[model_name_opset][current_pass] = {
+                                "percentage_base_similarity_to_gt" : base_match_percentage,
+                                "percentage_opt_similarity_to_gt" : opt_match_percentage,
+                                "percentage_similarity_diff": percentage_diff
+                            }
 
-                        if ("classification" in tags):
+                        elif ("classification" in tags):
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
                             dissimilar_percentage1 = evaluation["percentage_dissimilar1"]
                             dissimilar_percentage5 = evaluation["percentage_dissimilar5"]
@@ -327,7 +447,7 @@ def main():
                                     opt_scores = opt_data[2]
 
                                     # Skip undetected classes.
-                                    if (base_labels == [] and opt_labels == []):
+                                    if (base_labels == [] and opt_labels == []) or (base_bboxes == [] and opt_bboxes == []):
                                         continue
 
                                     metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
@@ -441,13 +561,16 @@ def main():
                                     base_image = base_model_out[img_key]
                                     opt_image = opt_model_out[img_key]
 
-                                    base_bboxes = np.squeeze(base_image[0])
-                                    base_labels = np.squeeze(base_image[1])
-                                    base_scores = np.squeeze(base_image[2])
+                                    base_bboxes = np.squeeze(base_image[0]).tolist()
+                                    base_labels = np.squeeze(base_image[1]).tolist()
+                                    base_scores = np.squeeze(base_image[2]).tolist()
 
-                                    opt_bboxes = np.squeeze(opt_image[0])
-                                    opt_labels = np.squeeze(opt_image[1])
-                                    opt_scores = np.squeeze(opt_image[2])
+                                    opt_bboxes = np.squeeze(opt_image[0]).tolist()
+                                    opt_labels = np.squeeze(opt_image[1]).tolist()
+                                    opt_scores = np.squeeze(opt_image[2]).tolist()
+
+                                    if (base_labels == [] and opt_labels == []) or (base_bboxes == [] and opt_bboxes == []):
+                                        continue
 
                                     metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
                                     metrics_5.append(metric_5)
