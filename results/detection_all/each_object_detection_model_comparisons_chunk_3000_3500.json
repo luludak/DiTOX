@@ -1,0 +1,1527 @@
+{
+  "no_dissimilar": 0,
+  "base_models_run": 5,
+  "model_instances_run": 64,
+  "failed_conversions_no": 12,
+  "skipped_models": [],
+  "failed_models": [],
+  "conversion_errors": {
+    "SSD-12": {
+      "rename_input_output": "ValueError(\"Required inputs (['input_0']) are missing from input feed (['image']).\")",
+      "lift_lexical_references": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 76, in main\\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__init__.py\", line 46, in optimize\\n    optimized_model_str = C.optimize(model_str, passes)\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nRuntimeError: Unresolved value references: backbone.additional_blocks.0.0.bias,backbone.additional_blocks.0.0.weight,backbone.additional_blocks.0.2.bias,backbone.additional_blocks.0.2.weight,backbone.additional_blocks.1.0.bias,backbone.additional_blocks.1.0.weight,backbone.additional_blocks.1.2.bias,backbone.additional_blocks.1.2.weight,backbone.additional_blocks.2.0.bias,backbone.additional_blocks.2.0.weight,backbone.additional_blocks.2.2.bias,backbone.additional_blocks.2.2.weight,backbone.additional_blocks.3.0.bias,backbone.additional_blocks.3.0.weight,backbone.additional_blocks.3.2.bias,backbone.additional_blocks.3.2.weight,backbone.additional_blocks.4.0.bias,backbone.additional_blocks.4.0.weight,backbone.additional_blocks.4.2.bias,backbone.additional_blocks.4.2.weight,backbone.conf.0.bias,backbone.conf.0.weight,backbone.conf.1.bias,backbone.conf.1.weight,backbone.conf.2.bias,backbone.conf.2.weight,backbone.conf.3.bias,backbone.conf.3.weight,backbone.conf.4.bias,backbone.conf.4.weight,backbone.conf.5.bias,backbone.conf.5.weight,backbone.loc.0.bias,backbone.loc.0.weight,backbone.loc.1.bias,backbone.loc.1.weight,backbone.loc.2.bias,backbone.loc.2.weight,backbone.loc.3.bias,backbone.loc.3.weight,backbone.loc.4.bias,backbone.loc.4.weight,backbone.loc.5.bias,backbone.loc.5.weight,backbone.model.layer1.0.weight,backbone.model.layer1.1.bias,backbone.model.layer1.1.running_mean,backbone.model.layer1.1.running_var,backbone.model.layer1.1.weight,backbone.model.layer1.4.0.bn1.bias,backbone.model.layer1.4.0.bn1.running_mean,backbone.model.layer1.4.0.bn1.running_var,backbone.model.layer1.4.0.bn1.weight,backbone.model.layer1.4.0.bn2.bias,backbone.model.layer1.4.0.bn2.running_mean,backbone.model.layer1.4.0.bn2.running_var,backbone.model.layer1.4.0.bn2.weight,backbone.model.layer1.4.0.conv1.weight,backbone.model.layer1.4.0.conv2.weight,backbone.model.layer1.4.1.bn1.bias,backbone.model.layer1.4.1.bn1.running_mean,backbone.model.layer1.4.1.bn1.running_var,backbone.model.layer1.4.1.bn1.weight,backbone.model.layer1.4.1.bn2.bias,backbone.model.layer1.4.1.bn2.running_mean,backbone.model.layer1.4.1.bn2.running_var,backbone.model.layer1.4.1.bn2.weight,backbone.model.layer1.4.1.conv1.weight,backbone.model.layer1.4.1.conv2.weight,backbone.model.layer1.4.2.bn1.bias,backbone.model.layer1.4.2.bn1.running_mean,backbone.model.layer1.4.2.bn1.running_var,backbone.model.layer1.4.2.bn1.weight,backbone.model.layer1.4.2.bn2.bias,backbone.model.layer1.4.2.bn2.running_mean,backbone.model.layer1.4.2.bn2.running_var,backbone.model.layer1.4.2.bn2.weight,backbone.model.layer1.4.2.conv1.weight,backbone.model.layer1.4.2.conv2.weight,backbone.model.layer1.5.0.bn1.bias,backbone.model.layer1.5.0.bn1.running_mean,backbone.model.layer1.5.0.bn1.running_var,backbone.model.layer1.5.0.bn1.weight,backbone.model.layer1.5.0.bn2.bias,backbone.model.layer1.5.0.bn2.running_mean,backbone.model.layer1.5.0.bn2.running_var,backbone.model.layer1.5.0.bn2.weight,backbone.model.layer1.5.0.conv1.weight,backbone.model.layer1.5.0.conv2.weight,backbone.model.layer1.5.0.downsample.0.weight,backbone.model.layer1.5.0.downsample.1.bias,backbone.model.layer1.5.0.downsample.1.running_mean,backbone.model.layer1.5.0.downsample.1.running_var,backbone.model.layer1.5.0.downsample.1.weight,backbone.model.layer1.5.1.bn1.bias,backbone.model.layer1.5.1.bn1.running_mean,backbone.model.layer1.5.1.bn1.running_var,backbone.model.layer1.5.1.bn1.weight,backbone.model.layer1.5.1.bn2.bias,backbone.model.layer1.5.1.bn2.running_mean,backbone.model.layer1.5.1.bn2.running_var,backbone.model.layer1.5.1.bn2.weight,backbone.model.layer1.5.1.conv1.weight,backbone.model.layer1.5.1.conv2.weight,backbone.model.layer1.5.2.bn1.bias,backbone.model.layer1.5.2.bn1.running_mean,backbone.model.layer1.5.2.bn1.running_var,backbone.model.layer1.5.2.bn1.weight,backbone.model.layer1.5.2.bn2.bias,backbone.model.layer1.5.2.bn2.running_mean,backbone.model.layer1.5.2.bn2.running_var,backbone.model.layer1.5.2.bn2.weight,backbone.model.layer1.5.2.conv1.weight,backbone.model.layer1.5.2.conv2.weight,backbone.model.layer1.5.3.bn1.bias,backbone.model.layer1.5.3.bn1.running_mean,backbone.model.layer1.5.3.bn1.running_var,backbone.model.layer1.5.3.bn1.weight,backbone.model.layer1.5.3.bn2.bias,backbone.model.layer1.5.3.bn2.running_mean,backbone.model.layer1.5.3.bn2.running_var,backbone.model.layer1.5.3.bn2.weight,backbone.model.layer1.5.3.conv1.weight,backbone.model.layer1.5.3.conv2.weight,backbone.model.layer2.0.0.bn1.bias,backbone.model.layer2.0.0.bn1.running_mean,backbone.model.layer2.0.0.bn1.running_var,backbone.model.layer2.0.0.bn1.weight,backbone.model.layer2.0.0.bn2.bias,backbone.model.layer2.0.0.bn2.running_mean,backbone.model.layer2.0.0.bn2.running_var,backbone.model.layer2.0.0.bn2.weight,backbone.model.layer2.0.0.conv1.weight,backbone.model.layer2.0.0.conv2.weight,backbone.model.layer2.0.0.downsample.0.weight,backbone.model.layer2.0.0.downsample.1.bias,backbone.model.layer2.0.0.downsample.1.running_mean,backbone.model.layer2.0.0.downsample.1.running_var,backbone.model.layer2.0.0.downsample.1.weight,backbone.model.layer2.0.1.bn1.bias,backbone.model.layer2.0.1.bn1.running_mean,backbone.model.layer2.0.1.bn1.running_var,backbone.model.layer2.0.1.bn1.weight,backbone.model.layer2.0.1.bn2.bias,backbone.model.layer2.0.1.bn2.running_mean,backbone.model.layer2.0.1.bn2.running_var,backbone.model.layer2.0.1.bn2.weight,backbone.model.layer2.0.1.conv1.weight,backbone.model.layer2.0.1.conv2.weight,backbone.model.layer2.0.2.bn1.bias,backbone.model.layer2.0.2.bn1.running_mean,backbone.model.layer2.0.2.bn1.running_var,backbone.model.layer2.0.2.bn1.weight,backbone.model.layer2.0.2.bn2.bias,backbone.model.layer2.0.2.bn2.running_mean,backbone.model.layer2.0.2.bn2.running_var,backbone.model.layer2.0.2.bn2.weight,backbone.model.layer2.0.2.conv1.weight,backbone.model.layer2.0.2.conv2.weight,backbone.model.layer2.0.3.bn1.bias,backbone.model.layer2.0.3.bn1.running_mean,backbone.model.layer2.0.3.bn1.running_var,backbone.model.layer2.0.3.bn1.weight,backbone.model.layer2.0.3.bn2.bias,backbone.model.layer2.0.3.bn2.running_mean,backbone.model.layer2.0.3.bn2.running_var,backbone.model.layer2.0.3.bn2.weight,backbone.model.layer2.0.3.conv1.weight,backbone.model.layer2.0.3.conv2.weight,backbone.model.layer2.0.4.bn1.bias,backbone.model.layer2.0.4.bn1.running_mean,backbone.model.layer2.0.4.bn1.running_var,backbone.model.layer2.0.4.bn1.weight,backbone.model.layer2.0.4.bn2.bias,backbone.model.layer2.0.4.bn2.running_mean,backbone.model.layer2.0.4.bn2.running_var,backbone.model.layer2.0.4.bn2.weight,backbone.model.layer2.0.4.conv1.weight,backbone.model.layer2.0.4.conv2.weight,backbone.model.layer2.0.5.bn1.bias,backbone.model.layer2.0.5.bn1.running_mean,backbone.model.layer2.0.5.bn1.running_var,backbone.model.layer2.0.5.bn1.weight,backbone.model.layer2.0.5.bn2.bias,backbone.model.layer2.0.5.bn2.running_mean,backbone.model.layer2.0.5.bn2.running_var,backbone.model.layer2.0.5.bn2.weight,backbone.model.layer2.0.5.conv1.weight,backbone.model.layer2.0.5.conv2.weight,\\n'",
+      "split_init": "IndexError('list index (0) out of range')",
+      "split_predict": "ValueError(\"Required inputs (['Constant_724', 'Constant_723', 'Constant_721', 'Constant_711', 'Constant_708', 'Constant_698', 'Constant_696', 'Constant_694', 'Constant_693', 'Constant_692', 'Constant_691', 'Constant_689', 'Constant_685', 'ConstantOfShape_680', 'Constant_675', 'Constant_672', 'Constant_662', 'Constant_648', 'Constant_647', 'Constant_644', 'Constant_643', 'Constant_642', 'Constant_722', 'Constant_641', 'Constant_638', 'Constant_636', 'Constant_631', 'Constant_630', 'Constant_623', 'Constant_622', 'Constant_684', 'Constant_621', 'Constant_617', 'Constant_613', 'Constant_609', 'Constant_604', 'Constant_603', 'Constant_602', 'Constant_601', 'Constant_598', 'Constant_597', 'Constant_593', 'Constant_701', 'Constant_591', 'Constant_588', 'Constant_627', 'Constant_585', 'Constant_582', 'Constant_578', 'Constant_577', 'Constant_576', 'Constant_574', 'Constant_573', 'Constant_571', 'Constant_569', 'Constant_568', 'Constant_608', 'Constant_566', 'Constant_562', 'Constant_561', 'Constant_560', 'Constant_556', 'Constant_551', 'Constant_539', 'Constant_538', 'Constant_536', 'Constant_534', 'Constant_639', 'Constant_531', 'Constant_528', 'Constant_525', 'Constant_522', 'Constant_520', 'Constant_518', 'Constant_612', 'backbone.model.layer2.0.3.bn2.running_var', 'backbone.model.layer1.4.2.bn2.running_mean', 'Constant_544', 'backbone.model.layer2.0.3.bn2.running_mean', 'backbone.model.layer1.0.weight', 'backbone.additional_blocks.0.0.bias', 'backbone.model.layer2.0.2.conv2.weight', 'backbone.model.layer2.0.2.bn1.weight', 'Constant_686', 'Constant_553', 'backbone.conf.5.weight', 'Constant_527', 'backbone.model.layer2.0.2.conv1.weight', 'Unsqueeze_412', 'backbone.model.layer2.0.4.conv1.weight', 'backbone.loc.5.weight', 'ConstantOfShape_678', 'backbone.model.layer2.0.1.bn2.running_mean', 'Constant_501', 'Constant_649', 'backbone.model.layer2.0.1.bn1.running_var', 'backbone.model.layer1.4.2.conv2.weight', 'backbone.model.layer1.5.2.bn2.running_var', 'Constant_614', 'backbone.model.layer2.0.1.bn1.weight', 'backbone.model.layer2.0.1.conv1.weight', 'backbone.model.layer1.5.0.bn2.bias', 'backbone.loc.3.bias', 'backbone.model.layer2.0.0.downsample.0.weight', 'backbone.model.layer2.0.0.bn2.running_mean', 'ConstantOfShape_682', 'backbone.model.layer2.0.2.bn2.bias', 'Constant_663', 'backbone.model.layer2.0.3.bn1.weight', 'backbone.model.layer2.0.0.bn1.bias', 'backbone.model.layer1.5.3.bn2.running_mean', 'backbone.model.layer1.5.3.conv2.weight', 'Constant_493', 'Constant_667', 'backbone.model.layer1.5.3.bn1.running_mean', 'Constant_673', 'backbone.loc.1.bias', 'backbone.model.layer1.5.3.bn1.bias', 'backbone.model.layer2.0.2.bn2.running_mean', 'Constant_665', 'backbone.model.layer1.5.3.bn1.weight', 'backbone.loc.2.bias', 'Constant_494', 'backbone.model.layer1.1.running_mean', 'Constant_541', 'backbone.model.layer2.0.2.bn1.running_mean', 'backbone.model.layer1.5.2.bn1.running_var', 'backbone.model.layer1.4.1.conv1.weight', 'backbone.additional_blocks.3.2.bias', 'backbone.model.layer2.0.0.downsample.1.running_mean', 'backbone.model.layer1.5.3.bn2.running_var', 'backbone.model.layer1.5.2.bn1.running_mean', 'Constant_523', 'backbone.model.layer1.5.1.bn1.bias', 'backbone.model.layer2.0.0.bn2.running_var', 'backbone.model.layer1.5.0.bn2.running_var', 'backbone.model.layer1.5.2.bn1.bias', 'backbone.additional_blocks.2.0.bias', 'backbone.model.layer2.0.2.bn1.bias', 'backbone.model.layer1.4.2.bn2.weight', 'Unsqueeze_445', 'backbone.model.layer1.4.1.bn1.running_var', 'backbone.model.layer2.0.0.bn1.running_mean', 'backbone.model.layer1.4.1.bn2.running_var', 'backbone.model.layer1.5.2.bn2.weight', 'backbone.conf.2.bias', 'Constant_620', 'backbone.model.layer1.5.0.downsample.1.running_var', 'backbone.model.layer1.4.2.bn1.weight', 'Constant_482', 'Constant_596', 'backbone.model.layer1.5.1.bn1.running_mean', 'Unsqueeze_444', 'Constant_670', 'backbone.model.layer1.5.3.bn2.weight', 'backbone.model.layer1.4.1.bn1.bias', 'Unsqueeze_467', 'backbone.model.layer2.0.0.bn2.weight', 'Constant_567', 'Constant_510', 'backbone.model.layer1.4.0.conv2.weight', 'backbone.model.layer1.4.0.bn2.running_mean', 'backbone.model.layer1.4.1.bn2.running_mean', 'backbone.model.layer1.5.2.bn2.bias', 'backbone.additional_blocks.2.0.weight', 'backbone.model.layer2.0.3.bn1.running_var', 'backbone.model.layer2.0.1.bn2.running_var', 'backbone.model.layer1.5.0.bn1.running_var', 'Constant_515', 'backbone.model.layer1.4.0.bn1.weight', 'backbone.model.layer1.4.0.bn2.running_var', 'backbone.model.layer1.5.3.bn2.bias', 'backbone.model.layer2.0.3.conv2.weight', 'backbone.model.layer1.5.2.conv2.weight', 'Constant_543', 'backbone.model.layer1.4.2.bn1.running_mean', 'backbone.model.layer2.0.1.bn1.running_mean', 'backbone.model.layer1.4.2.bn1.bias', 'backbone.model.layer1.5.1.bn1.running_var', 'backbone.model.layer1.1.running_var', 'backbone.model.layer2.0.5.bn1.running_var', 'Constant_480', 'Constant_607', 'backbone.model.layer1.4.1.conv2.weight', 'Constant_476', 'backbone.model.layer2.0.3.bn2.bias', 'backbone.model.layer2.0.0.conv2.weight', 'backbone.model.layer2.0.1.conv2.weight', 'backbone.model.layer2.0.1.bn1.bias', 'backbone.model.layer1.5.3.conv1.weight', 'backbone.model.layer1.4.1.bn2.bias', 'backbone.model.layer1.4.0.bn1.running_var', 'Unsqueeze_422', 'backbone.model.layer1.1.weight', 'backbone.model.layer2.0.2.bn2.weight', 'backbone.model.layer1.5.1.conv1.weight', 'backbone.model.layer1.4.0.conv1.weight', 'backbone.model.layer1.5.1.bn2.bias', 'Constant_625', 'backbone.model.layer1.1.bias', 'Constant_587', 'backbone.model.layer2.0.0.bn1.running_var', 'backbone.model.layer1.4.0.bn2.weight', 'backbone.model.layer2.0.2.bn2.running_var', 'backbone.model.layer1.4.0.bn2.bias', 'backbone.model.layer1.4.2.bn1.running_var', 'backbone.model.layer1.5.0.bn2.running_mean', 'backbone.model.layer1.5.3.bn1.running_var', 'backbone.model.layer1.5.0.downsample.1.running_mean', 'Constant_563', 'backbone.model.layer2.0.0.downsample.1.running_var', 'backbone.model.layer1.4.2.bn2.bias', 'Constant_487', 'Constant_533', 'backbone.model.layer2.0.4.bn1.weight', 'backbone.model.layer2.0.3.bn1.bias', 'backbone.model.layer1.4.1.bn1.running_mean', 'backbone.loc.0.weight', 'backbone.model.layer1.4.2.bn2.running_var', 'backbone.model.layer2.0.3.bn2.weight', 'backbone.model.layer2.0.0.bn2.bias', 'backbone.model.layer1.5.0.bn1.weight', 'Constant_669', 'Constant_504', 'backbone.model.layer1.5.0.bn1.bias', 'backbone.model.layer1.5.0.bn1.running_mean', 'backbone.conf.3.bias', 'Constant_558', 'backbone.additional_blocks.1.0.weight', 'Constant_438', 'backbone.model.layer1.5.1.bn2.running_mean', 'backbone.model.layer1.5.0.conv2.weight', 'backbone.model.layer1.4.1.bn1.weight', 'backbone.model.layer1.4.1.bn2.weight', 'Unsqueeze_356', 'backbone.model.layer1.5.0.bn2.weight', 'Constant_474', 'backbone.model.layer1.5.1.conv2.weight', 'backbone.model.layer1.5.0.downsample.0.weight', 'backbone.model.layer2.0.5.conv2.weight', 'Constant_579', 'backbone.model.layer2.0.0.bn1.weight', 'backbone.model.layer1.5.0.downsample.1.bias', 'backbone.model.layer2.0.5.bn2.running_mean', 'backbone.model.layer1.5.0.conv1.weight', 'backbone.model.layer1.4.0.bn1.bias', 'Constant_526', 'backbone.model.layer2.0.5.bn1.weight', 'Constant_731', 'Unsqueeze_345', 'backbone.model.layer1.5.0.downsample.1.weight', 'backbone.model.layer1.5.1.bn2.weight', 'Constant_506', 'backbone.model.layer2.0.4.bn1.running_mean', 'Constant_632', 'Unsqueeze_346', 'backbone.model.layer2.0.4.bn1.running_var', 'backbone.model.layer2.0.0.downsample.1.weight', 'backbone.model.layer2.0.4.bn2.weight', 'backbone.model.layer2.0.4.bn2.bias', 'Constant_590', 'backbone.model.layer2.0.4.conv2.weight', 'backbone.model.layer2.0.4.bn2.running_mean', 'backbone.model.layer2.0.3.conv1.weight', 'backbone.model.layer1.5.1.bn2.running_var', 'backbone.model.layer1.5.2.conv1.weight', 'backbone.model.layer2.0.4.bn2.running_var', 'backbone.model.layer2.0.5.bn1.bias', 'Constant_552', 'backbone.model.layer2.0.5.bn1.running_mean', 'backbone.model.layer2.0.5.bn2.bias', 'backbone.model.layer2.0.5.bn2.running_var', 'backbone.model.layer1.5.2.bn1.weight', 'backbone.additional_blocks.0.0.weight', 'backbone.conf.5.bias', 'backbone.additional_blocks.0.2.weight', 'Constant_532', 'backbone.additional_blocks.0.2.bias', 'backbone.loc.5.bias', 'backbone.additional_blocks.1.0.bias', 'Constant_668', 'Constant_503', 'Constant_555', 'backbone.additional_blocks.1.2.weight', 'Unsqueeze_411', 'backbone.additional_blocks.1.2.bias', 'Constant_664', 'backbone.additional_blocks.2.2.weight', 'Constant_491', 'Constant_633', 'Constant_405', 'backbone.additional_blocks.2.2.bias', 'Constant_611', 'Constant_460', 'backbone.additional_blocks.3.0.weight', 'Constant_637', 'backbone.additional_blocks.3.0.bias', 'backbone.additional_blocks.3.2.weight', 'backbone.model.layer2.0.1.bn2.weight', 'Unsqueeze_368', 'backbone.additional_blocks.4.0.weight', 'backbone.additional_blocks.4.0.bias', 'backbone.model.layer1.4.0.bn1.running_mean', 'Constant_485', 'backbone.additional_blocks.4.2.weight', 'Constant_687', 'Constant_572', 'backbone.additional_blocks.4.2.bias', 'backbone.conf.0.weight', 'backbone.loc.0.bias', 'Unsqueeze_466', 'Constant_652', 'Constant_339', 'Constant_674', 'backbone.conf.0.bias', 'Constant_516', 'Constant_350', 'Constant_521', 'backbone.conf.4.weight', 'backbone.model.layer1.5.2.bn2.running_mean', 'backbone.model.layer2.0.1.bn2.bias', 'Unsqueeze_357', 'Constant_557', 'backbone.loc.1.weight', 'Unsqueeze_367', 'backbone.conf.1.weight', 'Constant_586', 'backbone.loc.2.weight', 'backbone.model.layer1.4.2.conv1.weight', 'backbone.conf.1.bias', 'Unsqueeze_378', 'Constant_517', 'Constant_383', 'Constant_537', 'Unsqueeze_389', 'Constant_497', 'Unsqueeze_390', 'Constant_592', 'backbone.conf.2.weight', 'Constant_542', 'Constant_394', 'backbone.model.layer2.0.0.conv1.weight', 'Constant_502', 'Constant_628', 'Unsqueeze_400', 'backbone.model.layer2.0.0.downsample.1.bias', 'Unsqueeze_401', 'backbone.loc.3.weight', 'Constant_416', 'backbone.model.layer2.0.3.bn1.running_mean', 'Unsqueeze_423', 'backbone.loc.4.weight', 'Constant_513', 'Constant_372', 'backbone.loc.4.bias', 'Constant_626', 'backbone.model.layer1.5.1.bn1.weight', 'Constant_427', 'Constant_489', 'Unsqueeze_433', 'Constant_595', 'Constant_547', 'backbone.conf.3.weight', 'Unsqueeze_434', 'Constant_479', 'backbone.conf.4.bias', 'Constant_449', 'Constant_606', 'Unsqueeze_455', 'Unsqueeze_456', 'backbone.model.layer2.0.5.bn2.weight', 'Constant_496', 'Unsqueeze_379', 'Constant_475', 'backbone.model.layer2.0.2.bn1.running_var', 'backbone.model.layer2.0.5.conv1.weight', 'Constant_477', 'backbone.model.layer2.0.4.bn1.bias', 'Constant_481', 'Constant_361', 'Constant_484', 'Constant_486', 'Constant_646', 'Constant_492', 'Constant_550', 'Constant_498', 'Constant_499', 'Constant_508']) are missing from input feed (['image']).\")"
+    },
+    "Tiny YOLOv3-11": {
+      "rename_input_output": "ValueError(\"Required inputs (['input_0']) are missing from input feed (['input_1', 'image_shape']).\")",
+      "lift_lexical_references": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 76, in main\\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__init__.py\", line 46, in optimize\\n    optimized_model_str = C.optimize(model_str, passes)\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nRuntimeError: Unresolved value references: Resize_roi,Resize_scales,TFNodes/yolo_evaluation_layer_1/Const:0,TFNodes/yolo_evaluation_layer_1/Const_2:0,TFNodes/yolo_evaluation_layer_1/Reshape/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_1/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_10/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_11/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_2/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_3/shape/0:0,TFNodes/yolo_evaluation_layer_1/Reshape_3/shape/3:0,TFNodes/yolo_evaluation_layer_1/Reshape_3/shape/4:0,TFNodes/yolo_evaluation_layer_1/Reshape_4/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_5/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_6/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_7/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_8/shape:0,TFNodes/yolo_evaluation_layer_1/Reshape_9/shape/0:0,TFNodes/yolo_evaluation_layer_1/Reshape_9/shape/3:0,TFNodes/yolo_evaluation_layer_1/Reshape_9/shape/4:0,TFNodes/yolo_evaluation_layer_1/Tile/multiples/0:0,TFNodes/yolo_evaluation_layer_1/Tile/multiples/2:0,TFNodes/yolo_evaluation_layer_1/Tile/multiples/3:0,TFNodes/yolo_evaluation_layer_1/Tile_1/multiples/1:0,TFNodes/yolo_evaluation_layer_1/Tile_1/multiples/2:0,TFNodes/yolo_evaluation_layer_1/Tile_1/multiples/3:0,TFNodes/yolo_evaluation_layer_1/Tile_2/multiples/0:0,TFNodes/yolo_evaluation_layer_1/Tile_2/multiples/2:0,TFNodes/yolo_evaluation_layer_1/Tile_2/multiples/3:0,TFNodes/yolo_evaluation_layer_1/Tile_3/multiples/1:0,TFNodes/yolo_evaluation_layer_1/Tile_3/multiples/2:0,TFNodes/yolo_evaluation_layer_1/Tile_3/multiples/3:0,TFNodes/yolo_evaluation_layer_1/arange/delta:0,TFNodes/yolo_evaluation_layer_1/arange/start:0,TFNodes/yolo_evaluation_layer_1/arange_1/delta:0,TFNodes/yolo_evaluation_layer_1/arange_1/start:0,TFNodes/yolo_evaluation_layer_1/arange_1__148_cond,TFNodes/yolo_evaluation_layer_1/arange_2/delta:0,TFNodes/yolo_evaluation_layer_1/arange_2/start:0,TFNodes/yolo_evaluation_layer_1/arange_2__76_cond,TFNodes/yolo_evaluation_layer_1/arange_3/delta:0,TFNodes/yolo_evaluation_layer_1/arange_3/start:0,TFNodes/yolo_evaluation_layer_1/arange_3__51_cond,TFNodes/yolo_evaluation_layer_1/arange__173_cond,TFNodes/yolo_evaluation_layer_1/mul/y:0,TFNodes/yolo_evaluation_layer_1/strided_slice/stack:0,TFNodes/yolo_evaluation_layer_1/strided_slice/stack_1:0,TFNodes/yolo_evaluation_layer_1/strided_slice_1/stack:0,TFNodes/yolo_evaluation_layer_1/strided_slice_1/stack_1:0,TFNodes/yolo_evaluation_layer_1/strided_slice_10__218,TFNodes/yolo_evaluation_layer_1/strided_slice_10__219,TFNodes/yolo_evaluation_layer_1/strided_slice_10__220,TFNodes/yolo_evaluation_layer_1/strided_slice_10__221,TFNodes/yolo_evaluation_layer_1/strided_slice_11__196,TFNodes/yolo_evaluation_layer_1/strided_slice_11__197,TFNodes/yolo_evaluation_layer_1/strided_slice_11__198,TFNodes/yolo_evaluation_layer_1/strided_slice_11__199,TFNodes/yolo_evaluation_layer_1/strided_slice_12__213,TFNodes/yolo_evaluation_layer_1/strided_slice_12__214,TFNodes/yolo_evaluation_layer_1/strided_slice_12__215,TFNodes/yolo_evaluation_layer_1/strided_slice_12__216,TFNodes/yolo_evaluation_layer_1/strided_slice_13__209,TFNodes/yolo_evaluation_layer_1/strided_slice_13__210,TFNodes/yolo_evaluation_layer_1/strided_slice_13__211,TFNodes/yolo_evaluation_layer_1/strided_slice_13__212,TFNodes/yolo_evaluation_layer_1/strided_slice_14__205,TFNodes/yolo_evaluation_layer_1/strided_slice_14__206,TFNodes/yolo_evaluation_layer_1/strided_slice_14__207,TFNodes/yolo_evaluation_layer_1/strided_slice_14__208,TFNodes/yolo_evaluation_layer_1/strided_slice_15__222,TFNodes/yolo_evaluation_layer_1/strided_slice_15__223,TFNodes/yolo_evaluation_layer_1/strided_slice_15__224,TFNodes/yolo_evaluation_layer_1/strided_slice_15__225,TFNodes/yolo_evaluation_layer_1/strided_slice_16__246,TFNodes/yolo_evaluation_layer_1/strided_slice_16__247,TFNodes/yolo_evaluation_layer_1/strided_slice_16__248,TFNodes/yolo_evaluation_layer_1/strided_slice_16__249,TFNodes/yolo_evaluation_layer_1/strided_slice_17__242,TFNodes/yolo_evaluation_layer_1/strided_slice_17__243,TFNodes/yolo_evaluation_layer_1/strided_slice_17__244,TFNodes/yolo_evaluation_layer_1/strided_slice_17__245,TFNodes/yolo_evaluation_layer_1/strided_slice_18__254,TFNodes/yolo_evaluation_layer_1/strided_slice_18__255,TFNodes/yolo_evaluation_layer_1/strided_slice_18__256,TFNodes/yolo_evaluation_layer_1/strided_slice_18__257,TFNodes/yolo_evaluation_layer_1/strided_slice_19__250,TFNodes/yolo_evaluation_layer_1/strided_slice_19__251,TFNodes/yolo_evaluation_layer_1/strided_slice_19__252,TFNodes/yolo_evaluation_layer_1/strided_slice_19__253,TFNodes/yolo_evaluation_layer_1/strided_slice_1__111,TFNodes/yolo_evaluation_layer_1/strided_slice_1__112,TFNodes/yolo_evaluation_layer_1/strided_slice_20/stack:0,TFNodes/yolo_evaluation_layer_1/strided_slice_20/stack_1:0,TFNodes/yolo_evaluation_layer_1/strided_slice_20__14,TFNodes/yolo_evaluation_layer_1/strided_slice_20__15,TFNodes/yolo_evaluation_layer_1/strided_slice_21__71,TFNodes/yolo_evaluation_layer_1/strided_slice_21__72,TFNodes/yolo_evaluation_layer_1/strided_slice_21__73,TFNodes/yolo_evaluation_layer_1/strided_slice_21__74,TFNodes/yolo_evaluation_layer_1/strided_slice_22__61,TFNodes/yolo_evaluation_layer_1/strided_slice_22__62,TFNodes/yolo_evaluation_layer_1/strided_slice_22__63,TFNodes/yolo_evaluation_layer_1/strided_slice_22__64,TFNodes/yolo_evaluation_layer_1/strided_slice_23__46,TFNodes/yolo_evaluation_layer_1/strided_slice_23__47,TFNodes/yolo_evaluation_layer_1/strided_slice_23__48,TFNodes/yolo_evaluation_layer_1/strided_slice_23__49,TFNodes/yolo_evaluation_layer_1/strided_slice_24__36,TFNodes/yolo_evaluation_layer_1/strided_slice_24__37,TFNodes/yolo_evaluation_layer_1/strided_slice_24__38,TFNodes/yolo_evaluation_layer_1/strided_slice_24__39,TFNodes/yolo_evaluation_layer_1/strided_slice_25__25,TFNodes/yolo_evaluation_layer_1/strided_slice_25__26,TFNodes/yolo_evaluation_layer_1/strided_slice_25__27,TFNodes/yolo_evaluation_layer_1/strided_slice_25__28,TFNodes/yolo_evaluation_layer_1/strided_slice_26__20,TFNodes/yolo_evaluation_layer_1/strided_slice_26__21,TFNodes/yolo_evaluation_layer_1/strided_slice_26__22,TFNodes/yolo_evaluation_layer_1/strided_slice_26__23,TFNodes/yolo_evaluation_layer_1/strided_slice_27__100,TFNodes/yolo_evaluation_layer_1/strided_slice_27__101,TFNodes/yolo_evaluation_layer_1/strided_slice_27__102,TFNodes/yolo_evaluation_layer_1/strided_slice_27__103,TFNodes/yolo_evaluation_layer_1/strided_slice_28__16,TFNodes/yolo_evaluation_layer_1/strided_slice_28__17,TFNodes/yolo_evaluation_layer_1/strided_slice_28__18,TFNodes/yolo_evaluation_layer_1/strided_slice_28__19,TFNodes/yolo_evaluation_layer_1/strided_slice_29__96,TFNodes/yolo_evaluation_layer_1/strided_slice_29__97,TFNodes/yolo_evaluation_layer_1/strided_slice_29__98,TFNodes/yolo_evaluation_layer_1/strided_slice_29__99,TFNodes/yolo_evaluation_layer_1/strided_slice_2__168,TFNodes/yolo_evaluation_layer_1/strided_slice_2__169,TFNodes/yolo_evaluation_layer_1/strided_slice_2__170,TFNodes/yolo_evaluation_layer_1/strided_slice_2__171,TFNodes/yolo_evaluation_layer_1/strided_slice_30__188,TFNodes/yolo_evaluation_layer_1/strided_slice_30__189,TFNodes/yolo_evaluation_layer_1/strided_slice_30__190,TFNodes/yolo_evaluation_layer_1/strided_slice_30__191,TFNodes/yolo_evaluation_layer_1/strided_slice_31__91,TFNodes/yolo_evaluation_layer_1/strided_slice_31__92,TFNodes/yolo_evaluation_layer_1/strided_slice_31__93,TFNodes/yolo_evaluation_layer_1/strided_slice_31__94,TFNodes/yolo_evaluation_layer_1/strided_slice_32__87,TFNodes/yolo_evaluation_layer_1/strided_slice_32__88,TFNodes/yolo_evaluation_layer_1/strided_slice_32__89,TFNodes/yolo_evaluation_layer_1/strided_slice_32__90,TFNodes/yolo_evaluation_layer_1/strided_slice_33__104,TFNodes/yolo_evaluation_layer_1/strided_slice_33__105,TFNodes/yolo_evaluation_layer_1/strided_slice_33__106,TFNodes/yolo_evaluation_layer_1/strided_slice_33__107,TFNodes/yolo_evaluation_layer_1/strided_slice_34__192,TFNodes/yolo_evaluation_layer_1/strided_slice_34__193,TFNodes/yolo_evaluation_layer_1/strided_slice_34__194,TFNodes/yolo_evaluation_layer_1/strided_slice_34__195,TFNodes/yolo_evaluation_layer_1/strided_slice_35__230,TFNodes/yolo_evaluation_layer_1/strided_slice_35__231,TFNodes/yolo_evaluation_layer_1/strided_slice_35__232,TFNodes/yolo_evaluation_layer_1/strided_slice_35__233,TFNodes/yolo_evaluation_layer_1/strided_slice_36__226,TFNodes/yolo_evaluation_layer_1/strided_slice_36__227,TFNodes/yolo_evaluation_layer_1/strided_slice_36__228,TFNodes/yolo_evaluation_layer_1/strided_slice_36__229,TFNodes/yolo_evaluation_layer_1/strided_slice_37__238,TFNodes/yolo_evaluation_layer_1/strided_slice_37__239,TFNodes/yolo_evaluation_layer_1/strided_slice_37__240,TFNodes/yolo_evaluation_layer_1/strided_slice_37__241,TFNodes/yolo_evaluation_layer_1/strided_slice_38__234,TFNodes/yolo_evaluation_layer_1/strided_slice_38__235,TFNodes/yolo_evaluation_layer_1/strided_slice_38__236,TFNodes/yolo_evaluation_layer_1/strided_slice_38__237,TFNodes/yolo_evaluation_layer_1/strided_slice_3__158,TFNodes/yolo_evaluation_layer_1/strided_slice_3__159,TFNodes/yolo_evaluation_layer_1/strided_slice_3__160,TFNodes/yolo_evaluation_layer_1/strided_slice_3__161,TFNodes/yolo_evaluation_layer_1/strided_slice_4__143,TFNodes/yolo_evaluation_layer_1/strided_slice_4__144,TFNodes/yolo_evaluation_layer_1/strided_slice_4__145,TFNodes/yolo_evaluation_layer_1/strided_slice_4__146,TFNodes/yolo_evaluation_layer_1/strided_slice_5__133,TFNodes/yolo_evaluation_layer_1/strided_slice_5__134,TFNodes/yolo_evaluation_layer_1/strided_slice_5__135,TFNodes/yolo_evaluation_layer_1/strided_slice_5__136,TFNodes/yolo_evaluation_layer_1/strided_slice_6__122,TFNodes/yolo_evaluation_layer_1/strided_slice_6__123,TFNodes/yolo_evaluation_layer_1/strided_slice_6__124,TFNodes/yolo_evaluation_layer_1/strided_slice_6__125,TFNodes/yolo_evaluation_layer_1/strided_slice_7__117,TFNodes/yolo_evaluation_layer_1/strided_slice_7__118,TFNodes/yolo_evaluation_layer_1/strided_slice_7__119,TFNodes/yolo_evaluation_layer_1/strided_slice_7__120,TFNodes/yolo_evaluation_layer_1/strided_slice_8__201,TFNodes/yolo_evaluation_layer_1/strided_slice_8__202,TFNodes/yolo_evaluation_layer_1/strided_slice_8__203,TFNodes/yolo_evaluation_layer_1/strided_slice_8__204,TFNodes/yolo_evaluation_layer_1/strided_slice_9__113,TFNodes/yolo_evaluation_layer_1/strided_slice_9__114,TFNodes/yolo_evaluation_layer_1/strided_slice_9__115,TFNodes/yolo_evaluation_layer_1/strided_slice_9__116,TFNodes/yolo_evaluation_layer_1/strided_slice__186,TFNodes/yolo_evaluation_layer_1/strided_slice__187,TFNodes/yolo_evaluation_layer_1/truediv_11/y:0,TFNodes/yolo_evaluation_layer_1/truediv_14/y:0,TFNodes/yolo_evaluation_layer_1/truediv_15/y:0,TFNodes/yolo_evaluation_layer_1/truediv_3/y:0,TFNodes/yolo_evaluation_layer_1/truediv_6/y:0,TFNodes/yolo_evaluation_layer_1/truediv_7/y:0,bias,bias1,bias10,bias2,bias3,bias4,bias5,bias6,bias7,bias8,bias9,conv2d_1/kernel:0,conv2d_10/bias:0,conv2d_10/kernel:0,conv2d_11/kernel:0,conv2d_12/kernel:0,conv2d_13/bias:0,conv2d_13/kernel:0,conv2d_2/kernel:0,conv2d_3/kernel:0,conv2d_4/kernel:0,conv2d_5/kernel:0,conv2d_6/kernel:0,conv2d_7/kernel:0,conv2d_8/kernel:0,conv2d_9/kernel:0,iou_threshold,layer.score_threshold,max_output_size,mean,mean1,mean10,mean2,mean3,mean4,mean5,mean6,mean7,mean8,mean9,scale,scale1,scale10,scale2,scale3,scale4,scale5,scale6,scale7,scale8,scale9,var,var1,var10,var2,var3,var4,var5,var6,var7,var8,var9,\\n'",
+      "split_init": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'type\\' of \\'value_info\\' is required but missing.\\n'",
+      "split_predict": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'elem_type\\' of \\'type\\' is required but missing.\\n'"
+    },
+    "YOLOv2-9": {
+      "rename_input_output": "ValueError(\"Required inputs (['input_0']) are missing from input feed (['input.1']).\")",
+      "lift_lexical_references": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 76, in main\\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__init__.py\", line 46, in optimize\\n    optimized_model_str = C.optimize(model_str, passes)\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nRuntimeError: Unresolved value references: models.0.bn1.bias,models.0.bn1.running_mean,models.0.bn1.running_var,models.0.bn1.weight,models.0.conv1.weight,models.10.bn8.bias,models.10.bn8.running_mean,models.10.bn8.running_var,models.10.bn8.weight,models.10.conv8.weight,models.12.bn9.bias,models.12.bn9.running_mean,models.12.bn9.running_var,models.12.bn9.weight,models.12.conv9.weight,models.13.bn10.bias,models.13.bn10.running_mean,models.13.bn10.running_var,models.13.bn10.weight,models.13.conv10.weight,models.14.bn11.bias,models.14.bn11.running_mean,models.14.bn11.running_var,models.14.bn11.weight,models.14.conv11.weight,models.15.bn12.bias,models.15.bn12.running_mean,models.15.bn12.running_var,models.15.bn12.weight,models.15.conv12.weight,models.16.bn13.bias,models.16.bn13.running_mean,models.16.bn13.running_var,models.16.bn13.weight,models.16.conv13.weight,models.18.bn14.bias,models.18.bn14.running_mean,models.18.bn14.running_var,models.18.bn14.weight,models.18.conv14.weight,models.19.bn15.bias,models.19.bn15.running_mean,models.19.bn15.running_var,models.19.bn15.weight,models.19.conv15.weight,models.2.bn2.bias,models.2.bn2.running_mean,models.2.bn2.running_var,models.2.bn2.weight,models.2.conv2.weight,models.20.bn16.bias,models.20.bn16.running_mean,models.20.bn16.running_var,models.20.bn16.weight,models.20.conv16.weight,models.21.bn17.bias,models.21.bn17.running_mean,models.21.bn17.running_var,models.21.bn17.weight,models.21.conv17.weight,models.22.bn18.bias,models.22.bn18.running_mean,models.22.bn18.running_var,models.22.bn18.weight,models.22.conv18.weight,models.23.bn19.bias,models.23.bn19.running_mean,models.23.bn19.running_var,models.23.bn19.weight,models.23.conv19.weight,models.24.bn20.bias,models.24.bn20.running_mean,models.24.bn20.running_var,models.24.bn20.weight,models.24.conv20.weight,models.26.bn21.bias,models.26.bn21.running_mean,models.26.bn21.running_var,models.26.bn21.weight,models.26.conv21.weight,models.29.bn22.bias,models.29.bn22.running_mean,models.29.bn22.running_var,models.29.bn22.weight,models.29.conv22.weight,models.30.conv23.bias,models.30.conv23.weight,models.4.bn3.bias,models.4.bn3.running_mean,models.4.bn3.running_var,models.4.bn3.weight,models.4.conv3.weight,models.5.bn4.bias,models.5.bn4.running_mean,models.5.bn4.running_var,models.5.bn4.weight,models.5.conv4.weight,models.6.bn5.bias,models.6.bn5.running_mean,models.6.bn5.running_var,models.6.bn5.weight,models.6.conv5.weight,models.8.bn6.bias,models.8.bn6.running_mean,models.8.bn6.running_var,models.8.bn6.weight,models.8.conv6.weight,models.9.bn7.bias,models.9.bn7.running_mean,models.9.bn7.running_var,models.9.bn7.weight,models.9.conv7.weight,\\n'",
+      "split_init": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'type\\' of \\'value_info\\' is required but missing.\\n'",
+      "split_predict": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'elem_type\\' of \\'type\\' is required but missing.\\n'"
+    },
+    "YOLOv3-10": {
+      "rename_input_output": "ValueError(\"Required inputs (['input_0']) are missing from input feed (['input_1', 'image_shape']).\")",
+      "lift_lexical_references": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 76, in main\\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__init__.py\", line 46, in optimize\\n    optimized_model_str = C.optimize(model_str, passes)\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nRuntimeError: Unresolved value references: B,B1,B2,Const__523,Resize_scales,TFNodes/yolo_evaluation_layer_1/Reshape:0,TFNodes/yolo_evaluation_layer_1/Reshape_12:0,TFNodes/yolo_evaluation_layer_1/Reshape_6:0,TFNodes/yolo_evaluation_layer_1/arange_5/delta:0,TFNodes/yolo_evaluation_layer_1/arange_5/start:0,TFNodes/yolo_evaluation_layer_1/arange__271_cond,TFNodes/yolo_evaluation_layer_1/mul/y:0,TFNodes/yolo_evaluation_layer_1/strided_slice_12__320,TFNodes/yolo_evaluation_layer_1/strided_slice_13__316,TFNodes/yolo_evaluation_layer_1/strided_slice_20__111,TFNodes/yolo_evaluation_layer_1/strided_slice_46__102,TFNodes/yolo_evaluation_layer_1/strided_slice_46__103,TFNodes/yolo_evaluation_layer_1/strided_slice_46__104,TFNodes/yolo_evaluation_layer_1/strided_slice_47__18,TFNodes/yolo_evaluation_layer_1/strided_slice_47__19,TFNodes/yolo_evaluation_layer_1/strided_slice_47__20,TFNodes/yolo_evaluation_layer_1/truediv_14/y:0,W,W1,W10,W11,W12,W13,W14,W15,W16,W17,W18,W19,W2,W20,W21,W22,W23,W24,W25,W26,W27,W28,W29,W3,W30,W31,W32,W33,W34,W35,W36,W37,W38,W39,W4,W40,W41,W42,W43,W44,W45,W46,W47,W48,W49,W5,W50,W51,W52,W53,W54,W55,W56,W57,W58,W59,W6,W60,W61,W62,W63,W64,W65,W66,W67,W68,W69,W7,W70,W71,W72,W73,W74,W8,W9,bias,bias1,bias10,bias11,bias12,bias13,bias14,bias15,bias16,bias17,bias18,bias19,bias2,bias20,bias21,bias22,bias23,bias24,bias25,bias26,bias27,bias28,bias29,bias3,bias30,bias31,bias32,bias33,bias34,bias35,bias36,bias37,bias38,bias39,bias4,bias40,bias41,bias42,bias43,bias44,bias45,bias46,bias47,bias48,bias49,bias5,bias50,bias51,bias52,bias53,bias54,bias55,bias56,bias57,bias58,bias59,bias6,bias60,bias61,bias62,bias63,bias64,bias65,bias66,bias67,bias68,bias69,bias7,bias70,bias71,bias8,bias9,const_fold_opt__537,const_fold_opt__541,const_fold_opt__548,const_fold_opt__549,const_fold_opt__550,const_fold_opt__551,const_fold_opt__553,const_fold_opt__566,const_fold_opt__570,const_fold_opt__571,iou_threshold,layer.score_threshold,max_output_size,mean21,mean22,mean6,mean64,mean69,mean7,scale,scale1,scale10,scale11,scale12,scale13,scale14,scale15,scale16,scale17,scale18,scale19,scale2,scale20,scale21,scale22,scale23,scale24,scale25,scale26,scale27,scale28,scale29,scale3,scale30,scale31,scale32,scale33,scale34,scale35,scale36,scale37,scale38,scale39,scale4,scale40,scale41,scale42,scale43,scale44,scale45,scale46,scale47,scale48,scale49,scale5,scale50,scale51,scale52,scale53,scale54,scale55,scale56,scale57,scale58,scale59,scale6,scale60,scale61,scale62,scale63,scale64,scale65,scale66,scale67,scale68,scale69,scale7,scale70,scale71,scale8,scale9,var21,var22,var5,var6,var64,var69,\\n'",
+      "split_init": "IndexError('list index (0) out of range')",
+      "split_predict": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Nodes in a graph must be topologically sorted, however input \\'TFNodes/yolo_evaluation_layer_1/arange_5/delta:0\\' of node: \\nname: add__252 OpType: Add\\n is not output of any previous nodes.\\n\\n==> Context: Bad node spec for node. Name: TFNodes/yolo_evaluation_layer_1/arange_1__246_loop OpType: Loop\\n'"
+    },
+    "YOLOv3-12-12": {
+      "rename_input_output": "ValueError(\"Required inputs (['input_0']) are missing from input feed (['input_1', 'image_shape']).\")",
+      "lift_lexical_references": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 76, in main\\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__init__.py\", line 46, in optimize\\n    optimized_model_str = C.optimize(model_str, passes)\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nRuntimeError: Unresolved value references: B,B1,B2,Const__523,Resize_scales,TFNodes/yolo_evaluation_layer_1/Reshape:0,TFNodes/yolo_evaluation_layer_1/Reshape_12:0,TFNodes/yolo_evaluation_layer_1/Reshape_6:0,TFNodes/yolo_evaluation_layer_1/arange_5/delta:0,TFNodes/yolo_evaluation_layer_1/arange_5/start:0,TFNodes/yolo_evaluation_layer_1/arange__271_cond,TFNodes/yolo_evaluation_layer_1/mul/y:0,TFNodes/yolo_evaluation_layer_1/strided_slice_12__320,TFNodes/yolo_evaluation_layer_1/strided_slice_13__316,TFNodes/yolo_evaluation_layer_1/strided_slice_20__111,TFNodes/yolo_evaluation_layer_1/strided_slice_46__102,TFNodes/yolo_evaluation_layer_1/strided_slice_46__103,TFNodes/yolo_evaluation_layer_1/strided_slice_46__104,TFNodes/yolo_evaluation_layer_1/strided_slice_47__18,TFNodes/yolo_evaluation_layer_1/strided_slice_47__19,TFNodes/yolo_evaluation_layer_1/strided_slice_47__20,TFNodes/yolo_evaluation_layer_1/truediv_14/y:0,W,W1,W10,W11,W12,W13,W14,W15,W16,W17,W18,W19,W2,W20,W21,W22,W23,W24,W25,W26,W27,W28,W29,W3,W30,W31,W32,W33,W34,W35,W36,W37,W38,W39,W4,W40,W41,W42,W43,W44,W45,W46,W47,W48,W49,W5,W50,W51,W52,W53,W54,W55,W56,W57,W58,W59,W6,W60,W61,W62,W63,W64,W65,W66,W67,W68,W69,W7,W70,W71,W72,W73,W74,W8,W9,bias,bias1,bias10,bias11,bias12,bias13,bias14,bias15,bias16,bias17,bias18,bias19,bias2,bias20,bias21,bias22,bias23,bias24,bias25,bias26,bias27,bias28,bias29,bias3,bias30,bias31,bias32,bias33,bias34,bias35,bias36,bias37,bias38,bias39,bias4,bias40,bias41,bias42,bias43,bias44,bias45,bias46,bias47,bias48,bias49,bias5,bias50,bias51,bias52,bias53,bias54,bias55,bias56,bias57,bias58,bias59,bias6,bias60,bias61,bias62,bias63,bias64,bias65,bias66,bias67,bias68,bias69,bias7,bias70,bias71,bias8,bias9,const_fold_opt__537,const_fold_opt__541,const_fold_opt__548,const_fold_opt__549,const_fold_opt__550,const_fold_opt__551,const_fold_opt__553,const_fold_opt__566,const_fold_opt__570,const_fold_opt__571,iou_threshold,layer.score_threshold,max_output_size,mean21,mean22,mean6,mean64,mean69,mean7,scale,scale1,scale10,scale11,scale12,scale13,scale14,scale15,scale16,scale17,scale18,scale19,scale2,scale20,scale21,scale22,scale23,scale24,scale25,scale26,scale27,scale28,scale29,scale3,scale30,scale31,scale32,scale33,scale34,scale35,scale36,scale37,scale38,scale39,scale4,scale40,scale41,scale42,scale43,scale44,scale45,scale46,scale47,scale48,scale49,scale5,scale50,scale51,scale52,scale53,scale54,scale55,scale56,scale57,scale58,scale59,scale6,scale60,scale61,scale62,scale63,scale64,scale65,scale66,scale67,scale68,scale69,scale7,scale70,scale71,scale8,scale9,var21,var22,var5,var6,var64,var69,\\n'",
+      "split_init": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'type\\' of \\'value_info\\' is required but missing.\\n'",
+      "split_predict": "b'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/__main__.py\", line 15, in <module>\\n    main()\\n  File \"/home/luludak/Documents/Postdoc/OODE/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py\", line 84, in main\\n    onnx.checker.check_model(output_file)\\n  File \"/home/luludak/conda/lib/python3.12/site-packages/onnx/checker.py\", line 163, in check_model\\n    C.check_model_path(\\nonnx.onnx_cpp2py_export.checker.ValidationError: Field \\'elem_type\\' of \\'type\\' is required but missing.\\n'"
+    }
+  },
+  "SSD-12": {
+    "skipped": [
+      "adjust_add",
+      "set_unique_name_for_nodes",
+      "nop",
+      "eliminate_nop_dropout",
+      "eliminate_nop_flatten",
+      "eliminate_consecutive_idempotent_ops",
+      "eliminate_if_with_const_cond",
+      "eliminate_nop_monotone_argmax",
+      "eliminate_nop_pad",
+      "eliminate_nop_concat",
+      "eliminate_nop_split",
+      "eliminate_nop_expand",
+      "eliminate_slice_after_shape",
+      "eliminate_nop_transpose",
+      "fuse_add_bias_into_conv",
+      "fuse_consecutive_concats",
+      "fuse_consecutive_log_softmax",
+      "fuse_consecutive_reduce_unsqueeze",
+      "fuse_consecutive_squeezes",
+      "fuse_consecutive_transposes",
+      "fuse_matmul_add_bias_into_gemm",
+      "fuse_pad_into_conv",
+      "fuse_pad_into_pool",
+      "fuse_transpose_into_gemm",
+      "replace_einsum_with_matmul",
+      "lift_lexical_references",
+      "fuse_concat_into_reshape",
+      "eliminate_nop_reshape",
+      "eliminate_nop_with_unit",
+      "fuse_qkv",
+      "fuse_consecutive_unsqueezes",
+      "eliminate_deadend",
+      "eliminate_identity",
+      "fuse_consecutive_slices",
+      "adjust_slice_and_matmul",
+      "rewrite_input_dtype"
+    ],
+    "failed": [
+      "rename_input_output",
+      "split_init",
+      "split_predict"
+    ],
+    "different": 0,
+    "run": 8,
+    "eliminate_nop_cast": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "extract_constant_to_initializer": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "eliminate_shape_gather": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "fuse_bn_into_conv": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 95.07173983166818,
+          "avg_prec": 93.999999906,
+          "avg_recall": 93.999999906
+        },
+        "metrics_0_7": {
+          "avg_f1": 95.07173983166818,
+          "avg_prec": 93.999999906,
+          "avg_recall": 93.999999906
+        },
+        "metrics_0_9": {
+          "avg_f1": 95.07173983166818,
+          "avg_prec": 93.999999906,
+          "avg_recall": 93.999999906
+        }
+      },
+      "labels": {
+        "first": 2.6,
+        "top5": 4.3999999999999995,
+        "topK": 6.4
+      }
+    },
+    "eliminate_common_subexpression": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "eliminate_shape_op": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "eliminate_unused_initializer": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    },
+    "eliminate_duplicate_initializer": {
+      "bboxes": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999989999999,
+          "avg_prec": 99.99999989999999,
+          "avg_recall": 99.99999989999999
+        }
+      },
+      "labels": {
+        "first": 0.0,
+        "top5": 0.0,
+        "topK": 0.0
+      }
+    }
+  },
+  "Tiny YOLOv3-11": {
+    "skipped": [
+      "adjust_add",
+      "nop",
+      "eliminate_nop_cast",
+      "eliminate_nop_dropout",
+      "eliminate_nop_flatten",
+      "extract_constant_to_initializer",
+      "eliminate_consecutive_idempotent_ops",
+      "eliminate_if_with_const_cond",
+      "eliminate_nop_monotone_argmax",
+      "eliminate_nop_pad",
+      "eliminate_nop_concat",
+      "eliminate_nop_split",
+      "eliminate_nop_expand",
+      "eliminate_shape_gather",
+      "eliminate_slice_after_shape",
+      "eliminate_nop_transpose",
+      "fuse_add_bias_into_conv",
+      "fuse_consecutive_concats",
+      "fuse_consecutive_log_softmax",
+      "fuse_consecutive_reduce_unsqueeze",
+      "fuse_consecutive_squeezes",
+      "fuse_consecutive_transposes",
+      "fuse_matmul_add_bias_into_gemm",
+      "fuse_pad_into_conv",
+      "fuse_pad_into_pool",
+      "fuse_transpose_into_gemm",
+      "replace_einsum_with_matmul",
+      "lift_lexical_references",
+      "fuse_concat_into_reshape",
+      "eliminate_nop_reshape",
+      "fuse_qkv",
+      "fuse_consecutive_unsqueezes",
+      "eliminate_deadend",
+      "eliminate_shape_op",
+      "fuse_consecutive_slices",
+      "eliminate_unused_initializer",
+      "adjust_slice_and_matmul",
+      "rewrite_input_dtype"
+    ],
+    "failed": [
+      "rename_input_output"
+    ],
+    "different": 0,
+    "run": 6,
+    "set_unique_name_for_nodes": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    },
+    "fuse_bn_into_conv": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 99.8791833121491,
+          "avg_prec": 99.890798424633,
+          "avg_recall": 99.86771741133103
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.50058984827177,
+          "avg_prec": 99.50232724668811,
+          "avg_recall": 99.49900181343565
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.25437436707197,
+          "avg_prec": 99.25349087003224,
+          "avg_recall": 99.25526146202877
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_nop_with_unit": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_common_subexpression": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_identity": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_duplicate_initializer": {
+      "yolonms_layer_1": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1:1": {
+        "topK": 0.0
+      }
+    }
+  },
+  "YOLOv2-9": {
+    "skipped": [],
+    "failed": [
+      "rename_input_output"
+    ],
+    "different": 0,
+    "run": 43,
+    "adjust_add": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "set_unique_name_for_nodes": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "nop": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_cast": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_dropout": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_flatten": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "extract_constant_to_initializer": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_consecutive_idempotent_ops": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_if_with_const_cond": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_monotone_argmax": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_pad": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_concat": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_split": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_expand": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_shape_gather": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_slice_after_shape": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_transpose": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_add_bias_into_conv": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_bn_into_conv": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_concats": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_log_softmax": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_reduce_unsqueeze": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_squeezes": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_transposes": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_matmul_add_bias_into_gemm": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_pad_into_conv": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_pad_into_pool": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_transpose_into_gemm": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "replace_einsum_with_matmul": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_concat_into_reshape": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_reshape": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_nop_with_unit": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_common_subexpression": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_qkv": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_unsqueezes": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_deadend": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_identity": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_shape_op": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "fuse_consecutive_slices": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_unused_initializer": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "eliminate_duplicate_initializer": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "adjust_slice_and_matmul": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    },
+    "rewrite_input_dtype": {
+      "218": {
+        "metrics_0_5": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        },
+        "metrics_0_9": {
+          "avg_f1": 99.99999992747381,
+          "avg_prec": 99.99999992730115,
+          "avg_recall": 99.99999992730115
+        }
+      }
+    }
+  },
+  "YOLOv3-10": {
+    "skipped": [
+      "adjust_add",
+      "set_unique_name_for_nodes",
+      "nop",
+      "eliminate_nop_cast",
+      "eliminate_nop_dropout",
+      "eliminate_nop_flatten",
+      "extract_constant_to_initializer",
+      "eliminate_consecutive_idempotent_ops",
+      "eliminate_if_with_const_cond",
+      "eliminate_nop_monotone_argmax",
+      "eliminate_nop_pad",
+      "eliminate_nop_concat",
+      "eliminate_nop_split",
+      "eliminate_nop_expand",
+      "eliminate_shape_gather",
+      "eliminate_slice_after_shape",
+      "eliminate_nop_transpose",
+      "fuse_add_bias_into_conv",
+      "fuse_consecutive_concats",
+      "fuse_consecutive_log_softmax",
+      "fuse_consecutive_reduce_unsqueeze",
+      "fuse_consecutive_squeezes",
+      "fuse_consecutive_transposes",
+      "fuse_matmul_add_bias_into_gemm",
+      "fuse_pad_into_conv",
+      "fuse_pad_into_pool",
+      "fuse_transpose_into_gemm",
+      "replace_einsum_with_matmul",
+      "lift_lexical_references",
+      "fuse_concat_into_reshape",
+      "eliminate_nop_reshape",
+      "eliminate_common_subexpression",
+      "fuse_qkv",
+      "fuse_consecutive_unsqueezes",
+      "eliminate_deadend",
+      "eliminate_identity",
+      "eliminate_shape_op",
+      "fuse_consecutive_slices",
+      "eliminate_unused_initializer",
+      "eliminate_duplicate_initializer",
+      "adjust_slice_and_matmul",
+      "rewrite_input_dtype"
+    ],
+    "failed": [
+      "rename_input_output",
+      "split_init"
+    ],
+    "different": 0,
+    "run": 2,
+    "fuse_bn_into_conv": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 99.89830451352249,
+          "avg_prec": 99.89471979267897,
+          "avg_recall": 99.90192388292398
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.46320075187506,
+          "avg_prec": 99.46100133174964,
+          "avg_recall": 99.46551617416868
+        },
+        "metrics_0_9": {
+          "avg_f1": 98.33976129552232,
+          "avg_prec": 98.3605082244538,
+          "avg_recall": 98.3191023086667
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_nop_with_unit": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    }
+  },
+  "YOLOv3-12-12": {
+    "skipped": [
+      "adjust_add",
+      "nop",
+      "eliminate_nop_cast",
+      "eliminate_nop_dropout",
+      "eliminate_nop_flatten",
+      "eliminate_consecutive_idempotent_ops",
+      "eliminate_if_with_const_cond",
+      "eliminate_nop_monotone_argmax",
+      "eliminate_nop_pad",
+      "eliminate_nop_concat",
+      "eliminate_nop_split",
+      "eliminate_nop_expand",
+      "eliminate_shape_gather",
+      "eliminate_slice_after_shape",
+      "eliminate_nop_transpose",
+      "fuse_add_bias_into_conv",
+      "fuse_consecutive_concats",
+      "fuse_consecutive_log_softmax",
+      "fuse_consecutive_reduce_unsqueeze",
+      "fuse_consecutive_squeezes",
+      "fuse_consecutive_transposes",
+      "fuse_matmul_add_bias_into_gemm",
+      "fuse_pad_into_conv",
+      "fuse_pad_into_pool",
+      "fuse_transpose_into_gemm",
+      "replace_einsum_with_matmul",
+      "lift_lexical_references",
+      "fuse_concat_into_reshape",
+      "eliminate_nop_reshape"
+    ],
+    "failed": [
+      "rename_input_output"
+    ],
+    "different": 0,
+    "run": 5,
+    "set_unique_name_for_nodes": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    },
+    "extract_constant_to_initializer": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    },
+    "fuse_bn_into_conv": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 99.89830451352249,
+          "avg_prec": 99.89471979267897,
+          "avg_recall": 99.90192388292398
+        },
+        "metrics_0_7": {
+          "avg_f1": 99.46320075187506,
+          "avg_prec": 99.46100133174964,
+          "avg_recall": 99.46551617416868
+        },
+        "metrics_0_9": {
+          "avg_f1": 98.33976129552232,
+          "avg_prec": 98.3605082244538,
+          "avg_recall": 98.3191023086667
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_nop_with_unit": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    },
+    "eliminate_common_subexpression": {
+      "yolonms_layer_1/ExpandDims_1:0": {
+        "metrics_0_5": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_7": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        },
+        "metrics_0_9": {
+          "avg_f1": 100.0,
+          "avg_prec": 100.0,
+          "avg_recall": 100.0
+        }
+      },
+      "yolonms_layer_1/ExpandDims_3:0": {
+        "topK": 0.0
+      }
+    }
+  }
+}
