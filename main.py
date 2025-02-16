@@ -8,6 +8,8 @@ import hashlib
 import subprocess
 import numpy as np
 import onnxruntime as ort
+import scipy.stats as stats
+import math
 
 os.environ['CURL_CA_BUNDLE'] = ''
 
@@ -39,13 +41,13 @@ from runners.onnx_runner import ONNXRunner
 from onnx.numpy_helper import to_array
 from onnx import hub
 
-from transformers import RobertaTokenizer
+from transformers import BertTokenizer
 from datasets import load_dataset
 
-tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-glue_data = load_dataset("glue", "sst2")
-test_sentences = [example["sentence"] for example in glue_data["test"]]
-print(len(test_sentences))
+from transformers import RobertaTokenizer
+
+from transformers import GPT2Tokenizer
+
 # text = glue_data["test"][0]["sentence"]
 # tokens = tokenizer(text, return_tensors="np")
 
@@ -76,7 +78,7 @@ def main():
 
     hub.set_dir(script_dir + "/models_cache")
     
-    model_comparisons_file = script_dir + "/text/all_text_chunk_0_500.json"
+    model_comparisons_file = script_dir + "/text/RoBERTa_comprehension_chunk_0_500.json"
     # base_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
 
 
@@ -94,21 +96,35 @@ def main():
     # #         different_models.append(key)
     # # print(different_models)
  
-    skip_until = 0 # 137-8# Problematic 136 #133#159#137
-    run_up_to = 200
+    skip_until = 10 # 137-8# Problematic 136 #133#159#137
+    run_up_to = 10
 
     all_images_paths = [join(images_folder, f) for f in listdir(images_folder) \
         if isfile(join(images_folder, f))]
 
     all_images_paths.sort()
 
-    images_chunk = 500
-    starts_from = 0
-    limit = 5501 
+    images_chunk = 200
+    starts_from = 200
+    limit = 25000#11873
     ends_at = starts_from + images_chunk
     tags = "text"
 
-    while ends_at <= len(all_images_paths) and ends_at < limit:
+    # dataset = load_dataset("squad_v2")
+    dataset = load_dataset("imdb")
+
+    print(len(dataset["test"]))
+
+    # ends_at <= len(all_images_paths) and 
+    while ends_at < limit + images_chunk:
+        qa_data = list(dataset["test"])[starts_from:ends_at]
+        questions = [qa["text"] for qa in qa_data]
+        # context = [qa["context"] for qa in qa_data]
+
+        # BERT-Squad
+        # qa_data = list(dataset["validation"])[starts_from:ends_at]
+        # questions = [qa["question"] for qa in qa_data]
+        # context = [qa["context"] for qa in qa_data]
 
         json_object = None
         model_comparisons = {}
@@ -128,13 +144,15 @@ def main():
  
         # print(images_paths[0])
         # return
-        print(" ---- Image Chunk: " + str(starts_from) + " to " + str(ends_at))
+        print(" ---- Input Batch: " + str(starts_from) + " to " + str(ends_at))
         model_comparisons_file = model_comparisons_file.split("_chunk")[0] + "_chunk_" + str(starts_from) + "_" + str(ends_at) + ".json"
 
         model_no = 0
         for model_obj in all_models:
             text_inputs = None
             text_expected_outputs = None
+
+            
             model_no += 1
             if (model_no < skip_until or model_no > run_up_to):
                 continue
@@ -157,13 +175,6 @@ def main():
             
 
             if "text" in tags:
-                # print(model_name)
-                # local_path = hub.get_dir() + "/" + model_name
-                # print(local_path)
-                # if os.path.exists(local_path):
-                #     model_path_data = hub.ModelPath(local_path)
-                # else:
-                
                 model_path_data = hub.download_model_with_test_data(model_name)
 
                 data_path = model_path_data + "/test_data_set_0/"
@@ -182,26 +193,23 @@ def main():
                 model_path = str(model_path[0])
                 
 
-                input_pb_files = sorted(data_path.glob("input_*.pb"))
-                output_pb_files = sorted(data_path.glob("output_*.pb"))
+                # input_pb_files = sorted(data_path.glob("input_*.pb"))
+                # output_pb_files = sorted(data_path.glob("output_*.pb"))
 
-                inputs_len = len(input_pb_files)
+                # inputs_len = len(input_pb_files)
                 
-                if inputs_len > limit:
-                    limit = inputs_len
+                # if inputs_len > limit:
+                #     limit = inputs_len
 
-                text_inputs = [to_array(onnx.load_tensor(str(p))) for p in input_pb_files] #[starts_from:ends_at]
-                text_expected_outputs = [to_array(onnx.load_tensor(str(p))) for p in output_pb_files] #[starts_from:ends_at]
-                print(len(text_inputs))
+                #RoBERTa
+                tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
+                # BERT-Squad
+                # tokenizer = BertTokenizer.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
 
-                # text_inputs = [to_array(onnx.load_tensor(p)) for p in model_path_data.test_data[0].inputs[starts_from:ends_at]]
-                # # print(text_inputs)
-                # text_expected_outputs = [to_array(onnx.load_tensor(p)) for p in model_path_data.test_data[0].outputs[starts_from:ends_at]]
-
-                # If chunk of inputs smaller, continue.
-                if (len(text_inputs) == 0):
-                    continue
+                #questions
+                encoding = tokenizer(questions, padding="max_length", truncation=True, max_length=256, return_tensors='np')
+                unique_ids = np.arange(encoding['input_ids'].shape[1], dtype=np.int64).flatten()
 
             print("Model Number: " + str(model_no))
             print("Model Name: " + model_name)
@@ -250,7 +258,7 @@ def main():
                 "input_shape": model_shape,
                 "input_dimension": img_dimension
             }
-
+            # if "text" not in tags:
             if os.path.exists(model_path):
                 print(model_path)
                 model = onnx.load(model_path)
@@ -281,27 +289,24 @@ def main():
             
             try:
                 if "text" not in tags:
-                # pass
-
                     base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
                 else:
                     # TODO: move to runner.
                     session = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
 
-                    # Prepare input dictionary
-                    print(len(text_inputs))
-                    input_dict = {session.get_inputs()[i].name: text_inputs[i] for i in range(len(text_inputs))}
+                    # RoBERTa
+                    onnx_inputs = {
+                    'input': encoding['input_ids']
+                    }
+
+                    # BERT-Squad
+                    # onnx_inputs = {'unique_ids_raw_output___9:0': unique_ids,
+                    # 'segment_ids:0': encoding['token_type_ids'],
+                    # 'input_mask:0': encoding['attention_mask'],
+                    # 'input_ids:0': encoding['input_ids']}
+
                     # Run inference
-                    outputs = session.run(None, input_dict)
-
-                    # Compare outputs and calculate match percentage
-                    matches = []
-                    for output, expected in zip(outputs, text_expected_outputs):
-                        matches.append(np.allclose(output, expected, atol=1e-5))
-
-                    base_match_percentage = (sum(matches) / len(matches)) * 100
-
-                    print ("Base Percentage: " + str(base_match_percentage) + "%")
+                    base_outputs = session.run(None, onnx_inputs)
             except Exception as e:
                 print(e)
                 print(model_name + " - a base model error occured!")
@@ -321,6 +326,10 @@ def main():
 
             for current_pass in passes:
                 opt_match_percentage = 0
+                matches = 0
+                total = 0
+                tau_values = []
+                p_values = []
                 conversion_failed = False
                 try:
                     if basic_run:
@@ -367,18 +376,89 @@ def main():
                             session = ort.InferenceSession(onnx_model.SerializeToString(), providers=["CPUExecutionProvider"])
 
                             # Prepare input dictionary
-                            input_dict = {session.get_inputs()[i].name: text_inputs[i] for i in range(len(text_inputs))}
+                            # RoBERTa
+                            onnx_inputs = {
+                            'input': encoding['input_ids']
+                            }
+
+                            # BERT-Squad
+                            # onnx_inputs = {'unique_ids_raw_output___9:0': unique_ids,
+                            # 'segment_ids:0': encoding['token_type_ids'],
+                            # 'input_mask:0': encoding['attention_mask'],
+                            # 'input_ids:0': encoding['input_ids']}
+
                             # Run inference
-                            outputs = session.run(None, input_dict)
+                            opt_outputs = session.run(None, onnx_inputs)
 
                             # Compare outputs and calculate match percentage
-                            matches = []
-                            for output, expected in zip(outputs, text_expected_outputs):
-                                matches.append(np.allclose(output, expected, atol=1e-5))
+                            # base_outputs[1]
+                            # print(len(base_outputs[0]))
+                            total = len(base_outputs[0])
+                            for i in range(len(base_outputs[0])):
+                                # RoBERTa
+                                base_logits = base_outputs[0][i]  # Extract logits
+                                opt_logits = opt_outputs[0][i]
 
-                            opt_match_percentage = (sum(matches) / len(matches)) * 100
+                                # print(base_logits)
+                                # print(opt_logits)
 
-                            print ("Optimized Percentage: " + str(opt_match_percentage) + "%")
+                                base_label = np.argmax(base_logits)
+                                opt_label = np.argmax(opt_logits)
+
+                                # print(base_labels)
+                                # print(opt_labels)
+
+                                if base_label == opt_label:
+                                    matches += 1
+
+
+
+                                # BERT-Squad
+                                # base_start_logits = base_outputs[2][i]
+                                # base_end_logits = base_outputs[1][i] 
+
+                                # base_start_index = np.argmax(base_start_logits)
+                                # base_end_index = np.argmax(base_end_logits)
+
+                                # opt_start_logits = opt_outputs[2][i]
+                                # opt_end_logits = opt_outputs[1][i] 
+
+                                # opt_start_index = np.argmax(opt_start_logits)
+                                # opt_end_index = np.argmax(opt_end_logits)
+
+                                # # Convert the indices to tokens (ensure the end index is greater than or equal to the start index)
+                                # if base_start_index <= base_end_index:
+                                #     base_answer_tokens = encoding['input_ids'][0][base_start_index:base_end_index + 1]
+                                #     opt_answer_tokens = encoding['input_ids'][0][opt_start_index:opt_end_index + 1]
+                                    
+                                #     tau, p_value = stats.kendalltau(base_answer_tokens, opt_answer_tokens) # , , nan_policy="omit"
+
+                                #     if not math.isnan(tau):
+                                        
+                                #         tau_values.append(tau)
+                                #         p_values.append(p_value)
+
+                                #         if (tau >= 0.95):
+                                #             matches += 1
+                                #         total += 1
+                                #     else:
+                                #         # pass
+                                #         if base_start_index <= base_end_index:
+                                #             answer = tokenizer.decode(base_answer_tokens)
+                                #             print(answer)
+                                #         else:
+                                #             answer = "No answer found"
+                                #         print(tau)
+                                #         print (base_answer_tokens)
+                                #         print (opt_answer_tokens)
+                                #         print("-----------------------------")
+                                # else:
+
+                                #     # Skip unanswered.
+                                #     pass
+                            opt_match_percentage = (matches / total) * 100
+
+                            print ("Similarity: " + str(opt_match_percentage) + "%")
                     except Exception as e:
                         print(e)
                         if model_name_opset not in model_comparisons["conversion_errors"]:
@@ -390,12 +470,21 @@ def main():
                     if not conversion_failed:
                         
                         if ("text" in tags):
-                            percentage_diff = abs(base_match_percentage - opt_match_percentage)
+                            # percentage_diff = abs(base_match_percentage - opt_match_percentage)
                             model_comparisons[model_name_opset][current_pass] = {
-                                "percentage_base_similarity_to_gt" : base_match_percentage,
-                                "percentage_opt_similarity_to_gt" : opt_match_percentage,
-                                "percentage_similarity_diff": percentage_diff
+                                "percentage_similarity_diff": opt_match_percentage,
+                                "matches": matches,
+                                "total": total
                             }
+
+                            if len(tau_values) != 0:
+                                model_comparisons[model_name_opset][current_pass]["avg_tau"] = np.mean(tau_values)
+                                model_comparisons[model_name_opset][current_pass]["median_tau"] = np.median(tau_values)
+
+                            if len(p_values) != 0:
+                                model_comparisons[model_name_opset][current_pass]["avg_pv"] = np.mean(tau_values)
+                                model_comparisons[model_name_opset][current_pass]["median_pv"] = np.median(tau_values)
+
 
                         elif ("classification" in tags):
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
@@ -643,12 +732,13 @@ def main():
                     outfile.write(json_object)
         
         starts_from += images_chunk
-        if ends_at + images_chunk <= len(all_images_paths):
-            ends_at += images_chunk
-        elif ends_at != len(all_images_paths):
-            ends_at = len(all_images_paths)
-        else:
-            break
+        ends_at += images_chunk
+        # if ends_at + images_chunk <= len(all_images_paths):
+        #     ends_at += images_chunk
+        # elif ends_at != len(all_images_paths):
+        #     ends_at = len(all_images_paths)
+        # else:
+        #     break
 
 if __name__ == "__main__":
     main()
