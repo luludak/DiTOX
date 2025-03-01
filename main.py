@@ -10,6 +10,8 @@ import numpy as np
 import onnxruntime as ort
 import scipy.stats as stats
 import math
+import torch
+
 
 os.environ['CURL_CA_BUNDLE'] = ''
 
@@ -48,6 +50,9 @@ from transformers import RobertaTokenizer
 
 from transformers import GPT2Tokenizer
 
+from nltk.translate.bleu_score import sentence_bleu
+from nltk.translate.bleu_score import SmoothingFunction
+
 # text = glue_data["test"][0]["sentence"]
 # tokens = tokenizer(text, return_tensors="np")
 
@@ -65,7 +70,58 @@ def get_model_path(script_dir, model_obj):
             model_obj.metadata["model_sha"] + "_").replace("/models/", "/models/" + \
             model_obj.metadata["model_sha"] + "_").replace("/preproc/", "/preproc/" + \
             model_obj.metadata["model_sha"] + "_")
+
+def generate_text(session, input_text, tokenizer, max_length=128, temperature=1, top_k=1):
+    generated_tokens = []  # Store all logits locally
+    
+    # Tokenize input
+    inputs = tokenizer(input_text, return_tensors="np", padding=False)
+    input_ids = inputs["input_ids"].astype(np.int64)
+    input_ids = np.expand_dims(input_ids, axis=0)  # Ensure correct shape
+    
+    for _ in range(max_length):
+        outputs = session.run(["output1"], {"input1": input_ids})
+        logits = torch.tensor(outputs[0])  # Convert to PyTorch tensor for easier manipulation
         
+        # Extract last token in sequence
+        logits = logits.squeeze(0)[:, -1, :]
+        
+        # Apply temperature scaling
+        logits /= temperature
+
+        probs = torch.nn.functional.softmax(logits, dim=-1)
+
+        next_token = torch.argmax(probs, dim=-1)
+        
+        # # Top-k sampling
+        # if top_k > 1:
+        #     top_k_probs, top_k_indices = torch.topk(probs, top_k, dim=-1)
+        #     index = torch.multinomial(top_k_probs, 1)
+        #     # print(next_token.shape)
+        #     next_token = top_k_indices.squeeze(-1).squeeze(0)[index]
+            
+        # else:
+        #     next_token = torch.multinomial(probs, 1)
+
+        # print(next_token)
+        # print(next_token.item())
+        # print(tokenizer.eos_token_id)
+        if next_token.item() == tokenizer.eos_token_id:
+            break
+
+        # Append the generated token
+        generated_tokens.append(next_token.item())
+        next_token_reshaped = np.array(next_token.numpy().reshape(1, 1, 1))  # Ensure correct shape
+        input_ids = np.concatenate([input_ids, next_token_reshaped], axis=-1)  # Keep window size fixed
+    
+
+
+    # Decode full generated sequence
+    decoded_text = tokenizer.decode(generated_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+
+    # print(decoded_text)
+    # Decode final sequence
+    return decoded_text
 
 def main():
 
@@ -78,7 +134,7 @@ def main():
 
     hub.set_dir(script_dir + "/models_cache")
     
-    model_comparisons_file = script_dir + "/text/RoBERTa_comprehension_chunk_0_500.json"
+    model_comparisons_file = script_dir + "/text/GPT-2_chunk_0_500.json"
     # base_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
 
 
@@ -96,8 +152,8 @@ def main():
     # #         different_models.append(key)
     # # print(different_models)
  
-    skip_until = 10 # 137-8# Problematic 136 #133#159#137
-    run_up_to = 10
+    skip_until = 8 # 137-8# Problematic 136 #133#159#137
+    run_up_to = 8
 
     all_images_paths = [join(images_folder, f) for f in listdir(images_folder) \
         if isfile(join(images_folder, f))]
@@ -105,26 +161,30 @@ def main():
     all_images_paths.sort()
 
     images_chunk = 200
-    starts_from = 200
-    limit = 25000#11873
+    starts_from = 5200
+    limit = 11873 # 25000
     ends_at = starts_from + images_chunk
     tags = "text"
 
-    # dataset = load_dataset("squad_v2")
-    dataset = load_dataset("imdb")
+    dataset = load_dataset("squad_v2")
+    # dataset = load_dataset("imdb")
 
-    print(len(dataset["test"]))
+    print(len(dataset["validation"]))
 
     # ends_at <= len(all_images_paths) and 
     while ends_at < limit + images_chunk:
-        qa_data = list(dataset["test"])[starts_from:ends_at]
-        questions = [qa["text"] for qa in qa_data]
+        # qa_data = list(dataset["test"])[starts_from:ends_at]
+        # questions = [qa["text"] for qa in qa_data]
         # context = [qa["context"] for qa in qa_data]
 
         # BERT-Squad
-        # qa_data = list(dataset["validation"])[starts_from:ends_at]
+        qa_data = list(dataset["validation"])[starts_from:ends_at]
         # questions = [qa["question"] for qa in qa_data]
         # context = [qa["context"] for qa in qa_data]
+
+        total_qa = ['Context: ' + qa["context"] + ' Question: ' + qa["question"] for qa in qa_data]
+
+        
 
         json_object = None
         model_comparisons = {}
@@ -179,10 +239,10 @@ def main():
 
                 data_path = model_path_data + "/test_data_set_0/"
                 data_path = Path(data_path)
-                model_path = list(Path(model_path_data).glob("*.onnx"))
+                model_path = list(Path(model_path_data + "/GPT-2-LM-HEAD").glob("*.onnx"))
 
                 # print(model_path)
-                print ("PATH: " + model_path_data)
+                print ("PATH: " + model_path_data + "/GPT-2-LM-HEAD")
 
                 if len(model_path) == 0:
                     continue
@@ -202,14 +262,19 @@ def main():
                 #     limit = inputs_len
 
                 #RoBERTa
-                tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+                #tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
                 # BERT-Squad
                 # tokenizer = BertTokenizer.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
 
+                # Load GPT-2 tokenizer
+                tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+                tokenizer.pad_token = tokenizer.eos_token
+
+
                 #questions
-                encoding = tokenizer(questions, padding="max_length", truncation=True, max_length=256, return_tensors='np')
-                unique_ids = np.arange(encoding['input_ids'].shape[1], dtype=np.int64).flatten()
+                #encoding = tokenizer(questions, padding="max_length", truncation=True, max_length=256, return_tensors='np')
+                # unique_ids = np.arange(encoding['input_ids'].shape[1], dtype=np.int64).flatten()
 
             print("Model Number: " + str(model_no))
             print("Model Name: " + model_name)
@@ -286,32 +351,36 @@ def main():
             print(model_path)
             base_model_out = None
             base_match_percentage = 0
+
+            base_answers_out = []
+
+            # TODO: move to runner.
+            session = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
+            for tq in total_qa:
+                # print(tq)
+                out = generate_text(session, tq, tokenizer)
+                base_answers_out.append(out)
+
+                # print(out)
+            # return
             
-            try:
-                if "text" not in tags:
-                    base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
-                else:
-                    # TODO: move to runner.
-                    session = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
+            # try:
+            #     if "text" not in tags:
+            #         base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+            #     else:
+            #         # TODO: move to runner.
+            #         session = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
+            #         out = generate_text(session, "test data in here", tokenizer)
 
-                    # RoBERTa
-                    onnx_inputs = {
-                    'input': encoding['input_ids']
-                    }
+            #         print(out)
+            #         return
 
-                    # BERT-Squad
-                    # onnx_inputs = {'unique_ids_raw_output___9:0': unique_ids,
-                    # 'segment_ids:0': encoding['token_type_ids'],
-                    # 'input_mask:0': encoding['attention_mask'],
-                    # 'input_ids:0': encoding['input_ids']}
-
-                    # Run inference
-                    base_outputs = session.run(None, onnx_inputs)
-            except Exception as e:
-                print(e)
-                print(model_name + " - a base model error occured!")
-                model_comparisons["failed_models"].append(model_name)
-                continue
+            #         base_outputs = session.run(None, onnx_inputs)
+            # except Exception as e:
+            #     print(e)
+            #     print(model_name + " - a base model error occured!")
+            #     model_comparisons["failed_models"].append(model_name)
+            #     continue
 
             model_comparisons["base_models_run"] += 1
 
@@ -330,6 +399,8 @@ def main():
                 total = 0
                 tau_values = []
                 p_values = []
+                opt_answers_out = []
+                all_bleu_scores = []
                 conversion_failed = False
                 try:
                     if basic_run:
@@ -374,12 +445,24 @@ def main():
                         else:
                             # TODO: move to runner.
                             session = ort.InferenceSession(onnx_model.SerializeToString(), providers=["CPUExecutionProvider"])
+                            for tq in total_qa:
+                                # print(tq)
+                                out = generate_text(session, tq, tokenizer)
+                                opt_answers_out.append(out)
 
-                            # Prepare input dictionary
-                            # RoBERTa
-                            onnx_inputs = {
-                            'input': encoding['input_ids']
-                            }
+
+                            
+                            for i, b_out in enumerate(base_answers_out):
+                                opt_out = opt_answers_out[i]
+                                # Tokenize the sentences
+                                prediction_tokens = b_out.split()
+                                reference_tokens = opt_out.split()
+                                
+                                # Calculate BLEU score
+                                bleu_score = sentence_bleu([reference_tokens], prediction_tokens, smoothing_function=SmoothingFunction().method4)
+                                all_bleu_scores.append(bleu_score)
+
+
 
                             # BERT-Squad
                             # onnx_inputs = {'unique_ids_raw_output___9:0': unique_ids,
@@ -388,28 +471,28 @@ def main():
                             # 'input_ids:0': encoding['input_ids']}
 
                             # Run inference
-                            opt_outputs = session.run(None, onnx_inputs)
+                            # opt_outputs = session.run(None, onnx_inputs)
 
                             # Compare outputs and calculate match percentage
                             # base_outputs[1]
                             # print(len(base_outputs[0]))
-                            total = len(base_outputs[0])
-                            for i in range(len(base_outputs[0])):
-                                # RoBERTa
-                                base_logits = base_outputs[0][i]  # Extract logits
-                                opt_logits = opt_outputs[0][i]
+                            # total = len(base_outputs[0])
+                            # for i in range(len(base_outputs[0])):
+                            #     # RoBERTa
+                            #     base_logits = base_outputs[0][i]  # Extract logits
+                            #     opt_logits = opt_outputs[0][i]
 
-                                # print(base_logits)
-                                # print(opt_logits)
+                            #     # print(base_logits)
+                            #     # print(opt_logits)
 
-                                base_label = np.argmax(base_logits)
-                                opt_label = np.argmax(opt_logits)
+                            #     base_label = np.argmax(base_logits)
+                            #     opt_label = np.argmax(opt_logits)
 
-                                # print(base_labels)
-                                # print(opt_labels)
+                            #     # print(base_labels)
+                            #     # print(opt_labels)
 
-                                if base_label == opt_label:
-                                    matches += 1
+                            #     if base_label == opt_label:
+                            #         matches += 1
 
 
 
@@ -456,9 +539,9 @@ def main():
 
                                 #     # Skip unanswered.
                                 #     pass
-                            opt_match_percentage = (matches / total) * 100
+                            # opt_match_percentage = (matches / total) * 100
 
-                            print ("Similarity: " + str(opt_match_percentage) + "%")
+                            # print ("Similarity: " + str(opt_match_percentage) + "%")
                     except Exception as e:
                         print(e)
                         if model_name_opset not in model_comparisons["conversion_errors"]:
@@ -469,7 +552,14 @@ def main():
 
                     if not conversion_failed:
                         
-                        if ("text" in tags):
+                        if ("gpt-2" in tags):
+                            print(all_bleu_scores)
+                            model_comparisons[model_name_opset][current_pass] = {
+                                "mean_bleu": np.mean(all_bleu_scores),
+                                "median_bleu": np.median(all_bleu_scores)
+                            }
+
+                        elif ("text" in tags):
                             # percentage_diff = abs(base_match_percentage - opt_match_percentage)
                             model_comparisons[model_name_opset][current_pass] = {
                                 "percentage_similarity_diff": opt_match_percentage,
