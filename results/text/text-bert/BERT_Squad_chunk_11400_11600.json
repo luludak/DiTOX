@@ -1,0 +1,24 @@
+{
+  "no_dissimilar": 0,
+  "base_models_run": 1,
+  "model_instances_run": 1,
+  "failed_conversions_no": 0,
+  "skipped_models": [],
+  "failed_models": [],
+  "conversion_errors": {},
+  "BERT-Squad-10": {
+    "skipped": [],
+    "failed": [],
+    "different": 0,
+    "run": 1,
+    "all": {
+      "percentage_similarity_diff": 100.0,
+      "matches": 199,
+      "total": 199,
+      "avg_tau": 1.0,
+      "median_tau": 1.0,
+      "avg_pv": 3.0471708711713724e-09,
+      "median_pv": 3.275630931143188e-29
+    }
+  }
+}

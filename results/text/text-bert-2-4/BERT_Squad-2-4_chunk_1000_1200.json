@@ -1,0 +1,54 @@
+{
+  "no_dissimilar": 0,
+  "base_models_run": 3,
+  "model_instances_run": 3,
+  "failed_conversions_no": 0,
+  "skipped_models": [],
+  "failed_models": [],
+  "conversion_errors": {},
+  "BERT-Squad-int8-12": {
+    "skipped": [],
+    "failed": [],
+    "different": 0,
+    "run": 1,
+    "all": {
+      "percentage_similarity_diff": 100.0,
+      "matches": 175,
+      "total": 175,
+      "avg_tau": 1.0,
+      "median_tau": 1.0,
+      "avg_pv": 0.09168324975596004,
+      "median_pv": 9.20251370881319e-51
+    }
+  },
+  "BERT-Squad-12": {
+    "skipped": [],
+    "failed": [],
+    "different": 0,
+    "run": 1,
+    "all": {
+      "percentage_similarity_diff": 100.0,
+      "matches": 200,
+      "total": 200,
+      "avg_tau": 1.0,
+      "median_tau": 1.0,
+      "avg_pv": 3.471026263274495e-09,
+      "median_pv": 1.1429424407463225e-40
+    }
+  },
+  "BERT-Squad-8": {
+    "skipped": [],
+    "failed": [],
+    "different": 0,
+    "run": 1,
+    "all": {
+      "percentage_similarity_diff": 100.0,
+      "matches": 200,
+      "total": 200,
+      "avg_tau": 1.0,
+      "median_tau": 1.0,
+      "avg_pv": 3.471026263274495e-09,
+      "median_pv": 1.1429424407463225e-40
+    }
+  }
+}
