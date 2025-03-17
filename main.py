@@ -121,7 +121,7 @@ def generate_text(session, input_text, tokenizer, max_length=128, temperature=1,
     # Decode full generated sequence
     decoded_text = tokenizer.decode(generated_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=True)
 
-    print(decoded_text)
+    # print(decoded_text)
     # Decode final sequence
     return decoded_text
 
@@ -136,7 +136,7 @@ def main():
 
     hub.set_dir(script_dir + "/models_cache")
     
-    model_comparisons_file = script_dir + "/text/TTGPT-2_chunk_0_500.json"
+    model_comparisons_file = script_dir + "/text/Top2Prediction_GPT-2_chunk_0_500.json"
     # base_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
 
 
@@ -163,7 +163,7 @@ def main():
     all_images_paths.sort()
 
     images_chunk = 200
-    starts_from = 0
+    starts_from = 10600
     limit = 11873 # 25000
     ends_at = starts_from + images_chunk
     tags = "text"
