@@ -1,0 +1,59 @@
+Model Name: Faster R-CNN R-50-FPN-int8
+ModelInfo(model=Faster R-CNN R-50-FPN-int8, opset=12, path=validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12-int8.onnx, metadata={'model_sha': '95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e', 'model_bytes': 44631113, 'tags': ['vision', 'object detection segmentation', 'faster-rcnn'], 'io_ports': {'inputs': [{'name': 'image', 'shape': [3, 'height', 'width'], 'type': 'tensor(float)'}], 'outputs': [{'name': '6379', 'shape': ['nbox', 4], 'type': 'tensor(float)'}, {'name': '6381', 'shape': ['nbox'], 'type': 'tensor(int64)'}, {'name': '6383', 'shape': ['nbox'], 'type': 'tensor(float)'}]}, 'model_with_data_path': 'validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12-int8.tar.gz', 'model_with_data_sha': '9edf754e3e4e6e78aed9a9d5690299edeba27b17d4dd43635a4fbd4c0e747be0', 'model_with_data_bytes': 38497565})
+{'model_name': 'Faster R-CNN R-50-FPN-int8_torch', 'input_name': 'image', 'input_shape': [1, 3, 224, 224], 'input_dimension': [224, 224]}
+/home/luludak/Documents/Postdoc/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e_FasterRCNN-12-int8.onnx
+Running and evaluating both models. Pass: all
+[ONNXRuntimeError] : 1 : FAIL : Node (2794) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes
+Faster R-CNN R-50-FPN-int8 - an optimized model error occured.
+Model Number: 134
+Model Name: Faster R-CNN R-50-FPN-qdq
+ModelInfo(model=Faster R-CNN R-50-FPN-qdq, opset=12, path=validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12-qdq.onnx, metadata={'model_sha': '7b8b530b50b2fa9737625f2bbf454c439e9156c94d44e22602946d019f105f1c', 'model_bytes': 44525748, 'tags': ['vision', 'object detection segmentation', 'faster-rcnn'], 'io_ports': {'inputs': [{'name': 'image', 'shape': [3, 'height', 'width'], 'type': 'tensor(float)'}], 'outputs': [{'name': '6379', 'shape': ['nbox', 4], 'type': 'tensor(float)'}, {'name': '6381', 'shape': ['nbox'], 'type': 'tensor(int64)'}, {'name': '6383', 'shape': ['nbox'], 'type': 'tensor(float)'}]}, 'model_with_data_path': 'validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12-qdq.tar.gz', 'model_with_data_sha': '90673a5a499343863af4c3f4efbed7e35c7a6c587dc37f2d5d2bf0bc77b6865a', 'model_with_data_bytes': 29844855})
+{'model_name': 'Faster R-CNN R-50-FPN-qdq_torch', 'input_name': 'image', 'input_shape': [1, 3, 224, 224], 'input_dimension': [224, 224]}
+/home/luludak/Documents/Postdoc/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/7b8b530b50b2fa9737625f2bbf454c439e9156c94d44e22602946d019f105f1c_FasterRCNN-12-qdq.onnx
+Running and evaluating both models. Pass: all
+[ONNXRuntimeError] : 1 : FAIL : Node (2794) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes
+Faster R-CNN R-50-FPN-qdq - an optimized model error occured.
+Model Number: 135
+Model Name: Faster R-CNN R-50-FPN-fp32
+ModelInfo(model=Faster R-CNN R-50-FPN-fp32, opset=12, path=validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12.onnx, metadata={'model_sha': '789104f5a47f008450a37e02da8a8d3642766ed10d91238312b1532fe72789a6', 'model_bytes': 176713194, 'tags': ['vision', 'object detection segmentation', 'faster-rcnn'], 'io_ports': {'inputs': [{'name': 'image', 'shape': [3, 'height', 'width'], 'type': 'tensor(float)'}], 'outputs': [{'name': '6379', 'shape': ['nbox', 4], 'type': 'tensor(float)'}, {'name': '6381', 'shape': ['nbox'], 'type': 'tensor(int64)'}, {'name': '6383', 'shape': ['nbox'], 'type': 'tensor(float)'}]}, 'model_with_data_path': 'validated/vision/object_detection_segmentation/faster-rcnn/model/FasterRCNN-12.tar.gz', 'model_with_data_sha': '67208685047b27a201c1b50a3a7a0ea25161e9988bc4211adb74c85637c33860', 'model_with_data_bytes': 163814449})
+{'model_name': 'Faster R-CNN R-50-FPN-fp32_torch', 'input_name': 'image', 'input_shape': [1, 3, 224, 224], 'input_dimension': [224, 224]}
+/home/luludak/Documents/Postdoc/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/789104f5a47f008450a37e02da8a8d3642766ed10d91238312b1532fe72789a6_FasterRCNN-12.onnx
+Running and evaluating both models. Pass: all
+[ONNXRuntimeError] : 1 : FAIL : Node (2794) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes
+Faster R-CNN R-50-FPN-fp32 - an optimized model error occured.
+Model Number: 136
+Model Name: FCN ResNet-101
+
+
+SSD-12:
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+Shape mismatch!
+
