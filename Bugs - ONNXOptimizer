@@ -1,0 +1,263 @@
+Bugs:
+
+#1
+VGG-16-BN, VGG-19-BN
+onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'vgg0_batchnorm0_fwd' Status Message: Invalid input scale: NumDimensions() != 3
+
+ResNet101_DUC_HDC
+2025-03-18 18:55:58.724319765 [E:onnxruntime:, sequential_executor.cc:514 ExecuteKernel] Non-zero status code returned while running BatchNormalization node. Name:'conv1_1_3x3_s2/bn' Status Message: Invalid input scale: NumDimensions() != 3
+[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'conv1_1_3x3_s2/bn' Status Message: Invalid input scale: NumDimensions() != 3
+
+GENERIC ERROR, HAPPENING ONLY IN OPTIMIZER!
+WHEN REPORTING, ADD NETRON SCREENSHOT.
+In both cases, this happens in the first batch normalization element.
+
+--------------------------------
+
+#2
+Model: RetinaNet, opset 9
+File "/home/luludak/miniconda3/lib/python3.8/site-packages/onnx/checker.py", line 163, in check_model
+    C.check_model_path(
+onnx.onnx_cpp2py_export.checker.ValidationError: 1133 initializer name is not unique
+
+Problematic Pass: "fuse_bn_into_conv"
+Report it separately!!!!!!
+
+------------------------------
+
+#3
+Models: Faster R-CNN R-50-FPN-int8, Faster R-CNN R-50-FPN-qdq, Faster R-CNN R-50-FPN-fp32
+/home/luludak/Documents/Postdoc/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e_FasterRCNN-12-int8.onnx
+Running and evaluating both models. Pass: all
+[ONNXRuntimeError] : 1 : FAIL : Node (2794) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes
+
+Problematic Pass: eliminate_consecutive_idempotent_ops
+
+
+-------------------------------------------------------------
+#4 Report Bug with Conv-BN
+-----------------------------------------
+
+#5
+
+Model: Faster R-CNN R-50-FPN-qdq
+Problematic Pass: eliminate_duplicate_initializer
+
+
+b'Traceback (most recent call last):\n  File "/home/luludak/miniconda3/lib/python3.8/runpy.py", line 194, in _run_module_as_main\n    return _run_code(code, main_globals, None,\n  File "/home/luludak/miniconda3/lib/python3.8/runpy.py", line 87, in _run_code\n    exec(code, run_globals)\n  File "/home/luludak/Documents/PhD/ONNXOptimizerDebug/onnxoptimizer/onnxoptimizer/__main__.py", line 15, in <module>\n    main()\n  File "/home/luludak/Documents/PhD/ONNXOptimizerDebug/onnxoptimizer/onnxoptimizer/onnxoptimizer_main.py", line 76, in main\n    model = onnxoptimizer.optimize(model=model, passes=passes, fixed_point=args.fixed_point)\n  File "/home/luludak/Documents/PhD/ONNXOptimizerDebug/onnxoptimizer/onnxoptimizer/__init__.py", line 46, in optimize\n    optimized_model_str = C.optimize(model_str, passes)\nRuntimeError: /home/luludak/Documents/PhD/ONNXOptimizerDebug/onnxoptimizer/third_party/onnx/onnx/common/ir.h:1372: eraseOutput: Assertion `outputs_[i]->uses().empty()` failed.\n'
+-----------------------------------------
+
+#6
+
+Models: Faster R-CNN R-50-FPN-int8, Faster R-CNN R-50-FPN-qdq,
+
+Running optimized model. Pass: eliminate_shape_gather
+/home/luludak/Documents/PhD/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e_FasterRCNN-12-int8_opt.onnx
+2025-03-18 19:36:45.016246632 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2797'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016284009 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2473'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016317849 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2586'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016338868 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2561'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016384071 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2034'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016395604 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '1738'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016400882 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2555'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016446202 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2499'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016466860 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2476'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016477887 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2583'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016498564 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2505'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016528857 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2527'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016550868 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2479'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016557028 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2502'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016563560 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2530'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016569462 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2533'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016575731 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2558'. It is not used by any node and should be removed from the model.
+2025-03-18 19:36:45.016582126 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2589'. It is not used by any node and should be removed from the model.
+
+Running optimized model. Pass: eliminate_nop_reshape
+/home/luludak/Documents/PhD/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e_FasterRCNN-12-int8_opt.onnx
+2025-03-18 19:37:51.308402762 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '823'. It is not used by any node and should be removed from the model.
+2025-03-18 19:37:51.308431172 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '579'. It is not used by any node and should be removed from the model.
+2025-03-18 19:37:51.308496786 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '640'. It is not used by any node and should be removed from the model.
+2025-03-18 19:37:51.308506370 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '762'. It is not used by any node and should be removed from the model.
+2025-03-18 19:37:51.308530685 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '701'. It is not used by any node and should be removed from the model.
+
+
+
+
+
+#7 - Add as comment to existing issue for split_predict:
+When running model FCN ResNet-50-int8 (opset=12)
+/home/luludak/Documents/PhD/OODE/models_cache/validated/vision/object_detection_segmentation/fcn/model/67fcba8ebd435c2fb6b297d2e7c084f3c3b9ae6bc7ae41453b748ae4ed8c0331_fcn-resnet50-12-int8_opt.onnx
+[ONNXRuntimeError] : 1 : FAIL : Node (Resize_140) Op (Resize) [ShapeInferenceError] Number of elements of input 'sizes' (0) must be same as rank of input 'X' (4).
+
+
+##############################################################################
+
+
+
+
+
+#2 - SKIP
+FCN ResNet-50-int8
+WARNING: /home/luludak/.local/lib/python3.8/site-packages/scipy/stats/_stats_py.py:5278: RuntimeWarning: overflow encountered in long_scalars
+  (2 * xtie * ytie) / m + x0 * y0 / (9 * m * (size - 2)))
+
+NOT DETECTED
+TODO: RUN
+
+
+#8
+Report GPT-2 difference in samples.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------ 1
+#95 - VGG-16-BN
+onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'vgg0_batchnorm0_fwd' Status Message: Invalid input scale: NumDimensions() != 3
+Status: UNKNOWN
+
+# VGG 16-bn, opset=7
+2024-12-25 06:40:19.359063864 [E:onnxruntime:, sequential_executor.cc:514 ExecuteKernel] Non-zero status code returned while running BatchNormalization node. Name:'vgg0_batchnorm0_fwd' Status Message: Invalid input scale: NumDimensions() != 3
+Traceback (most recent call last):
+  File "main.py", line 166, in <module>
+    main()
+  File "main.py", line 145, in main
+    opt_model_out = onnx_runner.execute_onnx_model(onnx.load(opt_model_path), images_paths, config=model_config)
+  File "/home/luludak/Documents/PhD/QuantONNX/runners/onnx_runner.py", line 97, in execute_onnx_model
+    output = ort_sess.run(None, {input_name : img.astype(np.float32)})
+  File "/home/luludak/.local/lib/python3.8/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py", line 220, in run
+    return self._sess.run(output_names, input_feed, run_options)
+onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'vgg0_batchnorm0_fwd' Status Message: Invalid input scale: NumDimensions() != 3
+
+#115 - VGG-19-BN
+onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'vgg0_batchnorm0_fwd' Status Message: Invalid input scale: NumDimensions() != 3
+Status: UNKNOWN
+
+
+
+#131 - ResNet101_DUC_HDC
+onnxruntime.capi.onnxruntime_pybind11_state.InvalidArgument: [ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Non-zero status code returned while running BatchNormalization node. Name:'conv1_1_3x3_s2/bn' Status Message: Invalid input scale: NumDimensions() != 3
+Status: UNKNOWN
+
+------ 2
+#132 - R-CNN R-50-FPN
+  File "/home/luludak/Documents/PhD/QuantONNX/onnxoptimizer/onnxoptimizer/__init__.py", line 46, in optimize
+    optimized_model_str = C.optimize(model_str, passes)
+RuntimeError: /home/luludak/Documents/PhD/QuantONNX/onnxoptimizer/onnxoptimizer/passes/eliminate_shape_gather.h:48: runTransform: Assertion `indices_val < dims.size()` failed.
+Status: UNKNOWN
+
+
+------ 3
+#138 - FCN ResNet-50-int8 
+WARNING: /home/luludak/.local/lib/python3.8/site-packages/scipy/stats/_stats_py.py:5278: RuntimeWarning: overflow encountered in long_scalars
+  (2 * xtie * ytie) / m + x0 * y0 / (9 * m * (size - 2)))
+Status: UNKNOWN
+
+
+----- 4 ?
+#145 - RetinaNet
+File "/home/luludak/miniconda3/lib/python3.8/site-packages/onnx/checker.py", line 163, in check_model
+    C.check_model_path(
+onnx.onnx_cpp2py_export.checker.ValidationError: 1133 initializer name is not unique
+Status: UNKNOWN
+(Original model has this)
+
+
+PLANNING:
+TODO: Prepare Semantic Segmentation / Object Detection Models!
+Make sure you run all models, and localize bugs. Analyze activations!
+
+
+
+-----------------------------------------------
+
+
+
+
+
+
+eliminate_nop_reshape
+
+/home/luludak/Documents/PhD/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/7b8b530b50b2fa9737625f2bbf454c439e9156c94d44e22602946d019f105f1c_FasterRCNN-12-qdq_opt.onnx
+2025-03-18 19:27:44.055434356 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '823'. It is not used by any node and should be removed from the model.
+2025-03-18 19:27:44.055497241 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '579'. It is not used by any node and should be removed from the model.
+2025-03-18 19:27:44.055618194 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '640'. It is not used by any node and should be removed from the model.
+2025-03-18 19:27:44.055633368 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '762'. It is not used by any node and should be removed from the model.
+2025-03-18 19:27:44.055673144 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '701'. It is not used by any node and should be removed from the model.
+
+
+Running optimized model. Pass: eliminate_shape_gather
+/home/luludak/Documents/PhD/OODE/models_cache/validated/vision/object_detection_segmentation/faster-rcnn/model/95f67f5f6249f4804f1302367dd88cee32bf47713b9858cc6d8ba835548f9b8e_FasterRCNN-12-int8_opt.onnx
+2025-03-18 19:21:22.880606088 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2797'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880637704 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2473'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880678600 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2586'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880702497 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2561'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880762362 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2034'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880773455 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '1738'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880778793 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2555'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880827848 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2499'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880849814 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2476'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880860040 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2583'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880875188 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2505'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880910371 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2527'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880933668 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2479'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880939382 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2502'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880944374 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2530'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880949340 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2533'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880956288 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2558'. It is not used by any node and should be removed from the model.
+2025-03-18 19:21:22.880964683 [W:onnxruntime:, graph.cc:3553 CleanUnusedInitializersAndNodeArgs] Removing initializer '2589'. It is not used by any node and should be removed from the model.
+
+
+
+
+# Online Python - IDE, Editor, Compiler, Interpreter
+
+#arr = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2213885886251307, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+#arr = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2213885886251307, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+arr = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2213885886251307, 1.0, 0.5757197301274735, 1.0, 1.0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+#[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2213885886251307, 1.0, 0.5757197301274735, 1.0, 1.0, 1.0, 0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+for i, val in enumerate (arr):
+    if val != 1.0:
+        print (i)
+        
+l = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
+                "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
+                "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
+                "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
+                "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
+                "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
+                "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
+                "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \
+                "replace_einsum_with_matmul", "lift_lexical_references", "split_init", "split_predict", "fuse_concat_into_reshape", \
+                "eliminate_nop_reshape", "eliminate_nop_with_unit", "eliminate_common_subexpression", "fuse_qkv", "fuse_consecutive_unsqueezes", \
+                "eliminate_deadend", "eliminate_identity", "eliminate_shape_op", "fuse_consecutive_slices", "eliminate_unused_initializer", \
+                "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
+print(len(l))
+
+
