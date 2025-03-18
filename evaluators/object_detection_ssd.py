@@ -98,8 +98,8 @@ class SSDObjectDetectionEvaluator:
                 fn = len(gt_boxes) - tp  # False negatives
 
                 # Calculate precision and recall at this threshold
-                precision = tp / (tp + fp)
-                recall = tp / (tp + fn)
+                precision = tp / (tp + fp + 1e-9)  # Avoid division by zero
+                recall = tp / (tp + fn + 1e-9)    # Avoid division by zero
 
                 precisions.append(precision)
                 recalls.append(recall)
