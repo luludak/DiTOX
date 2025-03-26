@@ -17,6 +17,9 @@
         "tags_of_models_to_consider": ["object detection segmentation"],
         "opset_bottom_threshold": 7,
         "cache_folder_rel_path": "models_cache"
+    },
+    "optimizer": {
+        "passes": []
     }
 
 }

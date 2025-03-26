@@ -219,7 +219,8 @@ def main():
             opt_model_path = model_path.replace(".onnx", "_opt.onnx")
 
             passes_in_config = optimizer_config["passes"]
-            if len(passes) == 0:
+            passes = []
+            if len(passes_in_config) == 0:
 
                 passes = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
                     "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
