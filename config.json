@@ -1,34 +1,22 @@
 {
-    "tvm": {
-        "models": {
-            "mobilenet": {
-                "name": "InceptionV3_torch.onnx",
-                    "model_name": "InceptionV3_torch",
-                    "image_dimension": [299, 299],
-                    "input": [1, 3, 299, 299],
-                    "input_name": "inputs:0",
-                    "output": [1, 1000],
-                    "output_name": "output",
-                    "library": "onnx",
-                    "preprocessing_enabled": true,
-                    "debug_enabled": true,
-                    "dtype": "float32"
-            }
-        },
-        "devices": {
-            "id": 0,
-            "selected": "default",
-            "default": {
-                "host_type": "local_no_rpc",
-                "target": "opencl",
-                "target_framework": "opencl",
-                "host": "llvm",
-                "address": "127.0.0.1",
-                "port": 5000
-            }
-        }
+    "images": {
+        "images_folder_rel_path": "/images/imagenet",
+        "images_chunk": 500,
+        "starts_from": 0,
+        "limit": 5500
     },
-    "onnx": {
-        "threshold": 0
+    "general": {
+        "check_reports_for_problematic_models": false,
+        "run_all_passes": true,
+        "report_file_base_rel_path": "detection_all_info/OD_All_Info_chunk_0_500.json",
+        "skip_until_model_id": 0,
+        "run_up_to_model_id": 200
+    },
+    "hub": {
+        "tags": ["vision"],
+        "tags_of_models_to_consider": ["object detection segmentation"],
+        "opset_bottom_threshold": 7,
+        "cache_folder_rel_path": "models_cache"
     }
+
 }

@@ -10,13 +10,6 @@ import numpy as np
 import onnxruntime as ort
 import scipy.stats as stats
 import math
-
-os.environ['CURL_CA_BUNDLE'] = ''
-
-import ssl
-
-ssl._create_default_https_context = ssl._create_unverified_context
-
 from os import listdir
 from pathlib import Path
 from os.path import isfile, join
@@ -27,7 +20,7 @@ from onnxruntime.quantization.qdq_loss_debug import (
     collect_activations, compute_activation_error, compute_weight_error,
     create_activation_matching, create_weight_matching,
     modify_model_output_intermediate_tensors)
-from helpers.model_helper import get_size
+from helpers.model_helper import get_size, load_config
 
 from helpers.yolov2_extractor import YOLOV2Extractor
 from helpers.yolov3_extractor import YOLOV3Extractor
@@ -35,8 +28,6 @@ from helpers.yolov3_extractor import YOLOV3Extractor
 from evaluators.object_detection_ssd import SSDObjectDetectionEvaluator
 from evaluators.object_detection_yolov3 import YOLOV3ObjectDetectionEvaluator
 
-# from builders.tvm_builder import TVMBuilder
-# from runners.tvm_runner import TVMRunner
 from runners.onnx_runner import ONNXRunner
 from onnx.numpy_helper import to_array
 from onnx import hub
@@ -45,9 +36,7 @@ from transformers import BertTokenizer
 from datasets import load_dataset
 
 from transformers import RobertaTokenizer
-
 # from transformers import GPT2Tokenizer
-
 # from transformers import GPT2TokenizerFast
 from transformers import T5Tokenizer
 
@@ -57,7 +46,6 @@ from transformers import T5Tokenizer
 # input_dict = {session.get_inputs()[0].name: tokens["input_ids"].astype(np.int64)}
 # print(input_dict)
 # outputs = session.run(None, input_dict)
-
 
 # import urllib3
 # resp = urllib3.request("GET", "https://github.com/onnx/models/")
@@ -70,50 +58,65 @@ def get_model_path(script_dir, model_obj):
             model_obj.metadata["model_sha"] + "_")
         
 
+
+# REFACTORING PLAN:
+# 1. Add all references to configuration properly.
+# 2. Move evaluation to different files.
+# 3. Clean up evaluation and runs between classification and object detection.
+# 4. Add GPT loads/runs. Use multiple files.
+# 5. Do a full pass, remove redundant comments etc.
+
 def main():
 
+    config = load_config('./config.json')
+    images_config = config["images"]
+    general_config = config["general"]
+    hub_config = config["hub"]
+    optimizer_config = config["optimizer"]
+
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    calibr_images_folder = script_dir + '/images/one-hundred/'
-    images_folder = script_dir + '/images/imagenet'
-    small_calibr_images_folder = script_dir + '/images/one'
+    images_folder = script_dir + "/" + images_config["images_folder_rel_path"]
 
-    all_models = hub.list_models(tags=["vision"])
+    all_models = hub.list_models(tags=hub_config["tags"])
 
-    hub.set_dir(script_dir + "/models_cache")
+    hub.set_dir(script_dir + "/" + hub_config["cache_folder_rel_path"])
     
-    model_comparisons_file = script_dir + "/detection_all_info/OD_All_Info_chunk_0_500.json"
-    # base_file = script_dir + "/detection/object_detection_model_comparisons_chunk_0_500.json"
-
-
-    # model_comparisons_file = script_dir + "/object_detection_ssd_out.json"
-
+    model_comparisons_file = script_dir + "/" + general_config["report_file_base_rel_path"]
     onnx_runner = ONNXRunner({})
 
-    # f = open(base_file, "r")
-    # base_object = json.load(f)
-    # "SSD-12", "YOLOv2-9", , "YOLOv3-10", "YOLOv3-12-12"
-    different_models = ["SSD-12", "YOLOv2-9", "YOLOv3-10", "YOLOv3-12-12", "Tiny YOLOv3-11"]
-    # # for key in base_object:
-    # #     elem = base_object[key]
-    # #     if isinstance(elem, dict) and "different" in elem and elem["different"] != 0:
-    # #         different_models.append(key)
-    # # print(different_models)
+    check_prob_models = general_config["check_reports_for_problematic_models"]
+    model_comparisons_file_exists = os.path.exists(model_comparisons_file)
+    if check_prob_models:
+        if model_comparisons_file_exists:
+            # Use model comparisons file to compare problematic models.
+            f = open(model_comparisons_file, "r")
+            base_object = json.load(f)
+
+            # different_models = ["SSD-12", "YOLOv2-9", "YOLOv3-10", "YOLOv3-12-12", "Tiny YOLOv3-11"]
+            different_models = []
+                
+            for key in base_object:
+                elem = base_object[key]
+                if isinstance(elem, dict) and "different" in elem and elem["different"] != 0:
+                    different_models.append(key)
+            print(different_models)
+        else:
+            print("Warning: check for problematic models is enabled but comparisons file does not exist. Skipping...")
  
-    skip_until = 0 # 137-8# Problematic 136 #133#159#137
-    run_up_to = 200
+    skip_until = general_config["skip_until_model_id"] # 137-8# Problematic 136 #133#159#137
+    run_up_to = general_config["run_up_to_model_id"]
 
     all_images_paths = [join(images_folder, f) for f in listdir(images_folder) \
         if isfile(join(images_folder, f))]
 
     all_images_paths.sort()
 
-    images_chunk = 500
-    starts_from = 0
-    limit = 5500
+    images_chunk = images_config["images_chunk"]
+    starts_from = images_config["starts_from"]
+    limit = images_config["limit"]
     ends_at = starts_from + images_chunk
 
     while ends_at < limit + images_chunk:
-        
 
         json_object = None
         model_comparisons = {}
@@ -128,10 +131,8 @@ def main():
         images_paths = None
         inputs = None
 
+        # TODO: REFACTOR - ADD CONDITION FOR TEXT NOT IN TAGS.
         images_paths = [x for x in all_images_paths[starts_from:ends_at]]
- 
-        # print(images_paths[0])
-        # return
         print(" ---- Input Batch: " + str(starts_from) + " to " + str(ends_at))
         model_comparisons_file = model_comparisons_file.split("_chunk")[0] + "_chunk_" + str(starts_from) + "_" + str(ends_at) + ".json"
 
@@ -147,18 +148,27 @@ def main():
             model_name_opset = model_name + "-" + str(model_opset)
             tags = model_obj.tags
 
-            if (model_name_opset not in different_models):
+            # Check different models if option is enabled and file exists.
+            if (check_prob_models and model_comparisons_file_exists and model_name_opset not in different_models):
                 continue
                 
-            if "object detection segmentation" not in tags or model_opset < 7:
+            tag_found = False
+            for tag_to_consider in hub_config["tags_of_models_to_consider"]:
+                if tag_to_consider in tags:
+                    tag_found = True
+                    break
+
+            if not tag_found:
+                continue
+
+            if model_opset < hub_config["opset_bottom_threshold"]:
                 continue
 
             print("Model Number: " + str(model_no))
             print("Model Name: " + model_name)
             print(model_obj)
 
-            # continue
-
+            # Default shape.
             model_shape = [1, 1, 64, 64]
             input_name = None
             if "io_ports" in model_obj.metadata:
@@ -200,28 +210,32 @@ def main():
                 "input_shape": model_shape,
                 "input_dimension": img_dimension
             }
-            # if "text" not in tags:
+
             model_path = get_model_path(script_dir, model_obj)
 
-            model = hub.load(model_name, opset=model_opset)#, force_reload=True)
+            model = hub.load(model_name, opset=model_opset)
 
             original_hash = hashlib.md5(open(model_path,'rb').read()).hexdigest()
             opt_model_path = model_path.replace(".onnx", "_opt.onnx")
 
-            passes = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
-                "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
-                "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
-                "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
-                "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
-                "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
-                "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
-                "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \
-                "replace_einsum_with_matmul", "lift_lexical_references", "split_init", "split_predict", "fuse_concat_into_reshape", \
-                "eliminate_nop_reshape", "eliminate_nop_with_unit", "eliminate_common_subexpression", "fuse_qkv", "fuse_consecutive_unsqueezes", \
-                "eliminate_deadend", "eliminate_identity", "eliminate_shape_op", "fuse_consecutive_slices", "eliminate_unused_initializer", \
-                "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
+            passes_in_config = optimizer_config["passes"]
+            if len(passes) == 0:
 
-            # TODO: Cache!
+                passes = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
+                    "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
+                    "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
+                    "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
+                    "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
+                    "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
+                    "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
+                    "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \
+                    "replace_einsum_with_matmul", "lift_lexical_references", "split_init", "split_predict", "fuse_concat_into_reshape", \
+                    "eliminate_nop_reshape", "eliminate_nop_with_unit", "eliminate_common_subexpression", "fuse_qkv", "fuse_consecutive_unsqueezes", \
+                    "eliminate_deadend", "eliminate_identity", "eliminate_shape_op", "fuse_consecutive_slices", "eliminate_unused_initializer", \
+                    "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
+
+            else:
+                passes = passes_in_config
             print("Running original model...")
             print(model_path)
             base_model_out = None
@@ -247,7 +261,7 @@ def main():
                 "run": 0
             }
 
-            basic_run = True
+            run_all_passes = general_config["run_all_passes"]
 
             for current_pass in passes:
                 opt_match_percentage = 0
@@ -257,7 +271,7 @@ def main():
                 p_values = []
                 conversion_failed = False
                 try:
-                    if basic_run:
+                    if run_all_passes:
                         p = subprocess.Popen(['python3 -m onnxoptimizer ' + model_path + " " + opt_model_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
                         current_pass = "all"
                     else:
@@ -281,12 +295,10 @@ def main():
                     opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
                 except:
                     conversion_failed = True
-                # break
                 if (opt_hash is not None and original_hash == opt_hash):
                     print(current_pass + " has no effect on model " + model_name)
                     model_comparisons[model_name_opset]["skipped"].append(current_pass)
                 elif (not conversion_failed):
-                    # TODO: Add optimizer.
                     print("Running optimized model. Pass: " + current_pass)
                     print(opt_model_path)
                     try:
@@ -303,10 +315,10 @@ def main():
                         model_comparisons[model_name_opset]["failed"].append(current_pass)
                         conversion_failed = True
 
+                    # TODO: REFACTOR - MOVE THIS TO SEPARATE FILES
                     if not conversion_failed:
                         
                         if ("text" in tags):
-                            # percentage_diff = abs(base_match_percentage - opt_match_percentage)
                             model_comparisons[model_name_opset][current_pass] = {
                                 "percentage_similarity_diff": opt_match_percentage,
                                 "matches": matches,
@@ -342,7 +354,6 @@ def main():
 
                             model_comparisons["no_dissimilar"] += 1 if dissimilar_percentage != 0 else 0
                         elif ("object detection segmentation" in tags):
-                            # Use ONLY for labels.
                             model_comparisons[model_name_opset][current_pass] = {}
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
                             if "YOLOv3" in model_name_opset:
@@ -447,7 +458,6 @@ def main():
                                     # Skip undetected classes.
                                     if (base_labels == [] and opt_labels == []) or (base_bboxes == [] and opt_bboxes == []):
                                         continue
-                                    # print(opt_bboxes)
 
                                     metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
                                     metrics_5.append(metric_5)
@@ -549,7 +559,6 @@ def main():
                                 if (evaluation["percentage_dissimilar5"][1] != -1):
                                     cmp_object["top5"] = evaluation["percentage_dissimilar5"][1]
                                 cmp_object["topK"] = evaluation["percentage_dissimilar"][1]
-                                # Labels
                                 model_comparisons[model_name_opset][current_pass][output[1]] = cmp_object
 
                         else:
@@ -558,7 +567,6 @@ def main():
                             model_comparisons[model_name_opset][current_pass] = {}
 
                             for i, output_node in enumerate(output):
-                            # for i, diss in enumerate(evaluation["percentage_dissimilar"]):
                                 cmp_object = {}
                                 if (evaluation["percentage_dissimilar1"][i] != -1):
                                     cmp_object["first"] = evaluation["percentage_dissimilar1"][i]
@@ -578,7 +586,7 @@ def main():
                     with open(model_comparisons_file, "w") as outfile:
                         outfile.write(json_object)
                 
-                if basic_run:
+                if run_all_passes:
                     break
 
             if json_object is not None:
@@ -587,12 +595,6 @@ def main():
         
         starts_from += images_chunk
         ends_at += images_chunk
-        # if ends_at + images_chunk <= len(all_images_paths):
-        #     ends_at += images_chunk
-        # elif ends_at != len(all_images_paths):
-        #     ends_at = len(all_images_paths)
-        # else:
-        #     break
 
 if __name__ == "__main__":
     main()
