@@ -2,6 +2,8 @@
 import os
 from .comparator import *
 import scipy.stats as stats
+import numpy as np
+from numpy import array
 
 class Evaluator:
     def __init__(self, topK=5):
@@ -11,7 +13,10 @@ class Evaluator:
     def evaluate_objects(self, source_object, target_object, off_by_one=False):
         source_preds = source_object
         target_preds = target_object
-
+        print(array(source_preds).shape)
+        if (array(source_preds).shape[0] == 1):
+            source_preds = list(np.squeeze(source_preds))
+            target_preds = list(np.squeeze(target_preds))
         if(off_by_one):
             target_preds = [int(t) - 1 for t in target_preds]
 

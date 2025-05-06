@@ -40,20 +40,13 @@ class YOLOV3Extractor:
         else:
             return [], [], []
         # Use np.max() to get the max class score and corresponding label
-        scores = np.max(class_scores, axis=1)  # Get the max class score for each box (along the class axis)
-        labels = np.argmax(class_scores, axis=1)  # Get the index (label) with the max score for each box
+        scores = np.max(class_scores, axis=1)
+        labels = np.argmax(class_scores, axis=1)
 
         # Convert bboxes, labels, and scores to simple lists
-        bboxes = bboxes.tolist()  # Convert bounding boxes to list
-        # print(bboxes)
-        labels = labels.squeeze().tolist()  # Convert labels to list
-        scores = scores.tolist()  # Convert scores to list
+        bboxes = bboxes.tolist()
+        labels = labels.squeeze().tolist()
+        scores = scores.tolist()
 
         # Return the filtered bounding boxes, labels, and scores as simple lists
         return bboxes, labels, scores  # Returning as simple lists
-
-# Example usage:
-# Assuming model_output is a list with 3 elements:
-# model_output = [bboxes, class_scores, objectness]
-# yolo_extractor = YOLOV3Extractor()
-# bboxes, labels, scores = yolo_extractor.extract_yolo_outputs(model_output, num_classes=80)

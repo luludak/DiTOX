@@ -454,12 +454,14 @@ class EvaluationGenerator:
                 else:
                     evaluation_object["dissimilar1"].append(image)
 
-                if image_evaluation["comparisons"]["kendalltau5"]["tau"] > 0.98:
+                if image_evaluation["comparisons"]["kendalltau5"]["tau"] is not None and \
+                    image_evaluation["comparisons"]["kendalltau5"]["tau"] > 0.98:
                     evaluation_object["similar5"].append(image)
                 else:
                     evaluation_object["dissimilar5"].append(image)
 
-                if image_evaluation["comparisons"]["kendalltau"]["tau"] > 0.98:
+                if image_evaluation["comparisons"]["kendalltau"]["tau"] is not None and \
+                    image_evaluation["comparisons"]["kendalltau"]["tau"] > 0.98:
                     evaluation_object["similar"].append(image)
                     images_similar += 1
                 else:

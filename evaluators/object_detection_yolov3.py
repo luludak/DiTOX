@@ -23,10 +23,6 @@ class YOLOV3ObjectDetectionEvaluator:
         unique_classes = set(lbl for lbl in labels_A) | set(lbl for lbl in labels_B)  # Unique class labels in both models
         average_precisions = []  # List to store average precision per class
 
-        # print(len(unique_classes))
-        
-        # Iterate through each class
-        # all_iou = []
         for cls in unique_classes:
             all_gt_boxes = []
             all_pred_boxes = []
@@ -95,8 +91,6 @@ class YOLOV3ObjectDetectionEvaluator:
 
         # Calculate mean Average Precision (mAP)
         mAP = np.mean(average_precisions) if average_precisions else 0.0
-        # print("mAP:", mAP)
-        # print(all_iou)
         return mAP
 
 
@@ -241,20 +235,3 @@ class YOLOV3ObjectDetectionEvaluator:
             "mAP": mAP,
             "IoU": mIoU
         }
-
-
-# Example usage:
-# evaluator = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.5)
-
-# Example bounding boxes, labels, and scores for predicted and ground truth data
-# bboxes_A = np.array([[[0.5, 0.5, 0.2, 0.3], [0.6, 0.7, 0.2, 0.3]]])  # Predicted bounding boxes (batch_size=1, num_boxes=2, 4)
-# labels_A = np.array([[0, 1]])  # Predicted class labels
-# scores_A = np.array([[0.9, 0.8]])  # Predicted confidence scores
-
-# bboxes_B = np.array([[[0.5, 0.5, 0.2, 0.3], [0.65, 0.75, 0.2, 0.3]]])  # Ground truth bounding boxes
-# labels_B = np.array([[0, 1]])  # Ground truth class labels
-# scores_B = np.array([[1.0, 1.0]])  # Ground truth confidence scores (if applicable)
-
-# # Compute F1 score
-# f1 = evaluator.compute_f1(bboxes_A, labels_A, scores_A, bboxes_B, labels_B, scores_B)
-# print(f"F1 score: {f1:.4f}")

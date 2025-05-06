@@ -1,19 +1,21 @@
 {
     "images": {
-        "images_folder_rel_path": "/images/imagenet",
-        "images_chunk": 500,
+        "images_folder_rel_path": "/images/ten",
+        "images_chunk": 1,
         "starts_from": 0,
-        "limit": 5500
+        "limit": 1
     },
     "general": {
         "check_reports_for_problematic_models": false,
-        "run_all_passes": true,
-        "report_file_base_rel_path": "detection_all_info/OD_All_Info_chunk_0_500.json",
+        "run_all_passes": false,
+        "report_file_base_rel_path": "detection_all_info/OD_RCNN1_All_Info_chunk_0_500.json",
         "skip_until_model_id": 0,
-        "run_up_to_model_id": 200
+        "run_up_to_model_id": 200,
+        "name_filters": ["YOLOv2-9"]
     },
     "hub": {
-        "tags": ["vision"],
+        "tags": ["vision", "text"],
+        "Test": "object detection segmentation classification",
         "tags_of_models_to_consider": ["object detection segmentation"],
         "opset_bottom_threshold": 7,
         "cache_folder_rel_path": "models_cache"

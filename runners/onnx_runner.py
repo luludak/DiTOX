@@ -70,7 +70,6 @@ class ONNXRunner:
         }
 
         # Best effort approach for symbolic dimensions.
-
         # Set library to None, so that the name is utilized for preprocessing selection.
         model_preprocessor = ModelPreprocessor(self.preprocessing_data)
         sess_options = ort.SessionOptions()
@@ -96,7 +95,6 @@ class ONNXRunner:
             if (len(config["input_shape"]) > 3 and \
                 (config["input_shape"][1] == 1 or config["input_shape"][3] == 1)):
                 img = img.convert("L")
-                # print(np.array(img).shape)
             else:
                 if(img.mode == "L" or img.mode == "BGR"):
                     img = img.convert("RGB")
@@ -106,7 +104,6 @@ class ONNXRunner:
             img = model_preprocessor.preprocess(config["model_name"], img, True)
 
             input_name = onnx_model.graph.input[0].name if "input_name" not in config else config["input_name"]
-            # print(img.astype(np.float32))
             shape = onnx_model.graph.input[0].type.tensor_type.shape.dim
             if (len(shape) < len(img.shape)):
                 img = np.squeeze(img)
@@ -115,7 +112,6 @@ class ONNXRunner:
             input_obj = {input_name: img.astype(np.uint8 if has_symbolic_input else np.float32)}
             if len(onnx_model.graph.input) == 2:
                 input_obj["image_shape"] = [[224.0, 224.0]]
-            # print(input_obj)
             output = ort_sess.run(None, input_obj)
 
             if len(output) == 1 and np.array(output).ndim == 1:
