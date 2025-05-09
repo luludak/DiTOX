@@ -2,7 +2,7 @@
 
 DiTOX is a utility that enables differential testing of the ONNX Optimizer, by fetching automatically real-life ONNX models from the ONNX Model Hub and performing full and per-pass differential testing on the ONNX Optimizer.
 
-![DiTOX](https://github.com/user-attachments/assets/8a993198-bec0-446d-9760-9eb6aa1f20ed)
+![DiTOX](images/DiTOX.png)
 
 ```
 -------------------------------------------------------------------------------
