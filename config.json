@@ -8,7 +8,7 @@
     "general": {
         "check_reports_for_problematic_models": false,
         "run_all_passes": false,
-        "report_file_base_rel_path": "reports/report.json",
+        "report_file_base_rel_path": "results/report.json",
         "skip_until_model_id": 0,
         "run_up_to_model_id": 200,
         "name_filters": ["YOLOv2-9"]
