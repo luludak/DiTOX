@@ -596,7 +596,6 @@ def main():
                             model_comparisons[model_name_opset][current_pass] = {}
 
                             for i, output_node in enumerate(output):
-                            # for i, diss in enumerate(evaluation["percentage_dissimilar"]):
                                 cmp_object = {}
                                 if (evaluation["percentage_dissimilar1"][i] != -1):
                                     cmp_object["first"] = evaluation["percentage_dissimilar1"][i]
