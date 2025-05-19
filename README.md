@@ -38,6 +38,6 @@ Finally, you can select individual passes to be run, by setting their names in t
 
 ## Notes
 `main.py` contains the code for the experiments for the classification and the object detection models.
-The sample code related to the text generation models is contained in `main-GPT2-Complete.py` but is in draft state.
-Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings
-changing slightly. We aim to fully polish and release it when we make the project public.
+The sample code related to the text generation models is contained in `main-GPT2-Complete.py`.
+Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
+We aim to fully polish and release it when we make the project public.
