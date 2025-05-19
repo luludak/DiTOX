@@ -18,7 +18,7 @@ SUM:                            24            875            568           2598
 
 
 ## Effectiveness
-DiTOX has discovered `15` bugs. Of these, 14 were entirely new (not previously reported on the ONNX Optimizer issue tracker). The issues were associated with `9` of the `47` passes in the optimizer. We have reported the issues to the ONNX Optimizer, while we also contain the raw results for all models and the bugs detected in the repo.
+DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously reported on the ONNX Optimizer issue tracker). The issues were associated with `9` of the `47` passes in the optimizer. We have reported the issues to the ONNX Optimizer, while we also contain the raw results for all models and the bugs detected in the repo.
 
 ## Installation
 1. Install necessary packages by doing `pip install -r requirements.txt`.
