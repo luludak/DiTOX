@@ -1,28 +1,20 @@
 import os
-import argparse
-import onnx
-import onnxruntime
 import json
-import time
 import hashlib
 import subprocess
 import numpy as np
-import onnxruntime as ort
-import scipy.stats as stats
-import math
 import torch
+import onnx
+import onnxruntime as ort
+from onnx import hub
+
 
 from os import listdir
 from pathlib import Path
 from os.path import isfile, join
 from helpers.model_helper import load_config
-from benchmarking.model_benchmarking import benchmark
-from onnxruntime.quantization import quantize_static, quantize_dynamic, QuantFormat, QuantType
-from onnxruntime.quantization.qdq_loss_debug import (
-    collect_activations, compute_activation_error, compute_weight_error,
-    create_activation_matching, create_weight_matching,
-    modify_model_output_intermediate_tensors)
-from helpers.model_helper import get_size
+
+from helpers.optimizer_helper import OptimizerHelper
 
 from helpers.yolov2_extractor import YOLOV2Extractor
 from helpers.yolov3_extractor import YOLOV3Extractor
@@ -31,15 +23,9 @@ from evaluators.object_detection_ssd import SSDObjectDetectionEvaluator
 from evaluators.object_detection_yolov3 import YOLOV3ObjectDetectionEvaluator
 
 from runners.onnx_runner import ONNXRunner
-from onnx.numpy_helper import to_array
-from onnx import hub
-
 from datasets import load_dataset
 
 from transformers import GPT2Tokenizer
-
-from nltk.translate.bleu_score import sentence_bleu
-from nltk.translate.bleu_score import SmoothingFunction
 
 def get_model_path(script_dir, model_obj):
     return script_dir + "/models_cache/" + model_obj.model_path.replace("/model/", "/model/" + \
@@ -48,16 +34,16 @@ def get_model_path(script_dir, model_obj):
             model_obj.metadata["model_sha"] + "_")
 
 def generate_text(session, input_text, tokenizer, max_length=128, temperature=1, top_k=1):
-    generated_tokens = []  # Store all logits locally
+    generated_tokens = []
     
     # Tokenize input
     inputs = tokenizer(input_text, return_tensors="np", padding=False)
     input_ids = inputs["input_ids"].astype(np.int64)
-    input_ids = np.expand_dims(input_ids, axis=0)  # Ensure correct shape
+    input_ids = np.expand_dims(input_ids, axis=0)
     
     for _ in range(max_length):
         outputs = session.run(["output1"], {"input1": input_ids})
-        logits = torch.tensor(outputs[0])  # Convert to PyTorch tensor for easier manipulation
+        logits = torch.tensor(outputs[0])
         
         # Extract last token in sequence
         logits = logits.squeeze(0)[:, -1, :]
@@ -71,7 +57,7 @@ def generate_text(session, input_text, tokenizer, max_length=128, temperature=1,
         # Top-2 selection always.
         # next_token = torch.topk(probs, k=2, dim=-1).indices[..., 1]
         # Top-1 selection always.
-        torch.argmax(probs, dim=-1)
+        next_token = torch.argmax(probs, dim=-1)
         if next_token.item() == tokenizer.eos_token_id:
             break
 
@@ -87,14 +73,18 @@ def generate_text(session, input_text, tokenizer, max_length=128, temperature=1,
 
 def main():
 
+    config = load_config('./config.json')
+    images_config = config["images"]
+    optimizer_config = config["optimizer"]
+    general_config = config["general"]
+
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    calibr_images_folder = script_dir + '/images/one-hundred/'
-    images_folder = script_dir + '/images/imagenet'
-    small_calibr_images_folder = script_dir + '/images/one'
+    images_folder = script_dir + "/" + images_config["images_folder_rel_path"]
 
     all_models = hub.list_models(tags=["text"])
-
     hub.set_dir(script_dir + "/models_cache")
+
+    opt_helper = OptimizerHelper()
     
     model_comparisons_file = script_dir + "/text/Top2Prediction_GPT-2_chunk_0_500.json"
     onnx_runner = ONNXRunner({})
@@ -106,9 +96,10 @@ def main():
 
     all_images_paths.sort()
 
-    images_chunk = 200
-    starts_from = 10600
-    limit = 11873 # 25000
+    # TODO: Refactor using config.
+    images_chunk = 10
+    starts_from = 0
+    limit = 10
     ends_at = starts_from + images_chunk
     tags = "text"
 
@@ -230,18 +221,8 @@ def main():
             original_hash = hashlib.md5(open(model_path,'rb').read()).hexdigest()
             opt_model_path = model_path.replace(".onnx", "_opt.onnx")
 
-            passes = ["adjust_add", "rename_input_output", "set_unique_name_for_nodes", \
-                "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
-                "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
-                "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
-                "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
-                "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
-                "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
-                "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \
-                "replace_einsum_with_matmul", "lift_lexical_references", "split_init", "split_predict", "fuse_concat_into_reshape", \
-                "eliminate_nop_reshape", "eliminate_nop_with_unit", "eliminate_common_subexpression", "fuse_qkv", "fuse_consecutive_unsqueezes", \
-                "eliminate_deadend", "eliminate_identity", "eliminate_shape_op", "fuse_consecutive_slices", "eliminate_unused_initializer", \
-                "eliminate_duplicate_initializer", "adjust_slice_and_matmul", "rewrite_input_dtype"]
+            passes = optimizer_config["passes"] if len(optimizer_config["passes"]) != 0 else \
+                opt_helper.get_optimizer_passes()
 
             # TODO: Cache!
             print("Running original model...")
@@ -275,7 +256,7 @@ def main():
                 "run": 0
             }
 
-            basic_run = True
+            run_individual_passes = general_config["run_individual_passes"]
 
             for current_pass in passes:
                 opt_match_percentage = 0
@@ -312,7 +293,6 @@ def main():
                     opt_hash = hashlib.md5(open(opt_model_path,'rb').read()).hexdigest()
                 except:
                     conversion_failed = True
-                # break
                 if (opt_hash is not None and original_hash == opt_hash):
                     print(current_pass + " has no effect on model " + model_name)
                     model_comparisons[model_name_opset]["skipped"].append(current_pass)
@@ -614,7 +594,7 @@ def main():
                     # with open(model_comparisons_file, "w") as outfile:
                     #     outfile.write(json_object)
                 
-                if basic_run:
+                if not run_individual_passes:
                     break
 
             if json_object is not None:

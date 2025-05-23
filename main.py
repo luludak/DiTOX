@@ -1,28 +1,18 @@
 import os
-import argparse
-import onnx
-import onnxruntime
 import json
-import time
 import hashlib
 import subprocess
 import numpy as np
-import onnxruntime as ort
-import scipy.stats as stats
-import math
 from os import listdir
 from pathlib import Path
 from os.path import isfile, join
 from helpers.model_helper import load_config
-from benchmarking.model_benchmarking import benchmark
-from onnxruntime.quantization import quantize_static, quantize_dynamic, QuantFormat, QuantType
-from onnxruntime.quantization.qdq_loss_debug import (
-    collect_activations, compute_activation_error, compute_weight_error,
-    create_activation_matching, create_weight_matching,
-    modify_model_output_intermediate_tensors)
+import onnx
+from onnx import hub
 
 from helpers.optimizer_helper import OptimizerHelper
-from helpers.model_helper import get_size, get_model_path, load_config, prepare_model_input_dimension, prepare_model_shape
+from helpers.model_helper import get_size, get_model_path, load_config, \
+    prepare_model_input_dimension, prepare_model_shape
 
 from helpers.yolov2_extractor import YOLOV2Extractor
 
@@ -33,30 +23,6 @@ from comparators.classification import ClassificationComparator
 from comparators.yolov3 import YOLOV3Comparator
 
 from runners.onnx_runner import ONNXRunner
-from onnx import hub
-
-from transformers import BertTokenizer
-from datasets import load_dataset
-
-from transformers import RobertaTokenizer
-# from transformers import GPT2Tokenizer
-# from transformers import GPT2TokenizerFast
-from transformers import T5Tokenizer
-
-# text = glue_data["test"][0]["sentence"]
-# tokens = tokenizer(text, return_tensors="np")
-
-# input_dict = {session.get_inputs()[0].name: tokens["input_ids"].astype(np.int64)}
-# print(input_dict)
-# outputs = session.run(None, input_dict)
-
-
-# REFACTORING PLAN:
-# 1. Add all references to configuration properly. OK
-# 2. Move evaluation to different files.
-# 3. Clean up evaluation and runs between classification and object detection.
-# 4. Add GPT loads/runs. Use multiple files.
-# 5. Do a full pass, remove redundant comments etc.
 
 def main():
 
@@ -70,10 +36,6 @@ def main():
     images_folder = script_dir + "/" + images_config["images_folder_rel_path"]
 
     all_models = hub.list_models(tags=hub_config["tags"])
-    # print (len(all_models))
-    # print (len([m for m in all_models if m.opset >= 7 and m.opset <= 9]))
-    # # print (len([m for m in all_models if m.opset >= 7 and m.opset <= 9 and "body analysis" not in m.tags]))
-    # return 
 
     hub.set_dir(script_dir + "/" + hub_config["cache_folder_rel_path"])
     
@@ -216,8 +178,7 @@ def main():
             print("Running original model...")
             print(model_path)
             base_model_out = None
-            base_match_percentage = 0
-            
+
             try:
                 if "text" not in tags:
                     base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
@@ -238,7 +199,7 @@ def main():
                 "run": 0
             }
 
-            run_all_passes = general_config["run_all_passes"]
+            run_individual_passes = general_config["run_individual_passes"]
 
             for current_pass in passes:
                 opt_match_percentage = 0
@@ -248,7 +209,7 @@ def main():
                 p_values = []
                 conversion_failed = False
                 try:
-                    if run_all_passes:
+                    if not run_individual_passes:
                         p = subprocess.Popen(['python3 -m onnxoptimizer ' + model_path + " " + opt_model_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
                         current_pass = "all"
                     else:
@@ -292,29 +253,20 @@ def main():
                         model_comparisons[model_name_opset]["failed"].append(current_pass)
                         conversion_failed = True
 
-                    # TODO: REFACTOR - MOVE THIS TO SEPARATE FILES
                     if not conversion_failed:
                         
-                        if ("text" in tags):
-                            # TODO Update based on the models under use.
+                        if ("classification" in tags):
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
-                            comparator = TextComparator(model_comparisons, evaluation)
-                            comparator.update(model_name_opset, current_pass)
-                            
-                        elif ("classification" in tags):
-                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
-                            comparator = ClassificationComparator(model_comparisons, evaluation)
+                            comparator = ClassificationComparator(evaluation, model_comparisons)
                             comparator.update(model_name_opset, current_pass)
 
                         elif ("object detection segmentation" in tags):
                             model_comparisons[model_name_opset][current_pass] = {}
-                            # comparator = ObjectDetectionComparator(model_comparisons, evaluation)
-                            # comparator.update(model_name_opset, current_pass)
-                            
+
                             if "YOLOv3" in model_name_opset:
                                 
                                 evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
-                                comparator = YOLOV3Comparator(model_comparisons, evaluation)
+                                comparator = YOLOV3Comparator(evaluation, model_comparisons)
                                 comparator.update(model_name, model, base_model_out, opt_model_out, current_pass)
 
                             elif "YOLOv2-9" in model_name_opset:
@@ -472,7 +424,7 @@ def main():
                     with open(model_comparisons_file, "w") as outfile:
                         outfile.write(json_object)
                 
-                if run_all_passes:
+                if not run_individual_passes:
                     break
 
             if json_object is not None:
