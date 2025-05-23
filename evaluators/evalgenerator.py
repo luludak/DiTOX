@@ -431,12 +431,6 @@ class EvaluationGenerator:
             source_img = source_object[image]
             target_img = target_object[image]
 
-            # if len(source_img) == 2 and source_img[0] == source_img[1]:
-            #     source_img = source_img[0][0:len(target_img)]
-                    
-            # elif len(target_img) == 2 and target_img[0] == target_img[1]:
-            #     target_img = target_img[0][0:len(source_img)]
-
             if "object detection segmentation" not in type:
 
                 image_evaluation = self.evaluator.evaluate_objects(source_img, target_img)
@@ -446,8 +440,6 @@ class EvaluationGenerator:
                     "tau5": image_evaluation["comparisons"]["kendalltau5"]["tau"],
                     "p-value5": image_evaluation["comparisons"]["kendalltau5"]["p-value"],
                 }
-
-                # TODO: Consider setting KT count heuristic for similar and dissimilar.
 
                 if image_evaluation["comparisons"]["first_only"] == 1:
                     evaluation_object["similar1"].append(image)
@@ -473,7 +465,6 @@ class EvaluationGenerator:
                     obj_det_size = len(source_img)
 
                 for i, source_tensor in enumerate(source_img):
-
                     if i >= len(evaluation_object["similar"]):
                         evaluation_object["similar"].append([])
                         evaluation_object["dissimilar"].append([])
@@ -483,14 +474,14 @@ class EvaluationGenerator:
                         evaluation_object["dissimilar5"].append([])
 
                     if  np.array(source_tensor).ndim == 1:
+
                         result = self.evaluator.evaluate_objects(source_img[i], target_img[i])
-                
                         eval_object = {
                             "first": result["comparisons"]["first_only"],
                             "tau": result["comparisons"]["kendalltau"]["tau"],
                             "p-value": result["comparisons"]["kendalltau"]["p-value"],
                             "tau5": result["comparisons"]["kendalltau5"]["tau"],
-                            "p-value5": result["comparisons"]["kendalltau5"]["p-value"],
+                            "p-value5": result["comparisons"]["kendalltau5"]["p-value"]
                         }
 
                         if eval_object["first"] == 1:
@@ -510,8 +501,8 @@ class EvaluationGenerator:
                                 evaluation_object["similar5"][i].append(image)
                             else:
                                 evaluation_object["dissimilar5"][i].append(image)
-
                     else:
+
                         if source_img[i].shape == target_img[i].shape:
                             diff_array = abs(source_img[i] - target_img[i])
                             diff = (diff_array < 1e-07).sum()
@@ -519,8 +510,7 @@ class EvaluationGenerator:
                             if total != 0:
                                 result = (float)(diff/total) > 0.98
                             else:
-                                retult = -1
-                            # result = np.allclose(source_img[i], target_img[i])
+                                result = -1
                         else:
                             print("Shape mismatch!")
                             result = False
@@ -539,6 +529,7 @@ class EvaluationGenerator:
                 evaluation_object["percentage_dissimilar1"] = (len(evaluation_object["dissimilar1"])/len(target_images)) * 100
                 evaluation_object["percentage_similar"] = (len(evaluation_object["similar"])/len(target_images)) * 100
                 evaluation_object["percentage_dissimilar"] = (len(evaluation_object["dissimilar"])/len(target_images)) * 100
+            
             else:
                 
                 evaluation_object["percentage_similar1"] = []
@@ -553,7 +544,6 @@ class EvaluationGenerator:
 
                 for i, img in enumerate(first_image):
 
-                    # if len(evaluation_object["similar1"][i]) + len(evaluation_object["dissimilar1"][i]) != 0:
                     if (np.array(img).ndim == 1):
                         evaluation_object["percentage_similar1"].append((len(evaluation_object["similar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_dissimilar1"].append((len(evaluation_object["dissimilar1"][i])/len(target_images)) * 100)
