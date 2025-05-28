@@ -1,4 +1,3 @@
-
 ** Elimination Operations **
 eliminate_nop_cast: Removes Cast ops that cast a tensor to its current type,
 eliminate_nop_dropout: Eliminates Dropout nodes during inference (they're no-ops),
