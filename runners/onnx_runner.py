@@ -18,23 +18,23 @@ class ONNXRunner:
         self.evaluation_generator = EvaluationGenerator()
         self.topK = topK
 
-    def evaluate(self, source_run_obj, target_run_obj, type=["classification"]):
-        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type)
+    def evaluate(self, source_run_obj, target_run_obj, type=["classification"], include_certainties=False):
+        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type, include_certainties)
 
     def execute_and_evaluate_single_model(self, onnx_model, run_obj, image_path, config, include_certainties=False):
         image_obj = self.execute_onnx_model(onnx_model, [image_path], config, print_percentage=False, include_certainties=include_certainties)
         image_name = list(image_obj.keys())[0]
-        return self.evaluate(run_obj, image_obj)["images"][image_name]
+        return self.evaluate(run_obj, image_obj, include_certainties)["images"][image_name]
 
     def execute_and_evaluate_single(self, onnx_path, run_obj, image_path, config, include_certainties=False):
         image_obj = self.execute_onnx_path(onnx_path, [image_path], config, print_percentage=False, include_certainties=include_certainties)
         image_name = list(image_obj.keys())[0]
-        return self.evaluate(run_obj, image_obj)["images"][image_name]
+        return self.evaluate(run_obj, image_obj, include_certainties)["images"][image_name]
 
-    def evaluate_single(self, run_obj, image_obj):
+    def evaluate_single(self, run_obj, image_obj, include_certainties=False):
         # Return single evaluation.
         image_name = list(image_obj.keys())[0]
-        return self.evaluate(run_obj, image_obj)["images"][image_name]        
+        return self.evaluate(run_obj, image_obj, include_certainties)["images"][image_name]        
  
     def execute_single(self, onnx_path, image_path, config, include_certainties=False):
         # Execute and return for single image.
@@ -76,7 +76,6 @@ class ONNXRunner:
         sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
         ort_sess = ort.InferenceSession(onnx_model.SerializeToString(), providers=['CPUExecutionProvider'])
  
-
         output_data = {}
         count = 0
         images_length = len(images_paths)
@@ -115,14 +114,12 @@ class ONNXRunner:
             output = ort_sess.run(None, input_obj)
 
             if len(output) == 1 and np.array(output).ndim == 1:
-
-                scores = softmax(output)
-
-                scores = np.squeeze(scores)
-                ranks = np.argsort(scores)[::-1]
+                output = softmax(output)
+                output = np.squeeze(output)
+                ranks = np.argsort(output)[::-1]
                 extracted_ranks = ranks[0:self.topK]
                 if include_certainties:
-                    output_data[img_name] = [(rank, str(scores[rank])) for rank in extracted_ranks.tolist()]
+                    output_data[img_name] = [(rank, str(output[rank])) for rank in extracted_ranks.tolist()]
                 else:
                     output_data[img_name] = extracted_ranks.tolist()
             else:
@@ -130,11 +127,17 @@ class ONNXRunner:
                     output_data[img_name] = []
 
                 for i, output_tensor in enumerate(output):
+                    output_tensor = softmax(output_tensor)
                     output_tensor = np.squeeze(output_tensor)
-                    if (output_tensor.ndim == 1):
-                        ranks = np.argsort(output_tensor)[::-1]
-                        output_tensor = ranks[0:self.topK]
+                    ranks = np.argsort(output_tensor)[::-1]
+                    
+                    extracted_ranks = ranks[0:self.topK]
+                    if include_certainties:
+                        output_tensor = [(rank, str(output_tensor[rank])) for rank in extracted_ranks.tolist()]
+                    else:
+                        output_tensor = extracted_ranks.tolist()
+                    # print(output_tensor)
                     output_data[img_name].append(output_tensor)
+
         return output_data
-
-
+    
