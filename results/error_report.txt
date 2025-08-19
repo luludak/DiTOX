@@ -1,0 +1,10 @@
+Issues/Errors Detected
+-----------------------
+
+1) The "lift_lexical_references" pass should not lead in an invalid model, but extract metadata instead.
+Type: Crash (Invalid Model)
+Description: The pass removes the references arbitrarily, without checking if they are used in the model (e.g., on the initializer)
+Pass: lift_lexical_references
+Issue URL: https://github.com/onnx/optimizer/issues/156
+
+2)
