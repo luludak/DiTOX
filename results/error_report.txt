@@ -4,7 +4,6 @@ Total: 15, 14 new, 1 existing (enhanced with reproducibility details which were 
 Severity: 7 Low, 6 Medium, 2 High
 Types: 12 Crashes, 2 Accuracy Errors, 1 Redundancy/Warning
 Issues Acknowledgement: The optimizer developers have acknowledged our contribution in total.
-
 -----------------------
 
 1) The "lift_lexical_references" pass should not lead in an invalid model, but extract metadata instead.
