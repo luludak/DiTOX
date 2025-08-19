@@ -3,7 +3,7 @@
 This folder contains all the raw results from our experiments conducted with DiTOX.  
 In total, we ran 130 models spanning opsets 7 to 12, covering categories such as classification, object detection, question answering, sentiment analysis, summarization, and generic text generation.
 
-The file `error_report.txt` contains the summary of the ONNX Optimizer errors detected.
+The file `detected_issues.txt` contains the summary of the ONNX Optimizer errors detected.
 
 The raw results are organized into subfolders within the repository. Files with the keyword **"each"** in their names indicate per-pass individual runs. Additionally, the results for each rank are chunked to facilitate better management and execution of the experiments.
 
