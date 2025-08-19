@@ -1,8 +1,13 @@
 Issues/Errors Detected
 -----------------------
 
+Total: 15, 14 new, 1 existing (enhanced with reproducibility details which were not previously provided)
+Severity: X Low, Y Medium, Z High
+Types: 12 Crashes, 2 Accuracy Errors, 1 Redundancy/Warning
+
 1) The "lift_lexical_references" pass should not lead in an invalid model, but extract metadata instead.
 Type: Crash (Invalid Model)
+Status: New
 Description: The pass removes the references arbitrarily, without checking if they are used in the model (e.g., on the initializer)
 Pass(es): lift_lexical_references
 Issue URL: https://github.com/onnx/optimizer/issues/156
@@ -10,6 +15,7 @@ Severity: Low (secondary pass)
 
 2) The "split" passes result in invalid models.
 Type: Crash (Invalid Model)
+Status: New
 Description: The passes result into invalid models. I would expect that each part would be a valid net, but this is not the case. I invoked them separately to determine which part plays a role to it, and both passes result in invalid nets.
 Pass(es): split_init, split_predict
 Severity: Low (secondary pass)
@@ -17,6 +23,7 @@ Issue URL: https://github.com/onnx/optimizer/issues/157
 
 3) The "split_predict" pass crashes with ShapeInferenceError.
 Type: Crash (Invalid Model)
+Status: New
 Description: The "split_predict" pass gives [ONNXRuntimeError] : 1 : FAIL : Node (Resize_140) Op (Resize) [ShapeInferenceError]
 Pass(es): split_predict
 Severity: Low (secondary pass)
@@ -24,6 +31,7 @@ Issue URL: https://github.com/onnx/optimizer/issues/157 (comment)
 
 4) Pass "eliminate_shape_gather" results in a dimension size error.
 Type: Crash (Optimizer)
+Status: New
 Description: While running "eliminate_shape_gather" pass for model R-CNN R-50-FPN it gives a dimension size error.
 Pass(es): eliminate_shape_gather
 Severity: Medium (primary pass, optimizer crash)
@@ -31,6 +39,7 @@ Issue URL: https://github.com/onnx/optimizer/issues/158
 
 5) Models of opset 7,8 and 9 present slightly different results when optimized.
 Type: Accuracy
+Status: New
 Description: When optimizing a number models with opset=7, 8, 9. These models have ONNX v3 format, but when optimized, although the structure remains the same, the format is upgraded implicitly to ONNX v4. This affects model correctness, to a small, but non-negligible extent, affecting top-5 and top-10 labels for classification models while the top-1 label remained accurate. This does not happen for models of higher opset (10 and above).
 Pass(es): all
 Severity: High (all passes, non-crashing effect, difficult to detect)
@@ -38,6 +47,7 @@ Issue URL: https://github.com/onnx/optimizer/issues/159
 
 6) Pass "rewrite_input_dtype" gives an error on GPT-2.
 Type: Crash (Optimizer)
+Status: New
 Description: While applying the rewrite_input_dtype pass, I encountered the C.check_model_path(onnx.onnx_cpp2py_export.checker.ValidationError)
 Pass(es): rewrite_input_dtype
 Severity: Medium (primary pass, optimizer crash)
@@ -45,8 +55,24 @@ Issue URL: https://github.com/onnx/optimizer/issues/170
 
 7) Pass "eliminate_consecutive_idempotent_ops" succeeds but model gives an incompatible shape error upon run.
 Type: Crash (Model)
+Status: New
 Description: While optimizing a number of Mask and Faster R-CNN models on opset=12 from the ONNX Model Hub, the optimizer generated the models, but we encountered the following error when applying the eliminate_consecutive_idempotent_ops pass: "FAIL : Node (<NODE>) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes".
 Pass(es): eliminate_consecutive_idempotent_ops
 Severity: Medium (primary pass, model crash)
 Issue URL: https://github.com/onnx/optimizer/issues/171
 
+8) Pass "eliminate_duplicate_initializer" fails on R-CNN model.
+Type: Crash (Optimizer)
+Status: New
+Description: While using the pass eliminate_duplicate_initializer to optimize the model Faster R-CNN R-50-FPN-qdq of opset=12 from ONNX Model Hub, I encounter the following error: "Assertion "outputs_[i]->uses().empty()" failed.".
+Pass(es): eliminate_duplicate_initializer
+Severity: Medium (primary pass, optimizer crash)
+Issue URL: https://github.com/onnx/optimizer/issues/172
+
+9) Redundant initializers introduced to the models using eliminate passes.
+Type: Redundancy/Warning
+Status: New
+Description: The optimizer adds redundant initializer nodes to the models, in different passes (e.g., eliminate_shape_gather and eliminate_nop_reshape). Upon execution, they are removed and the models work, however the models get bloated this way and it would be nice to resolve this, as it has to do with eliminate passes which are part of the default optimization bundle.
+Pass(es): eliminate_shape_gather, eliminate_op_reshape
+Severity: Very Low (Warning)
+Issue URL: https://github.com/onnx/optimizer/issues/176
