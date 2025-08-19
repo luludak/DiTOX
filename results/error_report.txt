@@ -28,3 +28,25 @@ Description: While running "eliminate_shape_gather" pass for model R-CNN R-50-FP
 Pass(es): eliminate_shape_gather
 Severity: Medium (primary pass, optimizer crash)
 Issue URL: https://github.com/onnx/optimizer/issues/158
+
+5) Models of opset 7,8 and 9 present slightly different results when optimized.
+Type: Accuracy
+Description: When optimizing a number models with opset=7, 8, 9. These models have ONNX v3 format, but when optimized, although the structure remains the same, the format is upgraded implicitly to ONNX v4. This affects model correctness, to a small, but non-negligible extent, affecting top-5 and top-10 labels for classification models while the top-1 label remained accurate. This does not happen for models of higher opset (10 and above).
+Pass(es): all
+Severity: High (all passes, non-crashing effect, difficult to detect)
+Issue URL: https://github.com/onnx/optimizer/issues/159
+
+6) Pass "rewrite_input_dtype" gives an error on GPT-2.
+Type: Crash (Optimizer)
+Description: While applying the rewrite_input_dtype pass, I encountered the C.check_model_path(onnx.onnx_cpp2py_export.checker.ValidationError)
+Pass(es): rewrite_input_dtype
+Severity: Medium (primary pass, optimizer crash)
+Issue URL: https://github.com/onnx/optimizer/issues/170
+
+7) Pass "eliminate_consecutive_idempotent_ops" succeeds but model gives an incompatible shape error upon run.
+Type: Crash (Model)
+Description: While optimizing a number of Mask and Faster R-CNN models on opset=12 from the ONNX Model Hub, the optimizer generated the models, but we encountered the following error when applying the eliminate_consecutive_idempotent_ops pass: "FAIL : Node (<NODE>) Op (Reshape) [ShapeInferenceError] Dimension could not be inferred: incompatible shapes".
+Pass(es): eliminate_consecutive_idempotent_ops
+Severity: Medium (primary pass, model crash)
+Issue URL: https://github.com/onnx/optimizer/issues/171
+
