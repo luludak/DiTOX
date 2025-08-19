@@ -4,7 +4,27 @@ Issues/Errors Detected
 1) The "lift_lexical_references" pass should not lead in an invalid model, but extract metadata instead.
 Type: Crash (Invalid Model)
 Description: The pass removes the references arbitrarily, without checking if they are used in the model (e.g., on the initializer)
-Pass: lift_lexical_references
+Pass(es): lift_lexical_references
 Issue URL: https://github.com/onnx/optimizer/issues/156
+Severity: Low (secondary pass)
 
-2)
+2) The "split" passes result in invalid models.
+Type: Crash (Invalid Model)
+Description: The passes result into invalid models. I would expect that each part would be a valid net, but this is not the case. I invoked them separately to determine which part plays a role to it, and both passes result in invalid nets.
+Pass(es): split_init, split_predict
+Severity: Low (secondary pass)
+Issue URL: https://github.com/onnx/optimizer/issues/157
+
+3) The "split_predict" pass crashes with ShapeInferenceError.
+Type: Crash (Invalid Model)
+Description: The "split_predict" pass gives [ONNXRuntimeError] : 1 : FAIL : Node (Resize_140) Op (Resize) [ShapeInferenceError]
+Pass(es): split_predict
+Severity: Low (secondary pass)
+Issue URL: https://github.com/onnx/optimizer/issues/157 (comment)
+
+4) Pass "eliminate_shape_gather" results in a dimension size error.
+Type: Crash (Optimizer)
+Description: While running "eliminate_shape_gather" pass for model R-CNN R-50-FPN it gives a dimension size error.
+Pass(es): eliminate_shape_gather
+Severity: Medium (primary pass, optimizer crash)
+Issue URL: https://github.com/onnx/optimizer/issues/158
