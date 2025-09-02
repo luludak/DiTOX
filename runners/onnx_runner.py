@@ -126,18 +126,8 @@ class ONNXRunner:
                 if (img_name not in output_data):
                     output_data[img_name] = []
 
-                for i, output_tensor in enumerate(output):
-                    output_tensor = softmax(output_tensor)
-                    output_tensor = np.squeeze(output_tensor)
-                    ranks = np.argsort(output_tensor)[::-1]
-                    
-                    extracted_ranks = ranks[0:self.topK]
-                    if include_certainties:
-                        output_tensor = [(rank, str(output_tensor[rank])) for rank in extracted_ranks.tolist()]
-                    else:
-                        output_tensor = extracted_ranks.tolist()
-                    # print(output_tensor)
-                    output_data[img_name].append(output_tensor)
+                # Directly dump output, as the tensor comparisons will be done in total.
+                output_data[img_name] = output
 
         return output_data
     
