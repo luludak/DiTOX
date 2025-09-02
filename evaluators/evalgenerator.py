@@ -503,12 +503,18 @@ class EvaluationGenerator:
                                 evaluation_object["dissimilar5"][i].append(image)
                     else:
 
-                        if source_img[i].shape == target_img[i].shape:
-                            diff_array = abs(source_img[i] - target_img[i])
+                        src_arr = np.array(source_img[i])
+                        tgt_arr = np.array(target_img[i])
+                        if src_arr.shape == tgt_arr.shape:
+                            diff_array = abs(src_arr - tgt_arr)
                             diff = (diff_array < 1e-07).sum()
-                            total = (source_img[i] == source_img[i]).sum()
+                            if i == 2:
+								# TODO: Write to file instead of printing to output.
+                                print(np.mean(diff_array))
+                                print(np.std(diff_array))
+                            total = (src_arr == src_arr).sum()
                             if total != 0:
-                                result = (float)(diff/total) > 0.98
+                                result = (float)(diff/total) >= 0.99
                             else:
                                 result = -1
                         else:
