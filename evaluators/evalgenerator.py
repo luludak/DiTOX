@@ -502,16 +502,14 @@ class EvaluationGenerator:
                             else:
                                 evaluation_object["dissimilar5"][i].append(image)
                     else:
-
                         src_arr = np.array(source_img[i])
                         tgt_arr = np.array(target_img[i])
                         if src_arr.shape == tgt_arr.shape:
                             diff_array = abs(src_arr - tgt_arr)
                             diff = (diff_array < 1e-07).sum()
                             if i == 2:
-								# TODO: Write to file instead of printing to output.
-                                print(np.mean(diff_array))
-                                print(np.std(diff_array))
+                                mean_sc2.append(np.mean(diff_array))
+                                std_sc2.append(np.std(diff_array))
                             total = (src_arr == src_arr).sum()
                             if total != 0:
                                 result = (float)(diff/total) >= 0.99
@@ -524,6 +522,10 @@ class EvaluationGenerator:
                             evaluation_object["similar"][i].append(image)
                         else:
                             evaluation_object["dissimilar"][i].append(image)
+
+        # TODO: Write to file instead of printing to output.
+        print("Mean: " + str(np.mean(mean_sc2)))
+        print("Std:" + str(np.mean(std_sc2)))
                 
         if (len(source_images) != 0):
 
