@@ -425,7 +425,8 @@ class EvaluationGenerator:
         images_dissimilar = 0
 
         obj_det_size = 0
-
+        mean_sc2 = []
+        std_sc2 = []
         for image in target_images:
 
             source_img = source_object[image]
