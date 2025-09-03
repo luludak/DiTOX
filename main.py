@@ -15,14 +15,18 @@ from helpers.model_helper import get_size, get_model_path, load_config, \
     prepare_model_input_dimension, prepare_model_shape
 
 from helpers.yolov2_extractor import YOLOV2Extractor
+from helpers.ssd_extractor import SSDExtractor
 
 from evaluators.object_detection_ssd import SSDObjectDetectionEvaluator
 
 from comparators.text import TextComparator
 from comparators.classification import ClassificationComparator
+from comparators.ssd import SSDComparator
 from comparators.yolov3 import YOLOV3Comparator
 
 from runners.onnx_runner import ONNXRunner
+from decimal import Decimal
+
 
 def main():
 
@@ -31,6 +35,8 @@ def main():
     general_config = config["general"]
     hub_config = config["hub"]
     optimizer_config = config["optimizer"]
+
+    include_certainties = general_config["include_certainties"]
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     images_folder = script_dir + "/" + images_config["images_folder_rel_path"]
@@ -102,34 +108,45 @@ def main():
             if (model_no < skip_until or model_no > run_up_to):
                 continue
 
+            # TODO: Add logic to extract model ID from ONNX Hub.
+            # if model_obj.model != "GoogleNet-int8":
+            #     continue
+            # else:
+            #     print(model_no)
+            #     return
+
             model_name = model_obj.model
             model_opset = model_obj.opset
             model_name_opset = model_name + "-" + str(model_opset)
             tags = model_obj.tags
 
             name_filters = general_config["name_filters"]
-            filter_in_name = False
-            for filter in name_filters:
-                if filter in model_name_opset:
-                    filter_in_name = True
-                    break
+            
+            if len(name_filters) != 0:
+                filter_in_name = False
+                for filter in name_filters:
+                    if filter in model_name_opset:
+                        filter_in_name = True
+                        break
 
-            if not filter_in_name:
-                continue
+                if not filter_in_name:
+                    continue
 
+            # print("TEST")
             # Check different models if option is enabled and file exists.
             if (check_prob_models and model_comparisons_file_exists and \
                 model_name_opset not in different_models):
                 continue
                 
             tag_found = False
-            for tag_to_consider in hub_config["tags_of_models_to_consider"]:
-                if tag_to_consider in tags:
-                    tag_found = True
-                    break
+            if len(hub_config["tags_of_models_to_consider"]) != 0:
+                for tag_to_consider in hub_config["tags_of_models_to_consider"]:
+                    if tag_to_consider in tags:
+                        tag_found = True
+                        break
 
-            if not tag_found:
-                continue
+                if not tag_found:
+                    continue
 
             if model_opset < hub_config["opset_bottom_threshold"]:
                 continue
@@ -181,7 +198,7 @@ def main():
 
             try:
                 if "text" not in tags:
-                    base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config)
+                    base_model_out = onnx_runner.execute_onnx_model(model, images_paths, config=model_config, include_certainties=include_certainties)
                 else:
                     print("Text models not supported on this version.")
             except Exception as e:
@@ -243,10 +260,9 @@ def main():
                         onnx_model = onnx.load(opt_model_path)
                         
                         if "text" not in tags:
-                            opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config)
+                            opt_model_out = onnx_runner.execute_onnx_model(onnx_model, images_paths, config=model_config, include_certainties=include_certainties)
 
                     except Exception as e:
-                        print(e)
                         if model_name_opset not in model_comparisons["conversion_errors"]:
                             model_comparisons["conversion_errors"][model_name_opset] = {}
                         model_comparisons["conversion_errors"][model_name_opset][current_pass] = repr(e)
@@ -256,18 +272,17 @@ def main():
                     if not conversion_failed:
                         
                         if ("classification" in tags):
-                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
+                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties)
                             comparator = ClassificationComparator(evaluation, model_comparisons)
-                            comparator.update(model_name_opset, current_pass)
+                            comparator.update(model_name_opset, current_pass, include_certainties=include_certainties)
 
                         elif ("object detection segmentation" in tags):
                             model_comparisons[model_name_opset][current_pass] = {}
+                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties)
 
                             if "YOLOv3" in model_name_opset:
-                                
-                                evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
                                 comparator = YOLOV3Comparator(evaluation, model_comparisons)
-                                comparator.update(model_name, model, base_model_out, opt_model_out, current_pass)
+                                comparator.update(model_name_opset, model, base_model_out, opt_model_out, current_pass, include_certainties=include_certainties)
 
                             elif "YOLOv2-9" in model_name_opset:
                                 extractor = YOLOV2Extractor()
@@ -330,8 +345,11 @@ def main():
                                         "avg_IoU": np.mean([o["IoU"] for o in metrics_9]) * 100,
                                     }
                                 }
+                                comparator = SSDComparator(evaluation, model_comparisons)
+                                comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
 
                             elif "SSD" in model_name_opset:
+                                extractor = SSDExtractor()
 
                                 metrics_5 = []
                                 metrics_7 = []
@@ -346,13 +364,8 @@ def main():
                                     base_image = base_model_out[img_key]
                                     opt_image = opt_model_out[img_key]
 
-                                    base_bboxes = np.squeeze(base_image[0]).tolist()
-                                    base_labels = np.squeeze(base_image[1]).tolist()
-                                    base_scores = np.squeeze(base_image[2]).tolist()
-
-                                    opt_bboxes = np.squeeze(opt_image[0]).tolist()
-                                    opt_labels = np.squeeze(opt_image[1]).tolist()
-                                    opt_scores = np.squeeze(opt_image[2]).tolist()
+                                    (base_bboxes, base_labels, base_scores) = extractor.extract_ssd_outputs(base_image)
+                                    (opt_bboxes, opt_labels, opt_scores) = extractor.extract_ssd_outputs(opt_image)
 
                                     if (base_labels == [] and opt_labels == []) or (base_bboxes == [] and opt_bboxes == []):
                                         continue
@@ -396,11 +409,11 @@ def main():
                                     cmp_object["first"] = evaluation["percentage_dissimilar1"][1]
                                 if (evaluation["percentage_dissimilar5"][1] != -1):
                                     cmp_object["top5"] = evaluation["percentage_dissimilar5"][1]
-                                cmp_object["topK"] = evaluation["percentage_dissimilar"][1]
-                                model_comparisons[model_name_opset][current_pass][output[1]] = cmp_object
 
+                                comparator = SSDComparator(evaluation, model_comparisons)
+                                comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
                         else:
-                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags)
+                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties)
                             output =[node.name for node in model.graph.output]
                             model_comparisons[model_name_opset][current_pass] = {}
 
@@ -414,6 +427,11 @@ def main():
 
                                 model_comparisons[model_name_opset][current_pass][output[i]] = cmp_object
 
+                            # This assumes the new model has the same output structure
+                            # with SSD (boxes, classes, scores).
+                            # TODO: Extend to work for every model.
+                            comparator = SSDComparator(evaluation, model_comparisons)
+                            comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
 
                         model_comparisons["model_instances_run"] += 1
                         model_comparisons[model_name_opset]["run"] += 1
