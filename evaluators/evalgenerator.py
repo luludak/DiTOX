@@ -735,4 +735,3 @@ class EvaluationGenerator:
                 outfile.close()
 
         return evaluation_data_obj
-    
