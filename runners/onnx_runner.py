@@ -125,4 +125,3 @@ class ONNXRunner:
                 output_data[img_name] = output
 
         return output_data
-    
