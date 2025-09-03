@@ -11,6 +11,7 @@ from scipy import stats
 import math
 import numpy as np
 import csv
+from decimal import Decimal
 
 # TODO: Rewrite object keys usage.
 class EvaluationGenerator:
@@ -403,8 +404,7 @@ class EvaluationGenerator:
                 outfile.close()
 
     # Generate tau comparison for images.
-    def generate_objects_comparison(self, source_object, target_object, type=["classification"]):
-
+    def generate_objects_comparison(self, source_object, target_object, type=["classification"], include_certainties=False):
         # Loop images
         # Run object comparison.
         # Count similar & Dissimilar, along with distances, in object.
@@ -420,21 +420,24 @@ class EvaluationGenerator:
             "dissimilar5": [],
             "similar": [],
             "dissimilar": [],
+            "certainties": {
+                "top1": [],
+                "top5": [],
+                "topK": []
+            }
         }
         images_similar = 0
         images_dissimilar = 0
 
         obj_det_size = 0
-        mean_sc2 = []
-        std_sc2 = []
-        for image in target_images:
 
+        for image in target_images:
+            
             source_img = source_object[image]
             target_img = target_object[image]
 
             if "object detection segmentation" not in type:
-
-                image_evaluation = self.evaluator.evaluate_objects(source_img, target_img)
+                image_evaluation = self.evaluator.evaluate_objects(source_img, target_img, include_certainties=include_certainties)
                 evaluation_object["images"][image] = {
                     "tau": image_evaluation["comparisons"]["kendalltau"]["tau"],
                     "p-value": image_evaluation["comparisons"]["kendalltau"]["p-value"],
@@ -442,19 +445,28 @@ class EvaluationGenerator:
                     "p-value5": image_evaluation["comparisons"]["kendalltau5"]["p-value"],
                 }
 
+                if include_certainties:
+
+                    if image_evaluation["certainties"]["top1"] != Decimal("0"):
+                        evaluation_object["certainties"]["top1"].append(image_evaluation["certainties"]["top1"])
+                    if image_evaluation["certainties"]["top5"] != Decimal("0"):
+                        evaluation_object["certainties"]["top5"].append(image_evaluation["certainties"]["top5"])
+                    if image_evaluation["certainties"]["topK"] != Decimal("0"):
+                        evaluation_object["certainties"]["topK"].append(image_evaluation["certainties"]["topK"])
+
                 if image_evaluation["comparisons"]["first_only"] == 1:
                     evaluation_object["similar1"].append(image)
                 else:
                     evaluation_object["dissimilar1"].append(image)
 
                 if image_evaluation["comparisons"]["kendalltau5"]["tau"] is not None and \
-                    image_evaluation["comparisons"]["kendalltau5"]["tau"] > 0.98:
+                    image_evaluation["comparisons"]["kendalltau5"]["tau"] >= 0.99:
                     evaluation_object["similar5"].append(image)
                 else:
                     evaluation_object["dissimilar5"].append(image)
 
                 if image_evaluation["comparisons"]["kendalltau"]["tau"] is not None and \
-                    image_evaluation["comparisons"]["kendalltau"]["tau"] > 0.98:
+                    image_evaluation["comparisons"]["kendalltau"]["tau"] >= 0.99:
                     evaluation_object["similar"].append(image)
                     images_similar += 1
                 else:
@@ -474,9 +486,10 @@ class EvaluationGenerator:
                         evaluation_object["similar5"].append([])
                         evaluation_object["dissimilar5"].append([])
 
-                    if  np.array(source_tensor).ndim == 1:
+                    source_tensor = np.array(source_tensor)
 
-                        result = self.evaluator.evaluate_objects(source_img[i], target_img[i])
+                    if  source_tensor.ndim == 2:
+                        result = self.evaluator.evaluate_objects(np.squeeze(source_img[i]), np.squeeze(target_img[i]), include_certainties=include_certainties)
                         eval_object = {
                             "first": result["comparisons"]["first_only"],
                             "tau": result["comparisons"]["kendalltau"]["tau"],
@@ -485,19 +498,28 @@ class EvaluationGenerator:
                             "p-value5": result["comparisons"]["kendalltau5"]["p-value"]
                         }
 
+                        if source_tensor.dtype == np.float32 and include_certainties:
+
+                            if result["certainties"]["top1"] != Decimal("0"):
+                                evaluation_object["certainties"]["top1"].append(result["certainties"]["top1"])
+                            if result["certainties"]["top5"] != Decimal("0"):
+                                evaluation_object["certainties"]["top5"].append(result["certainties"]["top5"])
+                            if result["certainties"]["topK"] != Decimal("0"):
+                                evaluation_object["certainties"]["topK"].append(result["certainties"]["topK"])
+                                
                         if eval_object["first"] == 1:
                             evaluation_object["similar1"][i].append(image)
                         else:
                             evaluation_object["dissimilar1"][i].append(image)
 
-                        if eval_object["tau"] > 0.98:
+                        if eval_object["tau"] >= 0.99:
                             evaluation_object["similar"][i].append(image)
                         else:
                             evaluation_object["dissimilar"][i].append(image)
 
                         # For less-than 5 predictions.
-                        if eval_object["tau5"] is not None:
-                            if eval_object["tau5"] > 0.98:
+                        if eval_object["tau5"] is not None and not math.isnan(eval_object["tau5"]):
+                            if eval_object["tau5"] >= 0.99:
                                 #image_evaluation["comparisons"]["first_only"] == 1:
                                 evaluation_object["similar5"][i].append(image)
                             else:
@@ -508,9 +530,6 @@ class EvaluationGenerator:
                         if src_arr.shape == tgt_arr.shape:
                             diff_array = abs(src_arr - tgt_arr)
                             diff = (diff_array < 1e-07).sum()
-                            if i == 2:
-                                mean_sc2.append(np.mean(diff_array))
-                                std_sc2.append(np.std(diff_array))
                             total = (src_arr == src_arr).sum()
                             if total != 0:
                                 result = (float)(diff/total) >= 0.99
@@ -524,10 +543,6 @@ class EvaluationGenerator:
                         else:
                             evaluation_object["dissimilar"][i].append(image)
 
-        # TODO: Write to file instead of printing to output.
-        print("Mean: " + str(np.mean(mean_sc2)))
-        print("Std:" + str(np.mean(std_sc2)))
-                
         if (len(source_images) != 0):
 
             if "object detection segmentation" not in type:
@@ -552,8 +567,8 @@ class EvaluationGenerator:
                 first_image = source_object[first_key]
 
                 for i, img in enumerate(first_image):
-
-                    if (np.array(img).ndim == 1):
+                    
+                    if (np.array(img).ndim == 2):
                         evaluation_object["percentage_similar1"].append((len(evaluation_object["similar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_dissimilar1"].append((len(evaluation_object["dissimilar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_similar5"].append((len(evaluation_object["similar5"][i])/len(target_images)) * 100)
@@ -567,9 +582,6 @@ class EvaluationGenerator:
                     evaluation_object["percentage_dissimilar"].append((len(evaluation_object["dissimilar"][i])/len(target_images)) * 100)
 
         return evaluation_object
-
-
-
 
     def get_basic_evaluation(self, folder1_path, folder2_path, output_path_file="", include_individual_analysis=True, write_to_file=False, similar_images_max_no=10, dissimilar_images_max_no=10, max_no_of_diff_labels=0, verbose_time_data=False):
 
@@ -723,3 +735,4 @@ class EvaluationGenerator:
                 outfile.close()
 
         return evaluation_data_obj
+    
