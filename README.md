@@ -8,14 +8,25 @@ DiTOX is a utility that enables differential testing of the ONNX Optimizer, by f
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          22            866            568           2551
-JSON                             1              1              0             25
-Markdown                         1              8              0             22
+Python                          24            842            423           2667
+Markdown                         1             10              0             33
+JSON                             1              1              0             26
 -------------------------------------------------------------------------------
-SUM:                            24            875            568           2598
+SUM:                            26            853            423           2726
 -------------------------------------------------------------------------------
 ```
 
+## Features
+1. **Automatic Fetching and Loading of Models:** Fetch DNN models from model hubs (e.g., ONNX Model Hub) or load from local ONNX files.
+2. **Support for Multiple Model Types:** Classifiers, object detectors, and transformers/text generators.
+3. **Flexible Inference:** Run model inference on (a) a configuration-defined local dataset or (b) well-known datasets from the datasets package.
+4. **Batch Model Analysis:** Analyze multiple models in fully automated batches.
+5. **Model Optimization:** Optimize models using the ONNX optimizer, either fully (all passes) or partially (selected passes). Users can also define custom pass orders.
+6. **Automatic Model Evaluation:** Evaluate models using appropriate metrics: Kendall Tau (classifiers), F1/Precision/Recall (object detectors), BLEU (transformers), etc.
+7. **Per-Pass Fault Localization:** If full optimization causes model corruption, crashes, or accuracy drops, DiTOX generates per-pass variants and performs differential testing to identify problematic passes.
+8. **Detailed Report Generation:** Generate reports containing extensive metadata, including metric values at different thresholds and class certainties.
+9. **Automatic Logging of Bugs:** Log detected issues automatically without interrupting the analysis.
+10. **Chunk-Based Execution:** Split datasets into batches for resource-intensive models, generating partial results for each run.
 
 ## Effectiveness
 DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously reported on the ONNX Optimizer issue tracker). The issues were associated with `9` of the `47` passes in the optimizer. We have reported the issues to the ONNX Optimizer, while we also contain the raw results for all models and the bugs detected in the repo.
@@ -40,4 +51,3 @@ Finally, you can select individual passes to be run, by setting their names in t
 `main.py` contains the code for the experiments for the classification and the object detection models.
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
-We aim to fully polish and release it when we make the project public.
