@@ -1,22 +1,41 @@
-
 import os
 from .comparator import *
 import scipy.stats as stats
 import numpy as np
 from numpy import array
+from decimal import Decimal
 
 class Evaluator:
     def __init__(self, topK=5):
         self.topK = topK
         pass
 
-    def evaluate_objects(self, source_object, target_object, off_by_one=False):
+    def  evaluate_objects(self, source_object, target_object, off_by_one=False, include_certainties=False):
+
+        source_cert = []
+        target_cert = []
+
+        if (array(source_object).shape[0] == 1):
+            source_object = list(np.squeeze(source_object))
+            target_object = list(np.squeeze(target_object))
+
         source_preds = source_object
         target_preds = target_object
-        print(array(source_preds).shape)
-        if (array(source_preds).shape[0] == 1):
-            source_preds = list(np.squeeze(source_preds))
-            target_preds = list(np.squeeze(target_preds))
+
+        if include_certainties:
+
+            if len(source_object) > 1:
+                source_cert = source_object
+                target_cert = target_object
+            else:
+
+                source_cert = [t[1] for t in source_object]
+                target_cert = [t[1] for t in target_object]
+            
+                source_preds = [t[0] for t in source_object]
+                target_preds = [t[0] for t in target_object]
+        
+
         if(off_by_one):
             target_preds = [int(t) - 1 for t in target_preds]
 
@@ -25,11 +44,10 @@ class Evaluator:
         tau, p_value = stats.kendalltau(source_preds, target_preds)
 
         tau5, p_value5 = (None, None)
-        if len(source_object) >= 5:
-            tau5, p_value5 = stats.kendalltau(source_object[0:5], target_object[0:5])
+        if len(source_preds) >= 5:
+            tau5, p_value5 = stats.kendalltau(source_preds[0:5], target_preds[0:5])
         
-
-        return {
+        obj_to_return = {
             "base_label1": source_preds[0],
             "eval_label1": target_preds[0],
             "comparisons": {
@@ -42,8 +60,48 @@ class Evaluator:
                     "p-value": p_value5
                 },
                 "first_only": first_only
-            }
+            },
+            
         }
+
+        # Convert float arrays to Decimals safely using str()
+        s_dec = [Decimal(str(x)) for x in source_cert]
+        t_dec = [Decimal(str(y)) for y in target_cert]
+
+        print(include_certainties)
+
+        # Compute absolute differences and their average
+        if include_certainties:
+
+            avg_diff5 = 0
+            avg_diff = 0
+            avg_diff1 = 0
+            if len(s_dec) >= 5:
+                abs_diffs5 = [(t - s) / (s if s != Decimal("0") else Decimal("1e-10")) \
+                    for s, t in zip(s_dec[0:5], t_dec[0:5]) if (t - s) != Decimal("0")]
+                
+                avg_diff5 = (sum(abs_diffs5) / Decimal(len(abs_diffs5))) if len(abs_diffs5) != 0 else 0
+
+
+            # Compute absolute differences and their average
+            abs_diffs = [(t - s) / (s if s != Decimal("0") else Decimal("1e-10")) \
+                        for s, t in zip(s_dec, t_dec) if (t - s) != Decimal("0")]
+            
+            if len(abs_diffs) != 0:
+                avg_diff = (sum(abs_diffs) / Decimal(len(abs_diffs))) if len(abs_diffs) != 0 else 0
+
+
+            avg_diff1 = (t_dec[0] - s_dec[0]) / (s_dec[0] if s_dec[0] != Decimal("0") else Decimal("1e-10"))
+
+            # Divide by epsilon if source value is zero.
+            obj_to_return["certainties"] = {
+                "top1": avg_diff1,
+                "top5": avg_diff5,
+                "topK": avg_diff
+            }
+
+        return obj_to_return
+
 
     def evaluate(self, original_file_path, mutant_file_path):
 
