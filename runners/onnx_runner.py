@@ -1,8 +1,6 @@
 import onnx
 import onnxruntime as ort
 import numpy as np
-from os import listdir, remove, path, makedirs
-from os.path import isfile, isdir, join, exists, normpath, basename
 
 from scipy.special import softmax
 
@@ -123,10 +121,7 @@ class ONNXRunner:
                 else:
                     output_data[img_name] = extracted_ranks.tolist()
             else:
-                if (img_name not in output_data):
-                    output_data[img_name] = []
-
-                # Directly dump output, as the tensor comparisons will be done in total.
+                # Return the array in its pure form.
                 output_data[img_name] = output
 
         return output_data
