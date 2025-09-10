@@ -6,7 +6,7 @@ class OptimizerHelper():
             "nop", "eliminate_nop_cast", "eliminate_nop_dropout", "eliminate_nop_flatten", \
             "extract_constant_to_initializer", "eliminate_consecutive_idempotent_ops", \
             "eliminate_if_with_const_cond", "eliminate_nop_monotone_argmax", "eliminate_nop_pad", \
-            "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_er", \
+            "eliminate_nop_concat", "eliminate_nop_split", "eliminate_nop_expand", "eliminate_shape_gather", \
             "eliminate_slice_after_shape", "eliminate_nop_transpose", "fuse_add_bias_into_conv", "fuse_bn_into_conv", \
             "fuse_consecutive_concats", "fuse_consecutive_log_softmax", "fuse_consecutive_reduce_unsqueeze", "fuse_consecutive_squeezes", \
             "fuse_consecutive_transposes", "fuse_matmul_add_bias_into_gemm", "fuse_pad_into_conv", "fuse_pad_into_pool", "fuse_transpose_into_gemm", \

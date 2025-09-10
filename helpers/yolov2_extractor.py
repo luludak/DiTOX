@@ -18,7 +18,7 @@ class YOLOV2Extractor:
         - labels: List of class labels.
         - scores: List of confidence scores.
         """
-        output_tensor = np.transpose(output_tensor[0], (1, 2, 0))  # Convert to (13, 13, 425)
+        output_tensor = np.transpose(np.squeeze(output_tensor[0]), (1, 2, 0))  # Convert to (13, 13, 425)
         
         S = 13  # Grid size
         B = 5   # Number of anchor boxes per grid cell

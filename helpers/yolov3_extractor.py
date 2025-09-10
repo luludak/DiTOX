@@ -3,50 +3,79 @@ import numpy as np
 class YOLOV3Extractor:
     def __init__(self):
         pass
-    
-    def extract_yolo_outputs(self, model_output, num_classes=80, conf_threshold=0.5):
+
+    def extract_yolo_outputs(self, model_output, conf_threshold=0.1):
         """
-        Extracts the bounding boxes, labels, and scores from YOLOv3 model output (works for Tiny-YOLOv3).
-        
+        Extract all YOLOv3 ONNX raw outputs into parallel lists:
+        boxes, labels, scores, without relying on NMS indices.
+
         Args:
-            model_output (list of tensors): List containing the output tensors from YOLOv3-based model. 
-                                             It contains the bounding boxes, class scores, and objectness.
-            num_classes (int): The number of classes the model is trained on.
-            conf_threshold (float): Confidence threshold to filter predictions.
+            model_output: Tuple of (boxes_raw, scores_raw, indices)
+                - boxes_raw: [batch, num_boxes, 4]
+                - scores_raw: [batch, num_classes, num_boxes]
+                - indices: ignored
+            conf_threshold: minimum confidence score to keep a detection
 
         Returns:
-            tuple: A tuple containing:
-                - bboxes (list): Bounding box coordinates, shape [num_boxes, 4].
-                - labels (list): Predicted class labels for the boxes, shape [num_boxes].
-                - scores (list): Confidence scores for each prediction, shape [num_boxes].
+            boxes, labels, scores: lists
         """
-        
-        # Unpack the model outputs
-        bboxes = model_output[0]  # Tensor: [1, ?, 4] - Bounding boxes (x, y, width, height)
-        class_scores = model_output[1]  # Tensor: [1, 80, ?] - Class scores (80 classes)
-        objectness = model_output[2]  # Tensor: [1, ?, 3] - Objectness scores (3 anchors per grid cell)
+        boxes_raw, scores_raw, _ = model_output
 
-        # Apply the objectness score to filter the boxes with low confidence
-        objectness_scores = objectness[..., 0]  # Get the objectness score for each box (1st index)
+        boxes, labels, scores = [], [], []
 
-        # Apply confidence threshold to objectness scores
-        mask = objectness_scores > conf_threshold  # Mask out boxes with low objectness
+        batch_size = boxes_raw.shape[0]
+        num_classes = scores_raw.shape[1]
+        num_boxes = boxes_raw.shape[1]
 
-        # Get filtered bounding boxes and class scores (only those with confidence above threshold)
-        if np.all(mask) != False:
-            bboxes = bboxes[mask]
-            objectness_scores = objectness_scores[mask]
-            class_scores = class_scores[mask]
-        else:
-            return [], [], []
-        # Use np.max() to get the max class score and corresponding label
-        scores = np.max(class_scores, axis=1)
-        labels = np.argmax(class_scores, axis=1)
+        for batch in range(batch_size):
+            for box_id in range(num_boxes):
+                for cls_id in range(num_classes):
+                    score = float(scores_raw[batch, cls_id, box_id])
+                    if score >= conf_threshold:
+                        box = boxes_raw[batch, box_id].tolist()
+                        boxes.append(box)
+                        labels.append(cls_id)
+                        scores.append(score)
 
-        # Convert bboxes, labels, and scores to simple lists
-        bboxes = bboxes.tolist()
-        labels = labels.squeeze().tolist()
-        scores = scores.tolist()
+        return boxes, labels, scores
+    
+#------------ Deprecated Class: Used to retrieve detected labels, not all boxes ------
+# import numpy as np
 
-        # Return the filtered bounding boxes, labels, and scores as simple lists
-        return bboxes, labels, scores  # Returning as simple lists
+# class YOLOV3Extractor:
+#     def __init__(self):
+#         pass
+
+#     def extract_yolo_outputs(self, model_output, conf_threshold=0.1):
+#         """
+#         Extract YOLOv3 ONNX raw outputs into parallel lists:
+#         boxes, labels, scores, using the indices array from NMS.
+#         """
+#         boxes_raw, scores_raw, indices = model_output  # indices: int32[1, M, 3] or int32[M,3]
+
+#         boxes, labels, scores = [], [], []
+
+#         # If batch dimension missing in indices, add it
+#         if indices.ndim == 2:
+#             indices = np.expand_dims(indices, axis=0)  # [1, M, 3]
+
+#         # Loop over batch dimension (usually batch=1)
+#         for batch in range(boxes_raw.shape[0]):
+#             if indices.shape[1] == 0:
+#                 continue  # no boxes selected
+
+#             # Iterate over rows in indices[batch]
+#             for idx_row in indices[batch]:
+#                 batch_idx = int(idx_row[0])
+#                 cls_id = int(idx_row[1])
+#                 box_id = int(idx_row[2])
+
+#                 box = boxes_raw[batch_idx, box_id].tolist()
+#                 score = float(scores_raw[batch_idx, cls_id, box_id])
+                
+#                 if score >= conf_threshold:
+#                     boxes.append(box)
+#                     labels.append(cls_id)
+#                     scores.append(score)
+
+#         return boxes, labels, scores

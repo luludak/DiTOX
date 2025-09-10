@@ -19,12 +19,10 @@ from helpers.optimizer_helper import OptimizerHelper
 from helpers.yolov2_extractor import YOLOV2Extractor
 from helpers.yolov3_extractor import YOLOV3Extractor
 
-from evaluators.object_detection_ssd import SSDObjectDetectionEvaluator
-from evaluators.object_detection_yolov3 import YOLOV3ObjectDetectionEvaluator
+from evaluators.object_detection import ObjectDetectionEvaluator
 
 from runners.onnx_runner import ONNXRunner
 from datasets import load_dataset
-
 from transformers import GPT2Tokenizer
 
 def get_model_path(script_dir, model_obj):
@@ -268,7 +266,7 @@ def main():
                 all_bleu_scores = []
                 conversion_failed = False
                 try:
-                    if basic_run:
+                    if not run_individual_passes:
                         p = subprocess.Popen(['python3 -m onnxoptimizer ' + model_path + " " + opt_model_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
                         current_pass = "all"
                     else:
@@ -388,9 +386,9 @@ def main():
                                 metrics_5 = []
                                 metrics_7 = []
                                 metrics_9 = []
-                                evaluator_5 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.5)
-                                evaluator_7 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.75)
-                                evaluator_9 = YOLOV3ObjectDetectionEvaluator(iou_threshold=0.9)
+                                evaluator_5 = ObjectDetectionEvaluator(iou_threshold=0.5)
+                                evaluator_7 = ObjectDetectionEvaluator(iou_threshold=0.75)
+                                evaluator_9 = ObjectDetectionEvaluator(iou_threshold=0.9)
 
                                 output = [node.name for node in model.graph.output]
 
@@ -446,7 +444,7 @@ def main():
                                 if (evaluation["percentage_dissimilar5"][1] != -1):
                                     cmp_object["top5"] = evaluation["percentage_dissimilar5"][1]
                                 cmp_object["topK"] = evaluation["percentage_dissimilar"][1]
-                                # Labels
+
                                 model_comparisons[model_name_opset][current_pass][output[1]] = cmp_object
                                 
                             elif "YOLOv2-9" in model_name_opset:
@@ -455,9 +453,9 @@ def main():
                                 metrics_5 = []
                                 metrics_7 = []
                                 metrics_9 = []
-                                evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
-                                evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
-                                evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
+                                evaluator_5 = ObjectDetectionEvaluator(iou_threshold=0.5)
+                                evaluator_7 = ObjectDetectionEvaluator(iou_threshold=0.75)
+                                evaluator_9 = ObjectDetectionEvaluator(iou_threshold=0.9)
 
                                 output = [node.name for node in model.graph.output]
 
@@ -477,7 +475,6 @@ def main():
                                     # Skip undetected classes.
                                     if (base_labels == [] and opt_labels == []) or (base_bboxes == [] and opt_bboxes == []):
                                         continue
-                                    # print(opt_bboxes)
 
                                     metric_5 = evaluator_5.compute_metrics(base_bboxes, base_labels, base_scores, opt_bboxes, opt_labels, opt_scores)
                                     metrics_5.append(metric_5)
@@ -506,15 +503,14 @@ def main():
                                     }
                                 }
 
-
                             elif "SSD-12" in model_name_opset:
 
                                 metrics_5 = []
                                 metrics_7 = []
                                 metrics_9 = []
-                                evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
-                                evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
-                                evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
+                                evaluator_5 = ObjectDetectionEvaluator(iou_threshold=0.5)
+                                evaluator_7 = ObjectDetectionEvaluator(iou_threshold=0.75)
+                                evaluator_9 = ObjectDetectionEvaluator(iou_threshold=0.9)
 
                                 output = [node.name for node in model.graph.output]
 

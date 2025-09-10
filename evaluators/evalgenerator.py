@@ -112,11 +112,6 @@ class EvaluationGenerator:
                     }
                     total_avg_exec_time += evaluated_avg_time
                 comparisons[base][evaluated] = comparison_stats["comparison"]
-                # comparisons.append({
-                #     "base": base,
-                #     "evaluated": evaluated,
-                #     "comparison": comparison_stats["comparison"]
-                # })
 
                 for image_dissimilar in images_dissimilar:
                     if image_dissimilar not in total_images_dissimilar:
@@ -404,7 +399,7 @@ class EvaluationGenerator:
                 outfile.close()
 
     # Generate tau comparison for images.
-    def generate_objects_comparison(self, source_object, target_object, type=["classification"], include_certainties=False):
+    def generate_objects_comparison(self, source_object, target_object, type=["classification"], include_certainties=False, enable_kt_on_one_dim_tensor=True):
         # Loop images
         # Run object comparison.
         # Count similar & Dissimilar, along with distances, in object.
@@ -476,6 +471,7 @@ class EvaluationGenerator:
             else:
                 if obj_det_size == 0:
                     obj_det_size = len(source_img)
+                # print(source_img)
 
                 for i, source_tensor in enumerate(source_img):
                     if i >= len(evaluation_object["similar"]):
@@ -488,8 +484,11 @@ class EvaluationGenerator:
 
                     source_tensor = np.array(source_tensor)
 
-                    if  source_tensor.ndim == 2:
-                        result = self.evaluator.evaluate_objects(np.squeeze(source_img[i]), np.squeeze(target_img[i]), include_certainties=include_certainties)
+                    if enable_kt_on_one_dim_tensor and source_tensor.ndim == 2 and source_tensor.shape[0] == 1 and len(source_tensor) != 0:
+                        src_img = source_img[i]
+                        tgt_img = target_img[i]
+
+                        result = self.evaluator.evaluate_objects(np.squeeze(src_img), np.squeeze(tgt_img), include_certainties=include_certainties)
                         eval_object = {
                             "first": result["comparisons"]["first_only"],
                             "tau": result["comparisons"]["kendalltau"]["tau"],
@@ -527,23 +526,28 @@ class EvaluationGenerator:
                     else:
                         src_arr = np.array(source_img[i])
                         tgt_arr = np.array(target_img[i])
+
                         if src_arr.shape == tgt_arr.shape:
                             diff_array = abs(src_arr - tgt_arr)
                             diff = (diff_array < 1e-07).sum()
                             total = (src_arr == src_arr).sum()
+                            
                             if total != 0:
-                                result = (float)(diff/total) >= 0.99
-                            else:
-                                result = -1
+                                if (float)(diff/total) >= 0.99:
+                                    evaluation_object["similar"][i].append(image)
+                                else:
+                                    evaluation_object["dissimilar"][i].append(image)
+
                         else:
                             print("Shape mismatch!")
-                            result = False
-                        if result:
-                            evaluation_object["similar"][i].append(image)
-                        else:
                             evaluation_object["dissimilar"][i].append(image)
+                        
+                        # if result:
+                        #     evaluation_object["similar"][i].append(image)
+                        # else:
+                        #     evaluation_object["dissimilar"][i].append(image)
 
-        if (len(source_images) != 0):
+        if (len(target_images) != 0):
 
             if "object detection segmentation" not in type:
 
@@ -568,7 +572,8 @@ class EvaluationGenerator:
 
                 for i, img in enumerate(first_image):
                     
-                    if (np.array(img).ndim == 2):
+                    # print(np.array(img).ndim)
+                    if (np.array(img).ndim >= 2):
                         evaluation_object["percentage_similar1"].append((len(evaluation_object["similar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_dissimilar1"].append((len(evaluation_object["dissimilar1"][i])/len(target_images)) * 100)
                         evaluation_object["percentage_similar5"].append((len(evaluation_object["similar5"][i])/len(target_images)) * 100)

@@ -1,3 +1,4 @@
+
 import os
 from .comparator import *
 import scipy.stats as stats
@@ -10,42 +11,64 @@ class Evaluator:
         self.topK = topK
         pass
 
-    def  evaluate_objects(self, source_object, target_object, off_by_one=False, include_certainties=False):
+    def evaluate_objects(self, source_object, target_object, off_by_one=False, include_certainties=False):
 
         source_cert = []
         target_cert = []
 
+        # src_shape = source_object.shape
         if (array(source_object).shape[0] == 1):
-            source_object = list(np.squeeze(source_object))
-            target_object = list(np.squeeze(target_object))
+            src_arr = np.squeeze(source_object)
+
+            source_object = src_arr
+            target_object = np.squeeze(target_object)
 
         source_preds = source_object
         target_preds = target_object
 
         if include_certainties:
 
-            if len(source_object) > 1:
+            if source_object.ndim > 2:
                 source_cert = source_object
                 target_cert = target_object
-            else:
 
-                source_cert = [t[1] for t in source_object]
+            elif source_object.ndim == 2:
+
+                source_cert = [s[1] for s in source_object]
                 target_cert = [t[1] for t in target_object]
             
-                source_preds = [t[0] for t in source_object]
+                source_preds = [s[0] for s in source_object]
                 target_preds = [t[0] for t in target_object]
+            else:
+                raise ValueError("Could not obtain certainties. Invalid array form.")
         
+        # print(source_preds)
+        # print(target_preds)
+
+        # print(source_cert)
+        # print(target_cert)
 
         if(off_by_one):
             target_preds = [int(t) - 1 for t in target_preds]
+
+        # print(source_preds[0])
 
         first_only = 1 if (source_preds[0] == target_preds[0]) else 0
         
         tau, p_value = stats.kendalltau(source_preds, target_preds)
 
+        # if (tau < 0.99):
+        #     print(source_preds)
+        #     print(target_preds)
+
         tau5, p_value5 = (None, None)
         if len(source_preds) >= 5:
             tau5, p_value5 = stats.kendalltau(source_preds[0:5], target_preds[0:5])
+        # print(source_preds[0:5])
+
+        # else:
+        #     print(source_preds)
+        #     print(target_preds)
         
         obj_to_return = {
             "base_label1": source_preds[0],
@@ -68,7 +91,7 @@ class Evaluator:
         s_dec = [Decimal(str(x)) for x in source_cert]
         t_dec = [Decimal(str(y)) for y in target_cert]
 
-        print(include_certainties)
+        # print(include_certainties)
 
         # Compute absolute differences and their average
         if include_certainties:

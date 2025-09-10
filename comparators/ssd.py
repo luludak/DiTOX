@@ -58,8 +58,9 @@ class SSDComparator:
                 "stddev5": str(stddev5),
                 "stddevK": str(stddev)
             }
-            self.comparisons[model_name][current_pass].update(class_metrics)
-
+            
+        self.comparisons[model_name][current_pass].update(class_metrics)
+            
 
         if (dissimilar_percentage > 0):
             self.comparisons[model_name]["different"] += 1

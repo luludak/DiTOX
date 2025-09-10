@@ -17,16 +17,13 @@ from helpers.model_helper import get_size, get_model_path, load_config, \
 from helpers.yolov2_extractor import YOLOV2Extractor
 from helpers.ssd_extractor import SSDExtractor
 
-from evaluators.object_detection_ssd import SSDObjectDetectionEvaluator
+from evaluators.object_detection import ObjectDetectionEvaluator
 
-from comparators.text import TextComparator
 from comparators.classification import ClassificationComparator
 from comparators.ssd import SSDComparator
 from comparators.yolov3 import YOLOV3Comparator
 
 from runners.onnx_runner import ONNXRunner
-from decimal import Decimal
-
 
 def main():
 
@@ -37,6 +34,7 @@ def main():
     optimizer_config = config["optimizer"]
 
     include_certainties = general_config["include_certainties"]
+    enable_kt_on_one_dim_tensor = general_config["enable_kt_on_one_dim_tensor"]
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     images_folder = script_dir + "/" + images_config["images_folder_rel_path"]
@@ -129,7 +127,7 @@ def main():
                         filter_in_name = True
                         break
 
-                if not filter_in_name:
+                if not filter_in_name or (filter_in_name and ("int8" in model_name_opset or "SSD-MobilenetV1" in model_name_opset or "Tiny" in model_name_opset)):
                     continue
 
             # print("TEST")
@@ -219,11 +217,6 @@ def main():
             run_individual_passes = general_config["run_individual_passes"]
 
             for current_pass in passes:
-                opt_match_percentage = 0
-                matches = 0
-                total = 0
-                tau_values = []
-                p_values = []
                 conversion_failed = False
                 try:
                     if not run_individual_passes:
@@ -278,11 +271,11 @@ def main():
 
                         elif ("object detection segmentation" in tags):
                             model_comparisons[model_name_opset][current_pass] = {}
-                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties)
+                            evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties, enable_kt_on_one_dim_tensor=enable_kt_on_one_dim_tensor)
 
                             if "YOLOv3" in model_name_opset:
                                 comparator = YOLOV3Comparator(evaluation, model_comparisons)
-                                comparator.update(model_name_opset, model, base_model_out, opt_model_out, current_pass, include_certainties=include_certainties)
+                                comparator.update(model_name_opset, model, base_model_out, opt_model_out, current_pass)
 
                             elif "YOLOv2-9" in model_name_opset:
                                 extractor = YOLOV2Extractor()
@@ -290,9 +283,9 @@ def main():
                                 metrics_5 = []
                                 metrics_7 = []
                                 metrics_9 = []
-                                evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
-                                evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
-                                evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
+                                evaluator_5 = ObjectDetectionEvaluator(iou_threshold=0.5)
+                                evaluator_7 = ObjectDetectionEvaluator(iou_threshold=0.75)
+                                evaluator_9 = ObjectDetectionEvaluator(iou_threshold=0.9)
 
                                 output = [node.name for node in model.graph.output]
 
@@ -345,8 +338,8 @@ def main():
                                         "avg_IoU": np.mean([o["IoU"] for o in metrics_9]) * 100,
                                     }
                                 }
-                                comparator = SSDComparator(evaluation, model_comparisons)
-                                comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
+                                # comparator = SSDComparator(evaluation, model_comparisons)
+                                # comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
 
                             elif "SSD" in model_name_opset:
                                 extractor = SSDExtractor()
@@ -354,9 +347,9 @@ def main():
                                 metrics_5 = []
                                 metrics_7 = []
                                 metrics_9 = []
-                                evaluator_5 = SSDObjectDetectionEvaluator(iou_threshold=0.5)
-                                evaluator_7 = SSDObjectDetectionEvaluator(iou_threshold=0.75)
-                                evaluator_9 = SSDObjectDetectionEvaluator(iou_threshold=0.9)
+                                evaluator_5 = ObjectDetectionEvaluator(iou_threshold=0.5)
+                                evaluator_7 = ObjectDetectionEvaluator(iou_threshold=0.75)
+                                evaluator_9 = ObjectDetectionEvaluator(iou_threshold=0.9)
 
                                 output = [node.name for node in model.graph.output]
 
@@ -432,7 +425,7 @@ def main():
                             # TODO: Extend to work for every model.
                             comparator = SSDComparator(evaluation, model_comparisons)
                             comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
-
+                            
                         model_comparisons["model_instances_run"] += 1
                         model_comparisons[model_name_opset]["run"] += 1
                     

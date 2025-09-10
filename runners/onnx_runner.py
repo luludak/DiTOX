@@ -16,8 +16,8 @@ class ONNXRunner:
         self.evaluation_generator = EvaluationGenerator()
         self.topK = topK
 
-    def evaluate(self, source_run_obj, target_run_obj, type=["classification"], include_certainties=False):
-        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type, include_certainties)
+    def evaluate(self, source_run_obj, target_run_obj, type=["classification"], include_certainties=False, enable_kt_on_one_dim_tensor=True):
+        return self.evaluation_generator.generate_objects_comparison(source_run_obj, target_run_obj, type, include_certainties, enable_kt_on_one_dim_tensor)
 
     def execute_and_evaluate_single_model(self, onnx_model, run_obj, image_path, config, include_certainties=False):
         image_obj = self.execute_onnx_model(onnx_model, [image_path], config, print_percentage=False, include_certainties=include_certainties)
@@ -125,3 +125,4 @@ class ONNXRunner:
                 output_data[img_name] = output
 
         return output_data
+    

@@ -4,7 +4,7 @@ class TextComparator:
         self.evaluation = evaluation
         self.comparisons = comparisons
 
-    def update(self, model_name, current_pass="all"):
+    def update(self, model_name, current_pass="all", include_certainties=False):
         dissimilar_percentage1 = self.evaluation["percentage_dissimilar1"]
         dissimilar_percentage5 = self.evaluation["percentage_dissimilar5"]
         dissimilar_percentage = self.evaluation["percentage_dissimilar"]

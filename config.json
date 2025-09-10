@@ -1,21 +1,23 @@
 {
     "images": {
-        "images_folder_rel_path": "/images/ten",
-        "images_chunk": 10,
+        "images_folder_rel_path": "/images/imagenet",
+        "images_chunk": 5,
         "starts_from": 0,
-        "limit": 10
+        "limit": 5
     },
     "general": {
         "check_reports_for_problematic_models": false,
         "run_individual_passes": false,
-        "report_file_base_rel_path": "results/report.json",
+        "report_file_base_rel_path": "results/report_each_chunk_0_5500_all_in.json",
         "skip_until_model_id": 0,
-        "run_up_to_model_id": 200,
-        "name_filters": ["MobileNet"]
+        "run_up_to_model_id": 170,
+        "name_filters": ["YOLOv3"],
+        "include_certainties": false,
+        "enable_kt_on_one_dim_tensor": false
     },
     "hub": {
         "tags": ["vision", "text"],
-        "tags_of_models_to_consider": ["classification"],
+        "tags_of_models_to_consider": ["object detection segmentation"],
         "opset_bottom_threshold": 7,
         "cache_folder_rel_path": "models_cache"
     },
