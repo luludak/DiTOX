@@ -8,11 +8,11 @@ DiTOX is a utility that enables differential testing of the ONNX Optimizer, by f
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          25            895            483           2767
-Markdown                         1             10              0             33
+Python                          25            898            480           2777
+Markdown                         1             13              0             56
 JSON                             1              1              0             27
 -------------------------------------------------------------------------------
-SUM:                            27            906            483           2827
+SUM:                            27            912            480           2860
 -------------------------------------------------------------------------------
 ```
 
@@ -38,7 +38,7 @@ DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously
 4. Run by doing `python main.py`
 
 By this setting, DiTOX will load the respective configuration and perform the necessary runs for the batch of models selected.
-For demonstration purposes, we have included 10 images and set the configuration to fetch and run all `YOLO` and `MobileNet` models from ONNX hub.
+For demonstration purposes, we have included 10 images and set the configuration to fetch and run all `YOLO` (object detection) and `MobileNet` (classification) models from ONNX hub.
 
 When run, DiTOX will generate an output file based on the value set in the `general/report_file_base_rel_path` parameter. However, DiTOX will split the first `_chunk` encountered and replace it with "<starts_from>_<limit>.json` based on the configuration. If the experiments are chunked, it will generate multiple files, each with its respective range. If you replace your base file, make sure it ends with `_chunk`.
 
