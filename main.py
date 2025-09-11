@@ -127,7 +127,7 @@ def main():
                         filter_in_name = True
                         break
 
-                if not filter_in_name or (filter_in_name and ("int8" in model_name_opset or "SSD-MobilenetV1" in model_name_opset or "Tiny" in model_name_opset)):
+                if not filter_in_name:
                     continue
 
             # print("TEST")
