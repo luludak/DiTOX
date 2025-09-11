@@ -53,6 +53,10 @@ You can also set it to true and define the desired passes to run by setting them
 - `include_certainties` is an experimental feature that includes certainty percentages. It is currently supported for classification models.
 - `enable_kt_on_one_dim_tensor` is another experimental feature that allows for Kendall Tau Correlation Coefficient to be enabled or disabled for (batch, dim) tensors.
 
+## Benchmarking/Issues Replication
+By opening configuration file and setting the model of each encountered error in model name filters as well the problematic pass in the `passes` you should be able to replicate the issue reported.
+We intend to prepare ready-to-run scripts for this purpose upon paper acceptance.
+
 ## Usage
 The system utilizes a configuration file in order to define the dataset path, but also filter the models.
 By default, it fetches the models from the ONNX Model Hub. The models can be selected by ID range (so that a subset of models can be executed in the system in line), as well as by type (e.g., vision) and name (e.g., containing the keyword "YOLO", to extract all YOLO models).
