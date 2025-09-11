@@ -10,7 +10,8 @@ The raw results are organized into subfolders within the repository. Files with 
 - `classification`: Results for classification models.  
 - `detection_all`: Brief information for all object detection models.  
 - `detection_full`: Detailed information for all object detection models.  
-- `detection_diff`: Brief information for object detection models where differences were found.  
+- `detection_diff`: Brief information for object detection models where differences were found.
+- `detection_check_boxes_in_detail`: updated bounding box calculations for the object detection models where differences were found.
 - `detection_all_info`: Extended information for object detection models where differences were found.  
 
 - `text`: Results for text models. For GPT-2 specifically, runs are performed selecting the top-1, top-2, and top-3 tokens in separate runs, organized into their respective folders.
