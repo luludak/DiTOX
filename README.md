@@ -38,6 +38,7 @@ DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously
 4. Run by doing `python main.py`
 
 By this setting, DiTOX will load the respective configuration and perform the necessary runs for the batch of models selected.
+When run, DiTOX will generate an output file based on the value set in the `general/report_file_base_rel_path` parameter. However, DiTOX will split the first `_chunk` encountered and replace it with "<starts_from>_<limit>.json` based on the configuration. If the experiments are chunked, it will generate multiple files, each with its respective range. If you replace your base file, make sure it ends with `_chunk`.
 
 Configuration:
 - To use local image datasets to examine vision models, set the path in the `images_folder_rel_path` variable. Specify its start sample index on `starts_from` and its size on `limit` parameters of the `images` object.
