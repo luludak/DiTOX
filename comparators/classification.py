@@ -6,13 +6,13 @@ class ClassificationComparator:
         self.evaluation = evaluation
         self.comparisons = comparisons
 
-    def update(self, model_name, current_pass="all", include_certainties=False, array_index=0):
-        dissimilar_percentage1 = self.evaluation["percentage_dissimilar1"][array_index]
-        dissimilar_percentage5 = self.evaluation["percentage_dissimilar5"][array_index]
-        dissimilar_percentage = self.evaluation["percentage_dissimilar"][array_index]
-        certainty_diff1 = self.evaluation["certainties"]["top1"][array_index]
-        certainty_diff5 = self.evaluation["certainties"]["top5"][array_index]
-        certainty_diff = self.evaluation["certainties"]["topK"][array_index]
+    def update(self, model_name, current_pass="all", include_certainties=False):
+        dissimilar_percentage1 = self.evaluation["percentage_dissimilar1"]
+        dissimilar_percentage5 = self.evaluation["percentage_dissimilar5"]
+        dissimilar_percentage = self.evaluation["percentage_dissimilar"]
+        certainty_diff1 = self.evaluation["certainties"]["top1"]
+        certainty_diff5 = self.evaluation["certainties"]["top5"]
+        certainty_diff = self.evaluation["certainties"]["topK"]
         
         print("Dissimilarity for " + current_pass + " (top-1): " + str(dissimilar_percentage1))
         print("Dissimilarity for " + current_pass + " (top-5): " + str(dissimilar_percentage5))
