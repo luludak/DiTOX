@@ -6,7 +6,8 @@ class SSDExtractor:
         pass
 
     def extract_ssd_outputs(self, output, conf_threshold=0.1):
-        bboxes, labels, scores = output
+    	# Ignore any additional tensors after the first three.
+        bboxes, labels, scores = output[:3]
         bboxes = np.squeeze(bboxes) # (nbox, 4)
         labels = np.squeeze(labels) # (nbox,)
         scores = np.squeeze(scores) # (nbox,)
