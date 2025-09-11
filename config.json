@@ -11,9 +11,9 @@
         "report_file_base_rel_path": "results/report_each_chunk_0_10.json",
         "skip_until_model_id": 0,
         "run_up_to_model_id": 200,
-        "name_filters": ["MobileNetv2", "Tiny YOLOv3"],
+        "name_filters": ["MobileNet", "YOLO"],
         "include_certainties": false,
-        "enable_kt_on_one_dim_tensor": false
+        "enable_kt_on_one_dim_tensor": true
     },
     "hub": {
         "tags": ["vision", "text"],
