@@ -31,11 +31,24 @@ SUM:                            27            906            483           2827
 ## Effectiveness
 DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously reported on the ONNX Optimizer issue tracker). The issues were associated with `9` of the `47` passes in the optimizer. We have reported the issues to the ONNX Optimizer, while we also contain the raw results for all models and the bugs detected in the repo.
 
-## Installation
+## Installation/Running
 1. Install necessary packages by doing `pip install -r requirements.txt`.
 2. Verify that the ONNX Optimizer is properly installed.
 3. Adjust configuration in `config.json`
 4. Run by doing `python main.py`
+
+By this setting, DiTOX will load the respective configuration and perform the necessary runs for the batch of models selected.
+
+Configuration:
+- To use local image datasets to examine vision models, set the path in the `images_folder_rel_path` variable. Specify its start sample index on `starts_from` and its size on `limit` parameters of the `images` object.
+- If you wish to chunk the experiments, set the `images_chunk` size to your desired chunk size, otherwise set the same value as `limit`.
+- The parameter of `run_individual_passes` will run the system by optimizing each model to either all `Fuse/Eliminate` passes (if set to `true`), otherwise to each pass in isolation.
+You can also set it to true and define the desired passes to run by setting them up in `optimizer/passes` parameter. You can find the full list of pass names in `pass.txt`.
+- You can define the ONNX hub settings and filters to fetch the appropriate models in the `hub` object parameters.
+- You can also filter the models you want to use by restricting the id range of models considered in `skip_until_model_id` and `run_up_to_model_id`, as well as set name filters for the models using the `name_filters` parameter, under `general` object.
+- If you enable `check_reports_for_problematic_models`, DiTOX will check for problematic models in a file with name set in `report_file_base_rel_path`. If a model is marked as "different" in this file, it will then perform per-pass fault localization + differential testing for this model, by applying each available pass, sequentially.
+- `include_certainties` is an experimental feature that includes certainty percentages. It is currently supported for classification models.
+- `enable_kt_on_one_dim_tensor` is another experimental feature that allows for Kendall Tau Correlation Coefficient to be enabled or disabled for (batch, dim) tensors.
 
 ## Usage
 The system utilizes a configuration file in order to define the dataset path, but also filter the models.
