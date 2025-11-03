@@ -38,11 +38,8 @@ DiTOX has discovered `15` bugs. Of these, `14` were entirely new (not previously
 4. Run by doing `python main.py`
 
 By this setting, DiTOX will load the respective configuration and perform the necessary runs for the batch of models selected.
-For demonstration purposes, we have included 10 images and set the configuration to fetch and run all `YOLO` (object detection) and `MobileNet` (classification) models from ONNX hub.
 
-When run, DiTOX will generate an output file based on the value set in the `general/report_file_base_rel_path` parameter. However, DiTOX will split the first `_chunk` encountered and replace it with "<starts_from>_<limit>.json` based on the configuration. If the experiments are chunked, it will generate multiple files, each with its respective range. If you replace your base file, make sure it ends with `_chunk`.
-
-Configuration:
+## Configuration
 - To use local image datasets to examine vision models, set the path in the `images_folder_rel_path` variable. Specify its start sample index on `starts_from` and its size on `limit` parameters of the `images` object.
 - If you wish to chunk the experiments, set the `images_chunk` size to your desired chunk size, otherwise set the same value as `limit`.
 - The parameter of `run_individual_passes` will run the system by optimizing each model to either all `Fuse/Eliminate` passes (if set to `true`), otherwise to each pass in isolation.
@@ -52,6 +49,12 @@ You can also set it to true and define the desired passes to run by setting them
 - If you enable `check_reports_for_problematic_models`, DiTOX will check for problematic models in a file with name set in `report_file_base_rel_path`. If a model is marked as "different" in this file, it will then perform per-pass fault localization + differential testing for this model, by applying each available pass, sequentially.
 - `include_certainties` is an experimental feature that includes certainty percentages. It is currently supported for classification models.
 - `enable_kt_on_one_dim_tensor` is another experimental feature that allows for Kendall Tau Correlation Coefficient to be enabled or disabled for (batch, dim) tensors.
+
+## Demonstration
+For demonstration purposes, we have included 10 images and set the configuration to fetch and run all `YOLO` (object detection) and `MobileNet` (classification) models from ONNX hub.
+
+When run, DiTOX will generate an output file based on the value set in the `general/report_file_base_rel_path` parameter. However, DiTOX will split the first `_chunk` encountered and replace it with `<starts_from>_<limit>.json` based on the configuration. If the experiments are chunked, it will generate multiple files, each with its respective range. If you replace your base file, make sure it ends with `_chunk`.
+
 
 ## Benchmarking/Issues Replication
 By opening configuration file and setting the model of each encountered error in model name filters as well the problematic pass in the `passes` you should be able to replicate the issue reported.
