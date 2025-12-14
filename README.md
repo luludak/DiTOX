@@ -58,7 +58,6 @@ When run, DiTOX will generate an output file based on the value set in the `gene
 
 ## Benchmarking/Issues Replication
 By opening configuration file and setting the model of each encountered error in model name filters as well the problematic pass in the `passes` you should be able to replicate the issue reported.
-We intend to prepare ready-to-run scripts for this purpose upon paper acceptance.
 
 ## Usage
 The system utilizes a configuration file in order to define the dataset path, but also filter the models.
@@ -74,3 +73,4 @@ Finally, you can select individual passes to be run, by setting their names in t
 `main.py` contains the code for the experiments for the classification and the object detection models.
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`, which you can also run.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
+
