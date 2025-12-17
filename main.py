@@ -94,7 +94,6 @@ def main():
         images_paths = None
         inputs = None
 
-        # TODO: REFACTOR - ADD CONDITION FOR TEXT NOT IN TAGS.
         images_paths = [x for x in all_images_paths[starts_from:ends_at]]
         print(" ---- Input Batch: " + str(starts_from) + " to " + str(ends_at))
         model_comparisons_file = model_comparisons_file.split("_chunk")[0] + "_chunk_" + str(starts_from) + "_" + str(ends_at) + ".json"
@@ -106,31 +105,32 @@ def main():
             if (model_no < skip_until or model_no > run_up_to):
                 continue
 
-            # TODO: Add logic to extract model ID from ONNX Hub.
-            # if model_obj.model != "GoogleNet-int8":
-            #     continue
-            # else:
-            #     print(model_no)
-            #     return
-
             model_name = model_obj.model
             model_opset = model_obj.opset
             model_name_opset = model_name + "-" + str(model_opset)
+
+            # Note: Enable to print models with opset.
+            # print(model_name_opset)
             tags = model_obj.tags
 
             name_filters = general_config["name_filters"]
+            is_exact_match = general_config["match_filter_exact"]
             
             if len(name_filters) != 0:
                 filter_in_name = False
                 for filter in name_filters:
                     if filter in model_name_opset:
+                        print(model_name_opset)
+                    if is_exact_match and filter == model_name_opset:
+                        filter_in_name = True
+                        break
+                    elif not is_exact_match and filter in model_name_opset:
                         filter_in_name = True
                         break
 
                 if not filter_in_name:
                     continue
 
-            # print("TEST")
             # Check different models if option is enabled and file exists.
             if (check_prob_models and model_comparisons_file_exists and \
                 model_name_opset not in different_models):
@@ -168,7 +168,7 @@ def main():
 
             first_input = model_obj.metadata["io_ports"]["inputs"][0]
 
-            print (first_input["shape"])
+            print(first_input["shape"])
 
             model_shape = prepare_model_shape(model_obj)
 
@@ -266,13 +266,14 @@ def main():
                         
                         if ("classification" in tags):
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties)
+                            print(evaluation)
                             comparator = ClassificationComparator(evaluation, model_comparisons)
                             comparator.update(model_name_opset, current_pass, include_certainties=include_certainties)
 
-                        elif ("object detection segmentation" in tags):
+                        elif ("object detection segmentation" in tags and "RetinaNet" not in model_name_opset):
                             model_comparisons[model_name_opset][current_pass] = {}
                             evaluation = onnx_runner.evaluate(base_model_out, opt_model_out, type=tags, include_certainties=include_certainties, enable_kt_on_one_dim_tensor=enable_kt_on_one_dim_tensor)
-
+                            print(evaluation)
                             if "YOLOv3" in model_name_opset:
                                 comparator = YOLOV3Comparator(evaluation, model_comparisons)
                                 comparator.update(model_name_opset, model, base_model_out, opt_model_out, current_pass)
@@ -338,8 +339,6 @@ def main():
                                         "avg_IoU": np.mean([o["IoU"] for o in metrics_9]) * 100,
                                     }
                                 }
-                                # comparator = SSDComparator(evaluation, model_comparisons)
-                                # comparator.update(model_name_opset, current_pass, include_certainties=include_certainties, array_index=1)
 
                             elif "SSD" in model_name_opset:
                                 extractor = SSDExtractor()
