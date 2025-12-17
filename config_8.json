@@ -9,8 +9,8 @@
         "check_reports_for_problematic_models": false,
         "run_individual_passes": true,
         "report_file_base_rel_path": "results/report_each_chunk_0_10.json",
-        "skip_until_model_id": 0,
-        "run_up_to_model_id": 200,
+        "skip_until_model_id": 78,
+        "run_up_to_model_id": 78,
         "name_filters": ["MobileNet v2-7-7"],
         "match_filter_exact": true,
         "include_certainties": false,
@@ -27,3 +27,4 @@
     }
 
 }
+
