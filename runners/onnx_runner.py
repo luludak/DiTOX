@@ -111,7 +111,7 @@ class ONNXRunner:
                 input_obj["image_shape"] = [[224.0, 224.0]]
             output = ort_sess.run(None, input_obj)
 
-            if len(output) == 1 and np.array(output).ndim == 1:
+            if len(output) == 1 and np.array(output).ndim == 3:
                 output = softmax(output)
                 output = np.squeeze(output)
                 ranks = np.argsort(output)[::-1]
