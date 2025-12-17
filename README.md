@@ -8,11 +8,11 @@ DiTOX is a utility that enables differential testing of the ONNX Optimizer, by f
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          25            898            480           2777
-Markdown                         1             13              0             56
-JSON                             1              1              0             27
+Python                          25            897            472           2785
+JSON                             3              4              0             84
+Markdown                         1             17              0             59
 -------------------------------------------------------------------------------
-SUM:                            27            912            480           2860
+SUM:                            29            918            472           2928
 -------------------------------------------------------------------------------
 ```
 
@@ -61,7 +61,8 @@ By opening configuration file and setting the model of each encountered error in
 
 ## Usage
 The system utilizes a configuration file in order to define the dataset path, but also filter the models.
-By default, it fetches the models from the ONNX Model Hub. The models can be selected by ID range (so that a subset of models can be executed in the system in line), as well as by type (e.g., vision) and name (e.g., containing the keyword "YOLO", to extract all YOLO models).
+By default, it fetches the models from the ONNX Model Hub. The models can be selected by ID range (so that a subset of models can be executed in the system in line), as well as by type (e.g., vision) and name (e.g., containing the keyword "YOLO", to extract all YOLO models) The provided name can be matched as an exact term (by setting `match_filter_exact` to true), or a term being part of the model name and opset otherwise.
+Note that, in order to perform exact matching, you must use the form `<Model-Name-As-In-Model-Hub>-<opset>`.
 
 For a sample run, the repo contains 10 images from the ILSVRC dataset, used for demonstration purposes.
 If you want to use your own dataset, you can define the path in the configuration file. You can also chunk the runs if the dataset is too large, using the `images/images_chunk` property in configuration, while you can also define the start and the end of images in the dataset (`images/starts_from` and `images/limit` properties). This is handy in case an experiment failed, and you want to continue from this point.
