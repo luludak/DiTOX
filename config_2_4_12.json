@@ -1,9 +1,9 @@
 {
     "images": {
-        "images_folder_rel_path": "/images/ten",
-        "images_chunk": 10,
+        "images_folder_rel_path": "/images/dataset",
+        "images_chunk": 5500,
         "starts_from": 0,
-        "limit": 10
+        "limit": 5500
     },
     "general": {
         "check_reports_for_problematic_models": false,
