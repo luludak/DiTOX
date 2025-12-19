@@ -74,3 +74,5 @@ Finally, you can select individual passes to be run, by setting their names in t
 `main.py` contains the code for the experiments for the classification and the object detection models.
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`, which you can also run.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
+
+Any sample dataset images provided in the repository are sourced from the internet, and the copyright(s) belong to their owner(s). The only reason of provision is purely for non-commercial, demonstration purposes of DiTOX (to showcase how it works), with respect to the copyright(s) of their owner(s) and no intention to infringe them.
