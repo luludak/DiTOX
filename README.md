@@ -65,7 +65,7 @@ The system utilizes a configuration file in order to define the dataset path, bu
 By default, it fetches the models from the ONNX Model Hub. The models can be selected by ID range (so that a subset of models can be executed in the system in line), as well as by type (e.g., vision) and name (e.g., containing the keyword "YOLO", to extract all YOLO models) The provided name can be matched as an exact term (by setting `match_filter_exact` to true), or a term being part of the model name and opset otherwise.
 Note that, in order to perform exact matching, you must use the form `<Model-Name-As-In-Model-Hub>-<opset>`.
 
-You can use your own dataset, by setting its the folder path of its images in the configuration file. You can also chunk the runs if the dataset is too large, using the `images/images_chunk` property in configuration, while you can also define the start and the end of images in the dataset (`images/starts_from` and `images/limit` properties). This is handy in case an experiment failed, and you want to continue from this point.
+You can use your own dataset by setting the folder path of its images in the configuration file. You can also chunk the runs if the dataset is too large, using the `images/images_chunk` property in configuration, while you can also define the start and the end of images in the dataset (`images/starts_from` and `images/limit` properties). This is handy in case an experiment failed, and you want to continue from this point.
 
 You can also instruct DiTOX to run the primary passes for each model, or all passes step-by-step, via the `general/run_all_passes` property in configuration file.
 Finally, you can select individual passes to be run, by setting their names in the `optimizer/passes` property in configuration file.
@@ -75,4 +75,3 @@ Finally, you can select individual passes to be run, by setting their names in t
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`, which you can also run.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
 
-Any sample dataset images provided in the repository are sourced from the internet, and the copyright(s) belong to their owner(s). The only reason of provision is purely for non-commercial, demonstration purposes of DiTOX (to showcase how it works), with respect to the copyright(s) of their owner(s) and no intention to infringe them.
