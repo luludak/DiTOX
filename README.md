@@ -75,5 +75,3 @@ Finally, you can select individual passes to be run, by setting their names in t
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`, which you can also run.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
 
-The photo dataset is provided *only* for demonstration purposes and not commercial or non-commercial use. The copyright(s) of each photo belong to their respective owner(s).
-
