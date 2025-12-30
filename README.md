@@ -2,6 +2,11 @@
 
 DiTOX is a utility that enables differential testing of the ONNX Optimizer, by fetching automatically real-life ONNX models from the ONNX Model Hub and performing full and per-pass differential testing on the ONNX Optimizer.
 
+The paper presenting DiTOX methodology, as well as experiments conducted using it, is accepted in the ACM SIGPLAN 2026 International Conference on Compiler Construction (CC 2026).
+Using DiTOX, we were able to discover 15 bugs in the ONNX Optimizer, of which 14 were completely new, while the last one unveiled important reproducibility details, missing from the issue previously reported.
+
+You can access the paper preprint [here](https://arxiv.org/abs/2505.01892).
+
 ![DiTOX](images/DiTOX.png)
 
 ```
@@ -71,9 +76,16 @@ You can also instruct DiTOX to run the primary passes for each model, or all pas
 Finally, you can select individual passes to be run, by setting their names in the `optimizer/passes` property in configuration file.
 
 ## Notes
-`main.py` contains the code for the experiments for the classification and the object detection models.
+- `main.py` contains the code for the experiments for the classification and the object detection models.
 The sample code related to the text generation models is contained in `main-GPT2-Complete.py`, which you can also run.
 Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squad, and T5 - with the token processing policy and the comparator settings changing slightly.
 
-Any sample dataset images provided in the repository are sourced from the internet, and their copyright(s) belong to their owner(s). The only reason of provision is purely for non-commercial, demonstration purposes of DiTOX (to showcase how it works), with respect to the copyright(s) of their owner(s) and no intention to infringe them.
+- Any sample dataset images provided in the repository are sourced from the internet, and their copyright(s) belong to their owner(s). The only reason of provision is purely for non-commercial, demonstration purposes of DiTOX (to showcase how it works), with respect to the copyright(s) of their owner(s) and no intention to infringe them.
 
+- By default, DiTOX downloads and installs ONNX Optimizer v0.3.13 - the latest in Pypi, which does not contain the `eliminate_consecutive_idempotent_ops` pass.
+However, the Optimizer repo contains newer releases that contain it. To install these versions, please check the installation instructions in the [ONNX Optimizer repo](https://github.com/onnx/optimizer).
+- In DiTOX paper, we utilized the Imagenet Large Scale Visual Recognition Challenge (ILSVRC) 2017 for all experiments conducted. This dataset, although free, requires registration.
+In case you want to utilize it (e.g., in order to replicate results), please download it from [its official website](https://www.image-net.org/challenges/LSVRC/).
+For transformers, we utilized datasets fetched from the [datasets library](https://pypi.org/project/datasets/).
+
+- The installation process should take about 15 minutes, while the execution of sample experiments is quick (a few minutes), designed to demonstrate DiTOX capabilities using limited time and processing power. We used mainstream Intel Core i5 & i7 processors for the paper experiments.
