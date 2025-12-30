@@ -84,8 +84,12 @@ Essentially the same code (with minor changes) is used to test RoBERTa, BERT-Squ
 
 - By default, DiTOX downloads and installs ONNX Optimizer v0.3.13 - the latest in Pypi, which does not contain the `eliminate_consecutive_idempotent_ops` pass.
 However, the Optimizer repo contains newer releases that contain it. To install these versions, please check the installation instructions in the [ONNX Optimizer repo](https://github.com/onnx/optimizer).
+
 - In DiTOX paper, we utilized the Imagenet Large Scale Visual Recognition Challenge (ILSVRC) 2017 for all experiments conducted. This dataset, although free, requires registration.
 In case you want to utilize it (e.g., in order to replicate results), please download it from [its official website](https://www.image-net.org/challenges/LSVRC/).
 For transformers, we utilized datasets fetched from the [datasets library](https://pypi.org/project/datasets/).
+
+- For our experiments, we fetched models from the [ONNX Model Hub](https://onnx.ai/onnx/repo-docs/Hub.html). If you would like to reproduce our results, you can instruct DiTOX to do so in its configuration, by setting the desired
+  model(s) to be fetched, using the approprate configuration filtering settings.
 
 - The installation process should take about 15 minutes, while the execution of sample experiments is quick (a few minutes), designed to demonstrate DiTOX capabilities using limited time and processing power. We used mainstream Intel Core i5 & i7 processors for the paper experiments.
