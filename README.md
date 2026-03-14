@@ -2,13 +2,20 @@
 
 DiTOX is a utility that enables differential testing of the ONNX Optimizer, by fetching automatically real-life ONNX models from the ONNX Model Hub and performing full and per-pass differential testing on the ONNX Optimizer.
 
+The publication associated with DiTOX was accepted and appeared in the [ACM SIGPLAN 2026 International Conference on Compiler Construction (CC'26)](https://conf.researchr.org/home/CC-2026).
+
+You can access the paper [here](https://dl.acm.org/doi/10.1145/3771775.3786265). DiTOX has received all ACM badges:
+
+![Artifacts Available](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxCDSv9axRg2rat2gx1xa22PNnIKh1OVkR4w&s)
+
 The paper presenting DiTOX methodology, as well as experiments conducted using it, is accepted in the ACM SIGPLAN 2026 International Conference on Compiler Construction (CC 2026).
 Using DiTOX, we were able to discover 15 bugs in the ONNX Optimizer, of which 14 were completely new, while the last one unveiled important reproducibility details, missing from the issue previously reported.
 
-You can access the paper preprint [here](https://arxiv.org/abs/2505.01892).
+The architecture of DiTOX can be observed below:
 
 ![DiTOX](images/DiTOX.png)
 
+## Lines of code:
 ```
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
